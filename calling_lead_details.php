@@ -208,7 +208,6 @@ if (isset($_REQUEST['actc'])) {
                                                 $USERIDCI = $row_pci['USERIDC'];
                                             }
                                             $PERSON_NAME = '';
-
                                             $result_person_names = mysqli_query($link, "SELECT PERSON_NAME FROM `calling_lead_agents` WHERE ID='$USERID'");
                                             while ($row_pn = mysqli_fetch_array($result_person_names)) {
                                                 $PERSON_NAME = $row_pn['PERSON_NAME'];
