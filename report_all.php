@@ -535,18 +535,48 @@
 											<td><?php echo $LAST_TRANSACTION_DATE; ?><br> <?php echo $TRANSACTION_COUNT; ?></td>
 											<td><?php echo $STATUS_TITLE_STATUS; ?><br> <small><?php echo $DATED_sclc; ?></small></td>
 											<td data-title="Action" class="al-center"></td>
-											<td style="display: none;"><?php $result_calling_lead_comments = mysqli_query($link, "SELECT `COMMENT_AREA`, `LEAD_STATUS`, `DATED` FROM `calling_lead_comments` WHERE LEAD_R_ID='$ID'");
+											<td style="display: none;"><?php $result_calling_lead_comments = mysqli_query($link, "SELECT * FROM `calling_lead_comments` WHERE LEAD_R_ID='$ID'");
 																		$counter = 1;
 																		$query_counts = mysqli_num_rows($result_calling_lead_comments);
 																		while ($row_clcs = mysqli_fetch_array($result_calling_lead_comments)) {
-																			$result_statuses_i = mysqli_query($link, "SELECT `STATUS_HEADING` FROM `lead_status` WHERE ID='$row_clcs[LEAD_STATUS]'");
-																			while ($row_sts_i = mysqli_fetch_array($result_statuses_i)) {
-																				$STATUS_HEADING_sts_i = $row_sts_i['STATUS_HEADING'];
-																			}
-																			if ($counter < $query_counts) {
-																				echo $COMMENT_AREA_clcs = $STATUS_HEADING_sts_i . ': ' . $row_clcs['COMMENT_AREA'] . '  [ Date: ' . $row_clcs['DATED'] . ' ]  |  ';
+																			$LEAD_ID_rows = $row_clcs['ID'];
+																			$LEAD_STATUS = $row_clcs['LEAD_STATUS'];
+																			$LEAD_PICPATH = $row_clcs['PICPATH'];
+																			$DATED = $row_clcs['DATED'];
+																			$LEAD_CMT_ID = $row_clcs['LEAD_CMT_ID'];
+
+
+																			$lead_comments = mysqli_query($link, "SELECT * FROM `lead_comments` WHERE ID='$LEAD_CMT_ID'");
+																			if (mysqli_num_rows($lead_comments) > 0) {
+																				$lead_comments_row = mysqli_fetch_array($lead_comments);
+																				$COMMENT_HEADING = $lead_comments_row['HEADING'];
+																				if ($COMMENT_HEADING == "Other") {
+																					$COMMENT_AREA = $row_clcs['COMMENT_AREA'];
+																				} else {
+																					$COMMENT_AREA = '';
+																				}
 																			} else {
-																				echo $COMMENT_AREA_clcs = $STATUS_HEADING_sts_i . ': ' . $row_clcs['COMMENT_AREA'] . '  [ Date: ' . $row_clcs['DATED'] . ' ] ';
+																				$COMMENT_HEADING = '';
+																			}
+																			$results1 = mysqli_query($link, "SELECT * FROM `lead_status` WHERE ID='$LEAD_STATUS'");
+																			$rows1 = mysqli_fetch_array($results1);
+																			$STATUS_HEADING = $rows1['STATUS_HEADING'];
+																			// $result_statuses_i = mysqli_query($link, "SELECT `*` FROM `lead_status` WHERE ID='$row_clcs[LEAD_STATUS]'");
+																			// if (mysqli_num_rows($result_statuses_i) > 0) {
+																			// 	$lead_comments_row = mysqli_fetch_array($result_statuses_i);
+																			// 	$COMMENT_HEADING = $lead_comments_row['STATUS_HEADING'];
+																			// 	if ($COMMENT_HEADING == "Other") {
+																			// 		$COMMENT_AREA = $row_clcs['COMMENT_AREA'];
+																			// 	} else {
+																			// 		$COMMENT_AREA = '';
+																			// 	}
+																			// } else {
+																			// 	$COMMENT_HEADING = '';
+																			// }
+																			if ($counter < $query_counts) {
+																				echo $COMMENT_AREA_clcs = $COMMENT_HEADING . ': ' . $COMMENT_AREA . '  [ Date: ' . $row_clcs['DATED'] . ' ]  |  ';
+																			} else {
+																				echo $COMMENT_AREA_clcs = $COMMENT_HEADING . ': ' . $COMMENT_AREA . '  [ Date: ' . $row_clcs['DATED'] . ' ] ';
 																			}
 																			$counter++;
 																		} ?></td>
