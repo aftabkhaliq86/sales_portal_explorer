@@ -1,0 +1,142 @@
+.al-center {
+text-align: center !important;
+}
+.al-right {
+	text-align: right !important;
+}
+.al-left {
+	text-align: left !important;
+}
+#l-icon {
+	display: none;
+}
+.nav_title {
+	background: #fff;
+	padding-right: 10px;
+}
+.nav_title img {
+	width: 100%;
+}
+.bg-wht {
+	background-color: #FFF !important;
+}
+.bg-gray {
+	background-color: #ebebeb !important;
+}
+.rowii {
+	margin-left:15px !important;
+	margin-right:15px !important;
+}
+.radius-none {
+    -webkit-border-radius: 0px !important;
+    -moz-border-radius: 0px !important;
+    border-radius: 0px !important;
+}
+table {
+		width: 100% !important;
+	}
+
+/*.link-default {
+	color: #000;
+	text-decoration: none;
+}
+.link-default:hover {
+	color: #000;
+	background:none !important;
+	text-decoration: none !important;
+	cursor:default;
+}*/
+.sml-margin-top-btm {
+	margin-top: 15px !important;
+	margin-bottom: 15px !important;
+}
+.sml-padding {
+	padding:15px !important;
+}
+
+
+
+
+.tbl {}
+.tbl thead tr th {
+	border-bottom-width: 2px;
+	border-bottom-style: solid;
+	border-bottom-color: #0aa7e2;
+} 
+.tbl tfoot tr th {
+	border-top-width: 2px;
+	border-top-style: solid;
+	border-top-color: #0aa7e2;
+} 
+.tbl {
+  counter-reset: serial-number;  /* Set the serial number counter to 0 */
+}
+
+.tbl td:first-child:before {
+  counter-increment: serial-number;  /* Increment the serial number counter */
+  content: counter(serial-number);  /* Display the counter */
+}
+
+
+.table-sm thead tr td {
+	padding-top: 3px !important;
+	padding-bottom: 3px !important;
+	line-height: 1.5 !important;
+}
+.table-sm tbody tr td {
+	padding-top: 2px !important;
+	padding-bottom: 2px !important;
+	line-height: 1 !important;
+}
+
+
+@media screen and (max-width : 1366px){
+}
+@media screen and (max-width : 1024px){
+	.container {
+		width:100% !important;
+	}
+}
+@media screen and (min-width : 769px){
+	
+}
+@media screen and (max-width : 780px){
+	.right_col {
+		min-height: auto !important;
+	}
+	.container {
+		width:100% !important;
+	}
+	.al-center {
+	text-align: center !important;
+	}
+	.al-right {
+		text-align: center !important;
+	}
+	.al-left {
+		text-align: center !important;
+	}
+	.pr-covr-avetr {
+		display:none;
+	}
+	.pr-covr-box {
+		padding-left:3% !important;
+	}
+	.cover-nav ul {
+		padding-left:0px !important;
+	}
+}
+@media screen and (max-width : 768px){	
+}
+@media screen and (max-width : 640px){
+}
+@media screen and (max-width : 480px){
+}
+@media screen and (max-width : 320px){
+}
+@media screen and (max-width : 240px){
+}
+@media all and (-ms-high-contrast:none){ 
+}
+@media all and (-ms-high-contrast:none){ 
+}
