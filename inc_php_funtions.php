@@ -1,15 +1,15 @@
 <?php
 // These 3 lines are compulsory copy at whole pages
-session_start();
+@session_start();
 $SESSID = session_id() . time();
 $EMPLOYEEID_LOGIN = $_SESSION['USERID'];
 $USERRANDIDLOGIN_LOGIN = $_SESSION['USERRANDIDLOGIN']; //Only for user log
 
-include("inc_functions.php");
+@include("inc_functions.php");
 CheckLogin();
 
 $str = '';
-include("inc_apostrophe.php");
+@include("inc_apostrophe.php");
 normalize_str($str);
 
 //=================================================

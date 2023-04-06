@@ -1,19 +1,19 @@
 <?php
 
-/*$USERRANDIDLOGIN_LOGIN = $_SESSION['USERRANDIDLOGIN']; //Only for user log
+// /*$USERRANDIDLOGIN_LOGIN = $_SESSION['USERRANDIDLOGIN']; //Only for user log
 
-function CheckLogin()
-{
-	$IPADD=$_SERVER['REMOTE_ADDR'];
-	$IPHASH = md5($IPADD);
-	$CheckAdmin = $_SESSION['adminz'];
-	$EMPLOYEEID_LOGIN = $_SESSION['USERID'];
-	
-	if ($CheckAdmin != $IPHASH)
-	{
-	header("location: index.php?err=3");	
-	}
-}*/
+// function CheckLogin()
+// {
+// 	$IPADD=$_SERVER['REMOTE_ADDR'];
+// 	$IPHASH = md5($IPADD);
+// 	$CheckAdmin = $_SESSION['adminz'];
+// 	$EMPLOYEEID_LOGIN = $_SESSION['USERID'];
+
+// 	if ($CheckAdmin != $IPHASH)
+// 	{
+// 	header("location: index.php?err=3");	
+// 	}
+// }*/
 
 
 $USERRANDIDLOGIN_LOGIN = $_SESSION['USERRANDIDLOGIN']; //Only for user log

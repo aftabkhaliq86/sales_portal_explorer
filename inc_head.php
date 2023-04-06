@@ -11,7 +11,7 @@ var run = function(){
 setInterval(run, 3000);
 </script>-->
 <!-- Favicon -->
-<link rel="shortcut icon" type="image/icon" href="images/favicon.ico"/>
+<link rel="shortcut icon" type="image/icon" href="images/favicon.ico" />
 
 <!-- Bootstrap -->
 <link href="vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -34,7 +34,7 @@ setInterval(run, 3000);
 <!-- bootstrap-progressbar -->
 <link href="vendors/bootstrap-progressbar/css/bootstrap-progressbar-3.3.4.min.css" rel="stylesheet">
 <!-- JQVMap -->
-<link href="vendors/jqvmap/dist/jqvmap.min.css" rel="stylesheet"/>
+<link href="vendors/jqvmap/dist/jqvmap.min.css" rel="stylesheet" />
 <!-- bootstrap-daterangepicker -->
 <!--<link href="vendors/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet">-->
 
