@@ -127,7 +127,6 @@
 			<div class="right_col bg_fff" role="main">
 
 				<form name="frmSRCH" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
-
 					<?php
 					$sts = '';
 					$srch_DATEFROM = '';
@@ -139,11 +138,9 @@
 					$srchRECCOUNT = '';
 					$srchRECCOUNTi = '';
 					$srchEMAIL = '';
-
 					$srchASSDATE = '';
 					$srchASSDATEFROM = '';
 					$srchASSDATETO = '';
-
 					$srchAGENTS = '';
 					$srchAGENTSi = '';
 					$srchLEADS = '';
@@ -151,17 +148,11 @@
 					$srchSTATUS = '';
 					$srchSTATUSi = '';
 					$resultsssfor_Lead_Converted_ego = '';
-
 					if (isset($_POST['srchfilter'])) //submit button name
 					{
-
-
-
 						$srch_DATEFROM = $_POST['DATEFROM'];
-						//echo '<br>';
 						$srch_DATETO = $_POST['DATETO'];
 						$srchASSDATEFROM = $_POST['srchASSDATEFROM'];
-						//echo '<br>';
 						$srchASSDATETO = $_POST['srchASSDATETO'];
 						//echo '<hr>';
 
@@ -173,8 +164,7 @@
 						} else {
 							$srch_DATEFROM = '';
 						}
-						//----------------------------------------------
-						//echo '<br>';
+						//------------------------------------------
 						//Get previous Date To-----------------------
 						if ($srch_DATETO) {
 							$srch_DATETO = strtotime($srch_DATETO);
@@ -205,7 +195,7 @@
 
 
 						if (!empty($srch_DATEFROM != NULL && $srch_DATETO != NULL)) {
-							$DATEDG = "AND DATE(DATED) BETWEEN '$srch_DATEFROM' AND '$srch_DATETO'";
+							$DATEDG = "AND DATE(LEAD_STATUS_DATED) BETWEEN '$srch_DATEFROM' AND '$srch_DATETO'";
 							// echo "YES";
 							// exit;
 						}
@@ -225,13 +215,10 @@
 						}
 
 						if (!empty($srchASSDATEFROM) && empty($srchASSDATETO)) {
-							$srchASSDATE = "AND U_DATED LIKE '$srchASSDATEFROM%'";
-						}
-						if (!empty($srchASSDATEFROM != NULL && $srchASSDATETO != NULL)) {
+							$srchASSDATE = "AND DATE(U_DATED) = '$srchASSDATEFROM'";
+						} elseif (!empty($srchASSDATEFROM != NULL && $srchASSDATETO != NULL)) {
 							$srchASSDATE = "AND DATE(U_DATED) BETWEEN '$srchASSDATEFROM' AND '$srchASSDATETO'";
 						}
-
-
 						if (isset($_POST['srchAGENTS']) && !empty($_POST['srchAGENTS'] != NULL)) {
 							$srchAGENTS = "AND USERID='$_POST[srchAGENTS]'";
 							$srchAGENTSi = $_POST['srchAGENTS'];
@@ -244,34 +231,22 @@
 							$srchSTATUS = "AND LEAD_STATUS='$_POST[srchSTATUS]'";
 							$srchSTATUSi = $_POST['srchSTATUS'];
 						}
-
-						if ($srchSTATUSi == 4) { // Invalid Lead
-							$resultsssfor_Lead_Converted_ego = mysqli_query($link, "SELECT *, COUNT(LEAD_STATUS) as LEAD_STATUSi FROM `calling_lead_comments` WHERE STATUS='0' AND LEAD_STS_INVALID='1' $srchAGENTS $srchSTATUS $DATEDG GROUP by LEAD_R_ID");
-						} else { // other leads
-							$resultsssfor_Lead_Converted_ego = mysqli_query($link, "SELECT *, COUNT(LEAD_STATUS) as LEAD_STATUSi FROM `calling_lead_comments` WHERE STATUS='0' AND LEAD_STS_INVALID='0' $srchAGENTS $srchSTATUS $DATEDG GROUP by LEAD_R_ID");
-							$result1_count = mysqli_num_rows($resultsssfor_Lead_Converted_ego);
-						}
-						// $result1 = mysqli_query($link, "SELECT * FROM `calling_lead` WHERE $srchASSDATE");
-						// echo mysqli_num_rows($result1);
-						// exit;
-						// $row_ego = mysqli_fetch_array($resultsssfor_Lead_Converted_ego);
-						// var_dump($row_ego);
-						// exit;
+						$calling_leads = mysqli_query($link, "SELECT * FROM `calling_lead` WHERE STATUS='1' $srchAGENTS $srchSTATUS $DATEDG $srchASSDATE $srchLEADS $srchEMAIL");
 					}
 					?>
-
 					<div class="container">
 						<div class="col-lg-12">
-							<div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+							<div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
 								<label style="padding-top:7px;">Registration Date</label>
 								<input type="date" name="srchREGDATE" class="form-control" value="<?php if ($srchREGDATE != NULL) {
 																										echo $_POST['srchREGDATE'];
 																									} ?>">
 							</div>
-							<div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+							<div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
 								<label style="padding-top:7px;">Sending Country</label>
 								<select name="srchSENDINGCOUNT" class="form-control">
-									<option value=""></option>
+									<option value="" hidden disabled selected>SELECT</option>
+									<option value="" style="font-weight: bold;text-align: center;">Reset</option>
 									<?php
 									$select_currencies_sc = mysqli_query($link, "SELECT * FROM `currencies`");
 									foreach ($select_currencies_sc as $value_sc) {
@@ -284,10 +259,11 @@
 									?>
 								</select>
 							</div>
-							<div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+							<div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
 								<label style="padding-top:7px;">Receiving Country</label>
 								<select name="srchRECCOUNT" class="form-control">
-									<option value=""></option>
+									<option value="" hidden disabled selected>SELECT</option>
+									<option value="" style="font-weight: bold;text-align: center;">Reset</option>
 									<?php
 									$select_currencies_rc = mysqli_query($link, "SELECT * FROM `currencies`");
 									foreach ($select_currencies_rc as $value_rc) {
@@ -300,30 +276,31 @@
 									?>
 								</select>
 							</div>
-							<div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+							<div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
 								<label style="padding-top:7px;">Email Search</label>
 								<input type="email" name="srchEMAIL" class="form-control" value="<?php if ($srchEMAIL != NULL) {
 																										echo $_POST['srchEMAIL'];
 																									} ?>">
 							</div>
-						</div>
-						<div class="col-lg-12">
-							<div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+							<div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
 								<label style="padding-top:7px;">Assigned Date From</label>
 								<input type="date" name="srchASSDATEFROM" class="form-control" value="<?php if ($srchASSDATEFROM != NULL) {
 																											echo $_POST['srchASSDATEFROM'];
 																										} ?>">
 							</div>
-							<div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+							<div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
 								<label style="padding-top:7px;">Assigned Date To</label>
 								<input type="date" name="srchASSDATETO" class="form-control" value="<?php if ($srchASSDATETO != NULL) {
 																										echo $_POST['srchASSDATETO'];
 																									} ?>">
 							</div>
-							<div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+						</div>
+						<div class="col-lg-12">
+							<div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
 								<label style="padding-top:7px;">Agents</label>
 								<select name="srchAGENTS" class="form-control">
-									<option value=""></option>
+									<option value="" hidden disabled selected>SELECT</option>
+									<option value="" style="font-weight: bold;text-align: center;">Reset</option>
 									<?php
 									$Agent_query = mysqli_query($link, "SELECT * FROM `calling_lead_agents`");
 									foreach ($Agent_query as $value) {
@@ -336,10 +313,11 @@
 									?>
 								</select>
 							</div>
-							<div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+							<div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
 								<label style="padding-top:7px;">Leads</label>
 								<select name="srchLEADS" class="form-control">
-									<option value=""></option>
+									<option value="" hidden disabled selected>SELECT</option>
+									<option value="" style="font-weight: bold;text-align: center;">Reset</option>
 									<?php
 									$select_lead_title = mysqli_query($link, "SELECT * FROM `calling_lead_title`");
 									foreach ($select_lead_title as $value_lt) {
@@ -352,13 +330,11 @@
 									?>
 								</select>
 							</div>
-
-						</div>
-						<div class="col-lg-12">
-							<div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+							<div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
 								<label style="padding-top:7px;">Status</label>
 								<select name="srchSTATUS" class="form-control">
 									<option disabled hidden selected>SELECT</option>
+									<option value="" style="font-weight: bold;text-align: center;">Reset</option>
 									<?php
 									$select_lead_status = mysqli_query($link, "SELECT * FROM `lead_status`");
 
@@ -383,10 +359,8 @@
 									?>
 								</select>
 							</div>
-							<div class="col-lg-8 col-md-5 col-sm-12 col-xs-12">
-
+							<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
 								<div class="form-group al-right" style="padding-top: 31px;">
-
 									<div class="col-lg-12" style="padding: 0!important;">
 										<div class="input-daterange input-group">
 											<input type="date" class="form-control input-date-picker datepicker-dropdown" id="DATEFROM" name="DATEFROM" placeholder="Start Date" autocomplete="off" value="<?php if ($srch_DATEFROM != NULL) {
@@ -398,30 +372,17 @@
 																																													} ?>" />
 										</div>
 									</div>
-
 								</div>
-
-
 							</div>
 						</div>
-
 						<div class="col-lg-12" align="center">
 							<label>&nbsp;<br><br></label>
-
 							<button type="submit" name="srchfilter" class="btn btn-success"><i class="fa fa-search"></i> Search</button>
-							<a href="dashboard.php" class="btn btn-warning"><i class="fa fa-times"></i></a>
-							<?php
-							if (isset($_POST['srchfilter'])) //submit button name
-							{
-							?>
-								<button type="button" id="btnExport" onclick="javascript:xport.toCSV('leads');" class="btn btn-default"><i class="fa fa-download"></i>&nbsp;Export to CSV</button>
-							<?php } ?>
+							<a href="<?php echo $_SERVER['PHP_SELF']; ?>" class="btn btn-warning"><i class="fa fa-times"></i></a>
+							<?php if (isset($_POST['srchfilter'])) { ?> <button type="button" id="btnExport" onclick="javascript:xport.toCSV('leads');" class="btn btn-default"><i class="fa fa-download"></i>&nbsp;Export to CSV</button> <?php } ?>
 						</div>
 					</div>
-
 				</form>
-
-
 				<table id="leads" class="col-lg-12 table-striped table-condensed cf tbl">
 					<thead class="cf">
 						<tr>
@@ -438,169 +399,126 @@
 							<th>Preffered Country</th>
 							<th>Last Transaction Details</th>
 							<th>Status</th>
-							<th class="al-center">Action</th>
 							<td style="display: none;">Comments</td>
 						</tr>
 					</thead>
 					<tbody>
 						<?php
-						if (!empty($resultsssfor_Lead_Converted_ego)) {
-							while ($row_ego = mysqli_fetch_array($resultsssfor_Lead_Converted_ego)) {
-								$LEAD_ID_ego = $row_ego['ID'];
-								$LEAD_R_ID_ego = $row_ego['LEAD_R_ID'];
-								$LEADTID_ego = $row_ego['LEADTID'];
-
-
-								if (isset($_POST['srchfilter'])) //submit button name
-								{
-
-									$result1 = mysqli_query($link, "SELECT * FROM `calling_lead` WHERE ID='$LEAD_R_ID_ego' AND LEADTID='$LEADTID_ego' $srchAGENTS  $srchREGDATE $srchSENDINGCOUNT $srchRECCOUNT $srchEMAIL $srchASSDATE");
+						if (!empty($calling_leads)) {
+							foreach ($calling_leads as $calling_lead) {
+								$ID = $calling_lead['ID'];
+								$RMS_ID = $calling_lead['RMS_ID'];
+								$PHONE = $calling_lead['PHONE'];
+								$EMAIL = $calling_lead['EMAIL'];
+								$PREFFERED_COUNTRY = $calling_lead['PREFFERED_COUNTRY'];
+								$REGISTER_DATE = $calling_lead['REGISTER_DATE'];
+								$SENDING_COUNTRY = $calling_lead['SENDING_COUNTRY'];
+								$TRANSACTION_COUNT = $calling_lead['TRANSACTION_COUNT'];
+								$LAST_TRANSACTION_DATE = $calling_lead['LAST_TRANSACTION_DATE'];
+								$USERID = $calling_lead['USERID'];
+								$U_DATED = $calling_lead['U_DATED'];
+								$LEAD_STATUS = $calling_lead['LEAD_STATUS'];
+								$LEAD_STATUS_DATED = $calling_lead['LEAD_STATUS_DATED'];
+								$LEAD_ID = $calling_lead['LEADTID'];
+								$STATUS = $calling_lead['STATUS'];
+								$active_calls = $calling_lead['calls'];
+								$calling_lead_agents = mysqli_query($link, "SELECT PERSON_NAME FROM `calling_lead_agents` WHERE ID='$USERID'");
+								if (!empty($calling_lead_agents)) {
+									foreach ($calling_lead_agents as $calling_lead_agent) {
+										$PERSON_NAME = $calling_lead_agent['PERSON_NAME'];
+									}
+								} else {
+									$PERSON_NAME = '';
 								}
-								if (!empty($result1)) {
-									while ($row1 = mysqli_fetch_array($result1)) {
-										$ID = $row1['ID'];
-										$RMS_ID = $row1['RMS_ID'];
-										$PHONE = $row1['PHONE'];
-										$EMAIL = $row1['EMAIL'];
-										$PREFFERED_COUNTRY = $row1['PREFFERED_COUNTRY'];
-										$REGISTER_DATE = $row1['REGISTER_DATE'];
-										$SENDING_COUNTRY = $row1['SENDING_COUNTRY'];
-										$TRANSACTION_COUNT = $row1['TRANSACTION_COUNT'];
-										$LAST_TRANSACTION_DATE = $row1['LAST_TRANSACTION_DATE'];
-										$USERID = $row1['USERID'];
-										$U_DATED = $row1['U_DATED'];
-										$LEAD_STATUS = $row1['LEAD_STATUS'];
-										$LEAD_STATUS_DATED = $row1['LEAD_STATUS_DATED'];
-										$LEAD_ID = $row1['LEADTID'];
-										$STATUS = $row1['STATUS'];
-										$active_calls = $row1['calls'];
+								$calling_lead_titles = mysqli_query($link, "SELECT `LEAD_CATEGORY`,`LEAD_TYPE`,`DATED` FROM `calling_lead_title` WHERE ID='$LEAD_ID'");
+								if (!empty($calling_lead_titles)) {
+									foreach ($calling_lead_titles as $calling_lead_title) {
+										$LEAD_CATEGORY_clt = $calling_lead_title['LEAD_CATEGORY'];
+										$LEAD_TYPE_clt = $calling_lead_title['LEAD_TYPE'];
+										$LEAD_DATED_clt = date('Y-m-d', strtotime($calling_lead_title['DATED']));
+									}
+								} else {
+									$LEAD_CATEGORY_clt = '';
+									$LEAD_TYPE_clt = '';
+									$LEAD_DATED_clt = '';
+								}
+								$currencies = mysqli_query($link, "SELECT `name` FROM `currencies` WHERE iso3='$SENDING_COUNTRY'");
+								if (!empty($currencies)) {
+									foreach ($currencies as $currency) {
+										$SENDING_COUNTRY = $currency['name'];
+									}
+								} else {
+									$SENDING_COUNTRY = '';
+								}
 
-										$result_users_name = mysqli_query($link, "SELECT PERSON_NAME FROM `calling_lead_agents` WHERE ID='$USERID'");
-										$STATUS_note_s = '0';
-										if (!empty($result_users_name)) {
-											while ($row_usern = mysqli_fetch_array($result_users_name)) {
-												$PERSON_NAME_usern = $row_usern['PERSON_NAME'];
-											}
-										} else {
-											$PERSON_NAME_usern = '';
-										}
+								// Last Status--------------------------------------
+								$calling_lead_comments = mysqli_query($link, "SELECT `LEAD_STATUS`, `DATED` FROM `calling_lead_comments` WHERE LEAD_R_ID='$ID'");
+								if (!empty($calling_lead_comments)) {
+									foreach ($calling_lead_comments as $calling_lead_comment) {
+										$LEAD_STATUS_sclc = $calling_lead_comment['LEAD_STATUS'];
+										$DATED_sclc = $calling_lead_comment['DATED'];
+									}
+									$result_lead_status = mysqli_query($link, "SELECT * FROM `lead_status` WHERE ID='$LEAD_STATUS_sclc'");
+									$rows_ls = mysqli_fetch_array($result_lead_status);
+									$STATUS_TITLE_STATUS = $rows_ls['STATUS_HEADING'];
+								} else {
+									$STATUS_TITLE_STATUS = '';
+								}
 
-										$result_note_s = mysqli_query($link, "SELECT * FROM `calling_lead_notes` WHERE LEADID='$LEAD_ID' AND LEAD_R_ID='$ID'");
-										$STATUS_note_s = '0';
-										while ($row_note_s = mysqli_fetch_array($result_note_s)) {
-											$ID_note_s = $row_note_s['ID'];
-											$STATUS_note_s = $row_note_s['STATUS'];
-										}
-
-										$result_calling_lead_title = mysqli_query($link, "SELECT `LEAD_CATEGORY`,`LEAD_TYPE`,`DATED` FROM `calling_lead_title` WHERE ID='$LEAD_ID'");
-										$STATUS_note_s = '0';
-										while ($row_clt = mysqli_fetch_array($result_calling_lead_title)) {
-											$LEAD_CATEGORY_clt = $row_clt['LEAD_CATEGORY'];
-											$LEAD_TYPE_clt = $row_clt['LEAD_TYPE'];
-											$LEAD_DATED_clt = date('Y-m-d', strtotime($row_clt['DATED']));
-										}
-
-										// Last Status--------------------------------------
-										$sel_calling_lead_comments = mysqli_query($link, "SELECT `LEAD_STATUS`, `DATED` FROM `calling_lead_comments` WHERE LEAD_R_ID='$ID'");
-										while ($row_sclc = mysqli_fetch_array($sel_calling_lead_comments)) {
-											$LEAD_STATUS_sclc = $row_sclc['LEAD_STATUS'];
-											$DATED_sclc = $row_sclc['DATED'];
-										}
-										//echo '<br>';
-										$result_lead_status = mysqli_query($link, "SELECT * FROM `lead_status` WHERE ID='$LEAD_STATUS_sclc'");
-										$rows_ls = mysqli_fetch_array($result_lead_status);
-										$STATUS_TITLE_STATUS = $rows_ls['STATUS_HEADING'];
-										// Last Status End ---------------------------------
+								// Last Status End ---------------------------------
 
 						?>
-										<tr id="<?php echo $ID; ?>">
-											<td></td>
-											<td><?php echo $PERSON_NAME_usern; ?></td>
-											<td><small><?php echo $LEAD_CATEGORY_clt; ?></small></td>
-											<td><small><?php if ($LEAD_TYPE_clt == 1) {
-															echo "New Reg";
-														} elseif ($LEAD_TYPE_clt == 2) {
-															echo "Dormant";
-														} elseif ($LEAD_TYPE_clt == 3) {
-															echo "Inactive";
-														} else {
-														} ?></small></td>
-											<td><?php echo $RMS_ID; ?></td>
-											<td><?php echo $LEAD_DATED_clt; ?></td>
-											<td><?php echo $REGISTER_DATE; ?></td>
-											<td><?php echo $PHONE; ?></td>
-											<td><?php echo $EMAIL; ?></td>
-											<td><?php echo $SENDING_COUNTRY; ?></td>
-											<td><?php echo $PREFFERED_COUNTRY; ?></td>
-											<td><?php echo $LAST_TRANSACTION_DATE; ?><br> <?php echo $TRANSACTION_COUNT; ?></td>
-											<td><?php echo $STATUS_TITLE_STATUS; ?><br> <small><?php echo $DATED_sclc; ?></small></td>
-											<td data-title="Action" class="al-center"></td>
-											<td style="display: none;"><?php $result_calling_lead_comments = mysqli_query($link, "SELECT * FROM `calling_lead_comments` WHERE LEAD_R_ID='$ID'");
-																		$counter = 1;
-																		$query_counts = mysqli_num_rows($result_calling_lead_comments);
-																		while ($row_clcs = mysqli_fetch_array($result_calling_lead_comments)) {
-																			$LEAD_ID_rows = $row_clcs['ID'];
-																			$LEAD_STATUS = $row_clcs['LEAD_STATUS'];
-																			$LEAD_PICPATH = $row_clcs['PICPATH'];
-																			$DATED = $row_clcs['DATED'];
-																			$LEAD_CMT_ID = $row_clcs['LEAD_CMT_ID'];
-
-
-																			$lead_comments = mysqli_query($link, "SELECT * FROM `lead_comments` WHERE ID='$LEAD_CMT_ID'");
-																			if (mysqli_num_rows($lead_comments) > 0) {
-																				$lead_comments_row = mysqli_fetch_array($lead_comments);
-																				$COMMENT_HEADING = $lead_comments_row['HEADING'];
-																				if ($COMMENT_HEADING == "Other") {
-																					$COMMENT_AREA = $row_clcs['COMMENT_AREA'];
-																				} else {
-																					$COMMENT_AREA = '';
-																				}
-																			} else {
-																				$COMMENT_HEADING = '';
-																			}
-																			$results1 = mysqli_query($link, "SELECT * FROM `lead_status` WHERE ID='$LEAD_STATUS'");
-																			$rows1 = mysqli_fetch_array($results1);
-																			$STATUS_HEADING = $rows1['STATUS_HEADING'];
-																			// $result_statuses_i = mysqli_query($link, "SELECT `*` FROM `lead_status` WHERE ID='$row_clcs[LEAD_STATUS]'");
-																			// if (mysqli_num_rows($result_statuses_i) > 0) {
-																			// 	$lead_comments_row = mysqli_fetch_array($result_statuses_i);
-																			// 	$COMMENT_HEADING = $lead_comments_row['STATUS_HEADING'];
-																			// 	if ($COMMENT_HEADING == "Other") {
-																			// 		$COMMENT_AREA = $row_clcs['COMMENT_AREA'];
-																			// 	} else {
-																			// 		$COMMENT_AREA = '';
-																			// 	}
-																			// } else {
-																			// 	$COMMENT_HEADING = '';
-																			// }
-																			if ($counter < $query_counts) {
-																				echo $COMMENT_AREA_clcs = $COMMENT_HEADING . ': ' . $COMMENT_AREA . '  [ Date: ' . $row_clcs['DATED'] . ' ]  |  ';
-																			} else {
-																				echo $COMMENT_AREA_clcs = $COMMENT_HEADING . ': ' . $COMMENT_AREA . '  [ Date: ' . $row_clcs['DATED'] . ' ] ';
-																			}
-																			$counter++;
-																		} ?></td>
-										</tr>
+								<tr id="<?php echo $ID; ?>">
+									<td></td>
+									<td><?php echo $PERSON_NAME; ?></td>
+									<td><small><?php echo $LEAD_CATEGORY_clt; ?></small></td>
+									<td><small><?php if ($LEAD_TYPE_clt == 1) {
+													echo "New Reg";
+												} elseif ($LEAD_TYPE_clt == 2) {
+													echo "Dormant";
+												} elseif ($LEAD_TYPE_clt == 3) {
+													echo "Inactive";
+												} ?></small></td>
+									<td><?php echo $RMS_ID; ?></td>
+									<td><?php echo $LEAD_DATED_clt; ?></td>
+									<td><?php echo $REGISTER_DATE; ?></td>
+									<td><?php echo $PHONE; ?></td>
+									<td><?php echo $EMAIL; ?></td>
+									<td><?php echo $SENDING_COUNTRY; ?></td>
+									<td><?php echo $PREFFERED_COUNTRY; ?></td>
+									<td><?php echo $LAST_TRANSACTION_DATE; ?><br> <?php echo $TRANSACTION_COUNT; ?></td>
+									<td><?php echo $STATUS_TITLE_STATUS; ?><br> <small><?php echo $DATED_sclc; ?></small></td>
+									<td style="display: none;"><?php $result_calling_lead_comments = mysqli_query($link, "SELECT `COMMENT_AREA`, `LEAD_STATUS`, `DATED` FROM `calling_lead_comments` WHERE LEAD_R_ID='$ID'");
+																$counter = 1;
+																$query_counts = mysqli_num_rows($result_calling_lead_comments);
+																while ($row_clcs = mysqli_fetch_array($result_calling_lead_comments)) {
+																	$result_statuses_i = mysqli_query($link, "SELECT `STATUS_HEADING` FROM `lead_status` WHERE ID='$row_clcs[LEAD_STATUS]'");
+																	while ($row_sts_i = mysqli_fetch_array($result_statuses_i)) {
+																		$STATUS_HEADING_sts_i = $row_sts_i['STATUS_HEADING'];
+																	}
+																	if ($counter < $query_counts) {
+																		echo $COMMENT_AREA_clcs = $STATUS_HEADING_sts_i . ': ' . $row_clcs['COMMENT_AREA'] . '  [ Date: ' . $row_clcs['DATED'] . ' ]  |  ';
+																	} else {
+																		echo $COMMENT_AREA_clcs = $STATUS_HEADING_sts_i . ': ' . $row_clcs['COMMENT_AREA'] . '  [ Date: ' . $row_clcs['DATED'] . ' ] ';
+																	}
+																	$counter++;
+																} ?></td>
+								</tr>
 						<?php
-									}
-								}
 							}
 						}
 						?>
 					</tbody>
 				</table>
-
-
-
 			</div>
 			<!-- /page content -->
 			<?php include('inc_footer.php'); ?>
-
 		</div>
 	</div>
 	<?php include('inc_foot.php'); ?>
 	<script>
 		$(document).ready(function() {
 			$('#leads').DataTable();
+
 		});
 	</script>
