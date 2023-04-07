@@ -13,7 +13,7 @@ function call_record($link, $DATEDG_other)
             ];
         }
     }
-    $name = json_encode($name);
+    $name = json_encode($name, JSON_NUMERIC_CHECK);
     return $name;
 }
 function  profile_completed($link, $DATEDG)
@@ -30,7 +30,7 @@ function  profile_completed($link, $DATEDG)
             ];
         }
     }
-    $Profile_Completed_arr = json_encode($Profile_Completed_arr);
+    $Profile_Completed_arr = json_encode($Profile_Completed_arr, JSON_NUMERIC_CHECK);
     return $Profile_Completed_arr;
 }
 function lead_converted($link, $DATEDG)
@@ -47,6 +47,6 @@ function lead_converted($link, $DATEDG)
             ];
         }
     }
-    $Lead_Converted_arr = json_encode($Lead_Converted_arr);
+    $Lead_Converted_arr = json_encode($Lead_Converted_arr, JSON_NUMERIC_CHECK);
     return $Lead_Converted_arr;
 }
