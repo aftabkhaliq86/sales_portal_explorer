@@ -178,7 +178,7 @@
 						//Get previous Date To-----------------------
 						if ($srch_DATETO) {
 							$srch_DATETO = strtotime($srch_DATETO);
-							$srch_DATETO = strtotime('+1 day', $srch_DATETO);
+							// $srch_DATETO = strtotime('+1 day', $srch_DATETO);
 							$srch_DATETO = date('Y-m-d', $srch_DATETO);
 						} else {
 							$srch_DATETO = '';

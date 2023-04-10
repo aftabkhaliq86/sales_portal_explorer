@@ -168,11 +168,13 @@
 						//Get previous Date To-----------------------
 						if ($srch_DATETO) {
 							$srch_DATETO = strtotime($srch_DATETO);
-							$srch_DATETO = strtotime('+1 day', $srch_DATETO);
+							// $srch_DATETO = strtotime('+1 day', $srch_DATETO);
 							$srch_DATETO = date('Y-m-d', $srch_DATETO);
 						} else {
 							$srch_DATETO = '';
 						}
+						// echo $srch_DATEFROM;
+						// echo $srch_DATETO;
 						//----------------------------------------------
 
 						//Get Assignee previous Date From-----------------------
@@ -456,6 +458,7 @@
 								}
 
 								// Last Status--------------------------------------
+
 								$calling_lead_comments = mysqli_query($link, "SELECT `LEAD_STATUS`, `DATED` FROM `calling_lead_comments` WHERE LEAD_R_ID='$ID'");
 								if (!empty($calling_lead_comments)) {
 									foreach ($calling_lead_comments as $calling_lead_comment) {

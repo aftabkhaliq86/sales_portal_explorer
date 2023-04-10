@@ -54,7 +54,7 @@ if (isset($_POST["Import"])) {
                     $SelectSID = mysqli_fetch_array($selectsessid);
                     if ($SelectSID['ID'] != '') {
                         $LEADTID = $SelectSID['ID'];
-                        $selectquerys = mysqli_num_rows(mysqli_query($link, "SELECT * FROM `calling_lead` WHERE `RMS_ID` ='" . $emapData[0] . "' AND MANUAL_LEAD ='0' AND `INACTIVE_LEAD_TITLE` ='1'"));
+                        $selectquerys = mysqli_num_rows(mysqli_query($link, "SELECT * FROM `calling_lead` WHERE `RMS_ID` ='" . $emapData[0] . "' AND `INACTIVE_LEAD_TITLE` ='1'"));
                         if ($selectquerys == '0') {
                             $sql = mysqli_query($link, "INSERT INTO `calling_lead` (`LEADTID`, `DATED`, `RMS_ID`, `PHONE`, `EMAIL`, `PREFFERED_COUNTRY`, `REGISTER_DATE`,`SENDING_COUNTRY`,`TRANSACTION_COUNT`,`LAST_TRANSACTION_DATE`,`INACTIVE_LEAD_TITLE`)
                             values('$LEADTID',NOW(),'$emapData[0]', '$emapData[1]', '$emapData[2]', '$emapData[3]', '$emapData[4]', '$emapData[5]', '$emapData[6]', '$emapData[7]','1')");
