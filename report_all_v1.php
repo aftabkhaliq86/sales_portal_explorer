@@ -405,6 +405,7 @@
 							<th>Preffered Country</th>
 							<th>Last Transaction Details</th>
 							<th>Status</th>
+							<th style="display: none;">Call Summary</th>
 							<td style="display: none;">Comments</td>
 						</tr>
 					</thead>
@@ -473,6 +474,7 @@
 								}
 
 								// Last Status End ---------------------------------
+								//Comments
 
 						?>
 								<tr id="<?php echo $ID; ?>">
@@ -495,20 +497,47 @@
 									<td><?php echo $PREFFERED_COUNTRY; ?></td>
 									<td><?php echo $LAST_TRANSACTION_DATE; ?><br> <?php echo $TRANSACTION_COUNT; ?></td>
 									<td><?php echo $STATUS_TITLE_STATUS; ?><br> <small><?php echo $DATED_sclc; ?></small></td>
-									<td style="display: none;"><?php $result_calling_lead_comments = mysqli_query($link, "SELECT `COMMENT_AREA`, `LEAD_STATUS`, `DATED` FROM `calling_lead_comments` WHERE LEAD_R_ID='$ID'");
-																$counter = 1;
+									<td style="display: none;"><?php $counter = 1;
+																$result_calling_lead_comments = mysqli_query($link, "SELECT * FROM `calling_lead_comments` WHERE LEAD_R_ID='$ID'");
 																$query_counts = mysqli_num_rows($result_calling_lead_comments);
-																while ($row_clcs = mysqli_fetch_array($result_calling_lead_comments)) {
-																	$result_statuses_i = mysqli_query($link, "SELECT `STATUS_HEADING` FROM `lead_status` WHERE ID='$row_clcs[LEAD_STATUS]'");
-																	while ($row_sts_i = mysqli_fetch_array($result_statuses_i)) {
-																		$STATUS_HEADING_sts_i = $row_sts_i['STATUS_HEADING'];
-																	}
+																while ($call_summary = mysqli_fetch_array($result_calling_lead_comments)) {
+																	$LEAD_STATUS = $call_summary['LEAD_STATUS'];
+																	$results1 = mysqli_query($link, "SELECT * FROM `lead_status` WHERE ID='$LEAD_STATUS'");
+																	$rows1 = mysqli_fetch_array($results1);
+																	$STATUS_HEADING = $rows1['STATUS_HEADING'];
 																	if ($counter < $query_counts) {
-																		echo $COMMENT_AREA_clcs = $STATUS_HEADING_sts_i . ': ' . $row_clcs['COMMENT_AREA'] . '  [ Date: ' . $row_clcs['DATED'] . ' ]  |  ';
+																		echo $STATUS_HEADING . ' | ';
 																	} else {
-																		echo $COMMENT_AREA_clcs = $STATUS_HEADING_sts_i . ': ' . $row_clcs['COMMENT_AREA'] . '  [ Date: ' . $row_clcs['DATED'] . ' ] ';
+																		echo $STATUS_HEADING;
 																	}
 																	$counter++;
+																} ?></td>
+									<td style="display: none;"><?php $counter1 = 1;
+																$result_calling_lead_comments = mysqli_query($link, "SELECT * FROM `calling_lead_comments` WHERE LEAD_R_ID='$ID'");
+																$query_counts = mysqli_num_rows($result_calling_lead_comments);
+																while ($all_comments = mysqli_fetch_array($result_calling_lead_comments)) {
+																	$LEAD_CMT_ID = $all_comments['LEAD_CMT_ID'];
+																	$lead_comments = mysqli_query($link, "SELECT * FROM `lead_comments` WHERE ID='$LEAD_CMT_ID'");
+																	// print_r(mysqli_fetch_array($lead_comments));
+																	if (mysqli_num_rows($lead_comments) > 0) {
+																		$lead_comments_row = mysqli_fetch_array($lead_comments);
+																		$COMMENT_HEADING = $lead_comments_row['HEADING'];
+																		// exit;
+																		if ($COMMENT_HEADING == "Other") {
+																			$COMMENT_AREA = $all_comments['COMMENT_AREA'];
+																		} else {
+																			$COMMENT_AREA = '';
+																		}
+																	} else {
+																		$COMMENT_HEADING = '';
+																		$COMMENT_AREA = '';
+																	}
+																	if ($counter1 < $query_counts) {
+																		echo $COMMENT_HEADING . ': ' . $COMMENT_AREA . ' | ';
+																	} else {
+																		echo $COMMENT_HEADING . ': ' . $COMMENT_AREA;
+																	}
+																	$counter1++;
 																} ?></td>
 								</tr>
 						<?php
