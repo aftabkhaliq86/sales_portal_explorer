@@ -234,7 +234,7 @@
 							$srchSTATUSi = $_POST['srchSTATUS'];
 						}
 						if (!empty($srchAGENTS) || !empty($srchSTATUS) || !empty($DATEDG) || !empty($srchASSDATE) || !empty($srchLEADS) || !empty($srchEMAIL)) {
-							$calling_leads = mysqli_query($link, "SELECT `cl`.*,`clt`.`LEAD_CATEGORY` AS `LEAD_CATEGORY_clt`,`clt`.`LEAD_TYPE` AS `LEAD_TYPE_clt`,DATE(`clt`.`DATED`) AS `LEAD_DATED_clt`,`cla`.`PERSON_NAME` AS `PERSON_NAME`,`ls`.`STATUS_HEADING` AS `STATUS_TITLE_STATUS`,`curr`.`name` AS `SENDING_COUNTRY_NAME` FROM `calling_lead` AS `cl` INNER JOIN `calling_lead_title` AS `clt` ON `cl`.`LEADTID`=`clt`.`ID` INNER JOIN `calling_lead_agents` AS `cla` ON `cl`.`USERID`=`cla`.`ID` INNER JOIN `lead_status` AS `ls` ON `cl`.`LEAD_STATUS`=`ls`.`ID` INNER JOIN `currencies` AS `curr` ON `cl`.`SENDING_COUNTRY`=`curr`.`iso3` WHERE INACTIVE_LEAD_TITLE='1' $srchAGENTS $srchSTATUS $DATEDG $srchASSDATE $srchLEADS $srchEMAIL");
+							$calling_leads = mysqli_query($link, "SELECT * FROM `calling_lead` WHERE INACTIVE_LEAD_TITLE='1' $srchAGENTS $srchSTATUS $DATEDG $srchASSDATE $srchLEADS $srchEMAIL");
 						} else {
 							$calling_leads = '';
 						}
@@ -414,37 +414,68 @@
 						if (!empty($calling_leads)) {
 							foreach ($calling_leads as $calling_lead) {
 								$ID = $calling_lead['ID'];
+								$RMS_ID = $calling_lead['RMS_ID'];
+								$PHONE = $calling_lead['PHONE'];
+								$EMAIL = $calling_lead['EMAIL'];
+								$PREFFERED_COUNTRY = $calling_lead['PREFFERED_COUNTRY'];
+								$REGISTER_DATE = $calling_lead['REGISTER_DATE'];
+								$SENDING_COUNTRY = $calling_lead['SENDING_COUNTRY'];
+								$TRANSACTION_COUNT = $calling_lead['TRANSACTION_COUNT'];
+								$LAST_TRANSACTION_DATE = $calling_lead['LAST_TRANSACTION_DATE'];
+								$USERID = $calling_lead['USERID'];
+								$U_DATED = $calling_lead['U_DATED'];
+								$LEAD_STATUS = $calling_lead['LEAD_STATUS'];
+								$LEAD_STATUS_DATED = $calling_lead['LEAD_STATUS_DATED'];
+								$LEAD_ID = $calling_lead['LEADTID'];
+								$STATUS = $calling_lead['STATUS'];
+								$active_calls = $calling_lead['calls'];
+
+								// --------------------------------- Last Status Start --------------------------------------
 								$calling_lead_comments = mysqli_query($link, "SELECT `LEAD_STATUS`, `DATED` FROM `calling_lead_comments` WHERE LEAD_R_ID='$ID'");
 								if (!empty($calling_lead_comments)) {
-									$RMS_ID = $calling_lead['RMS_ID'];
-									$PHONE = $calling_lead['PHONE'];
-									$EMAIL = $calling_lead['EMAIL'];
-									$PREFFERED_COUNTRY = $calling_lead['PREFFERED_COUNTRY'];
-									$REGISTER_DATE = $calling_lead['REGISTER_DATE'];
-									$TRANSACTION_COUNT = $calling_lead['TRANSACTION_COUNT'];
-									$LAST_TRANSACTION_DATE = $calling_lead['LAST_TRANSACTION_DATE'];
-									$STATUS = $calling_lead['STATUS'];
-									$active_calls = $calling_lead['calls'];
-									// --------------------------------- Lead Status Start --------------------------------------
-									$LEAD_STATUS = $calling_lead['LEAD_STATUS'];
-									$LEAD_STATUS_DATED = $calling_lead['LEAD_STATUS_DATED'];
-									$STATUS_TITLE_STATUS = $calling_lead['STATUS_TITLE_STATUS'];
-									// --------------------------------- Lead Status End ----------------------------------------
-									// --------------------------------- Lead Agent Start ---------------------------------------
-									$USERID = $calling_lead['USERID'];
-									$U_DATED = $calling_lead['U_DATED'];
-									$PERSON_NAME = $calling_lead['PERSON_NAME'];
-									// --------------------------------- Lead Agent End -----------------------------------------
-									// --------------------------------- Lead Category Start ------------------------------------
-									$LEAD_ID = $calling_lead['LEADTID'];
-									$LEAD_CATEGORY_clt = $calling_lead['LEAD_CATEGORY_clt'];
-									$LEAD_TYPE_clt = $calling_lead['LEAD_TYPE_clt'];
-									$LEAD_DATED_clt = $calling_lead['LEAD_DATED_clt'];
-									// --------------------------------- Lead Category End --------------------------------------
-									// --------------------------------- Lead Country Start -------------------------------------
-									$SENDING_COUNTRY = $calling_lead['SENDING_COUNTRY_NAME'];
-									// --------------------------------- Lead Country End ---------------------------------------
+									foreach ($calling_lead_comments as $calling_lead_comment) {
+										$LEAD_STATUS_sclc = $calling_lead_comment['LEAD_STATUS'];
+										$DATED_sclc = $calling_lead_comment['DATED'];
+									}
+									$result_lead_status = mysqli_query($link, "SELECT * FROM `lead_status` WHERE ID='$LEAD_STATUS_sclc'");
+									$rows_ls = mysqli_fetch_array($result_lead_status);
+									$STATUS_TITLE_STATUS = $rows_ls['STATUS_HEADING'];
+									// --------------------------------- Last Status End ---------------------------------
 
+									// --------------------------------- Lead Agent Start ---------------------------------
+									$calling_lead_agents = mysqli_query($link, "SELECT PERSON_NAME FROM `calling_lead_agents` WHERE ID='$USERID'");
+									if (!empty($calling_lead_agents)) {
+										foreach ($calling_lead_agents as $calling_lead_agent) {
+											$PERSON_NAME = $calling_lead_agent['PERSON_NAME'];
+										}
+									} else {
+										$PERSON_NAME = '';
+									}
+									// --------------------------------- Lead Agent End ---------------------------------
+									// --------------------------------- Lead Category Start ---------------------------------
+									$calling_lead_titles = mysqli_query($link, "SELECT `LEAD_CATEGORY`,`LEAD_TYPE`,`DATED` FROM `calling_lead_title` WHERE ID='$LEAD_ID'");
+									if (!empty($calling_lead_titles)) {
+										foreach ($calling_lead_titles as $calling_lead_title) {
+											$LEAD_CATEGORY_clt = $calling_lead_title['LEAD_CATEGORY'];
+											$LEAD_TYPE_clt = $calling_lead_title['LEAD_TYPE'];
+											$LEAD_DATED_clt = date('Y-m-d', strtotime($calling_lead_title['DATED']));
+										}
+									} else {
+										$LEAD_CATEGORY_clt = '';
+										$LEAD_TYPE_clt = '';
+										$LEAD_DATED_clt = '';
+									}
+									// --------------------------------- Lead Category End ---------------------------------
+									// --------------------------------- Lead Country Start ---------------------------------
+									$currencies = mysqli_query($link, "SELECT `name` FROM `currencies` WHERE iso3='$SENDING_COUNTRY'");
+									if (!empty($currencies)) {
+										foreach ($currencies as $currency) {
+											$SENDING_COUNTRY = $currency['name'];
+										}
+									} else {
+										$SENDING_COUNTRY = '';
+									}
+									// --------------------------------- Lead Country End ---------------------------------
 						?>
 									<tr id="<?php echo $ID; ?>">
 										<td></td>
@@ -465,13 +496,11 @@
 										<td><?php echo $SENDING_COUNTRY; ?></td>
 										<td><?php echo $PREFFERED_COUNTRY; ?></td>
 										<td><?php echo $LAST_TRANSACTION_DATE; ?><br> <?php echo $TRANSACTION_COUNT; ?></td>
-										<td><?php echo $STATUS_TITLE_STATUS; ?><br> <small><?php echo $LEAD_STATUS_DATED; ?></small></td>
-										<?php
-										$calling_lead_comments = mysqli_query($link, "SELECT * FROM `calling_lead_comments` WHERE LEAD_R_ID='$ID'");
-										$query_counts = mysqli_num_rows($calling_lead_comments);
-										?>
+										<td><?php echo $STATUS_TITLE_STATUS; ?><br> <small><?php echo $DATED_sclc; ?></small></td>
 										<td style="display: none;"><?php $counter = 1;
-																	foreach ($calling_lead_comments as $call_summary) {
+																	$result_calling_lead_comments = mysqli_query($link, "SELECT * FROM `calling_lead_comments` WHERE LEAD_R_ID='$ID'");
+																	$query_counts = mysqli_num_rows($result_calling_lead_comments);
+																	while ($call_summary = mysqli_fetch_array($result_calling_lead_comments)) {
 																		$LEAD_STATUS = $call_summary['LEAD_STATUS'];
 																		$results1 = mysqli_query($link, "SELECT * FROM `lead_status` WHERE ID='$LEAD_STATUS'");
 																		$rows1 = mysqli_fetch_array($results1);
@@ -484,12 +513,16 @@
 																		$counter++;
 																	} ?></td>
 										<td style="display: none;"><?php $counter1 = 1;
-																	foreach ($calling_lead_comments as $all_comments) {
+																	$result_calling_lead_comments = mysqli_query($link, "SELECT * FROM `calling_lead_comments` WHERE LEAD_R_ID='$ID'");
+																	$query_counts = mysqli_num_rows($result_calling_lead_comments);
+																	while ($all_comments = mysqli_fetch_array($result_calling_lead_comments)) {
 																		$LEAD_CMT_ID = $all_comments['LEAD_CMT_ID'];
 																		$lead_comments = mysqli_query($link, "SELECT * FROM `lead_comments` WHERE ID='$LEAD_CMT_ID'");
+																		// print_r(mysqli_fetch_array($lead_comments));
 																		if (mysqli_num_rows($lead_comments) > 0) {
 																			$lead_comments_row = mysqli_fetch_array($lead_comments);
 																			$COMMENT_HEADING = $lead_comments_row['HEADING'];
+																			// exit;
 																			if ($COMMENT_HEADING == "Other") {
 																				$COMMENT_AREA = $all_comments['COMMENT_AREA'];
 																			} else {
