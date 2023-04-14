@@ -234,7 +234,7 @@
 							$srchSTATUSi = $_POST['srchSTATUS'];
 						}
 						if (!empty($srchAGENTS) || !empty($srchSTATUS) || !empty($DATEDG) || !empty($srchASSDATE) || !empty($srchLEADS) || !empty($srchEMAIL)) {
-							$calling_leads = mysqli_query($link, "SELECT * FROM `calling_lead` WHERE STATUS='1' $srchAGENTS $srchSTATUS $DATEDG $srchASSDATE $srchLEADS $srchEMAIL");
+							$calling_leads = mysqli_query($link, "SELECT * FROM `calling_lead` WHERE STATUS='1' AND INACTIVE_LEAD_TITLE='1' $srchAGENTS $srchSTATUS $DATEDG $srchASSDATE $srchLEADS $srchEMAIL");
 						} else {
 							$calling_leads = '';
 						}

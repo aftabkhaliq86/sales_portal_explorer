@@ -184,7 +184,10 @@
 							$srch_DATETO = '';
 						}
 						//----------------------------------------------
-
+						// echo $srch_DATEFROM;
+						// echo "<br>";
+						// echo $srch_DATETO;
+						// exit;
 						//Get Assignee previous Date From-----------------------
 						if ($srchASSDATEFROM) {
 							$srchASSDATEFROM = strtotime($srchASSDATEFROM);
@@ -202,6 +205,7 @@
 							$srchASSDATETO = '';
 						}
 						//----------------------------------------------
+
 
 
 						if (!empty($srch_DATEFROM != NULL && $srch_DATETO != NULL)) {
@@ -544,8 +548,6 @@
 																			$LEAD_PICPATH = $row_clcs['PICPATH'];
 																			$DATED = $row_clcs['DATED'];
 																			$LEAD_CMT_ID = $row_clcs['LEAD_CMT_ID'];
-
-
 																			$lead_comments = mysqli_query($link, "SELECT * FROM `lead_comments` WHERE ID='$LEAD_CMT_ID'");
 																			if (mysqli_num_rows($lead_comments) > 0) {
 																				$lead_comments_row = mysqli_fetch_array($lead_comments);
