@@ -234,7 +234,7 @@
 							$srchSTATUSi = $_POST['srchSTATUS'];
 						}
 						if (!empty($srchAGENTS) || !empty($srchSTATUS) || !empty($DATEDG) || !empty($srchASSDATE) || !empty($srchLEADS) || !empty($srchEMAIL)) {
-							$calling_leads = mysqli_query($link, "SELECT * FROM `calling_lead` WHERE STATUS='1' AND INACTIVE_LEAD_TITLE='1' $srchAGENTS $srchSTATUS $DATEDG $srchASSDATE $srchLEADS $srchEMAIL");
+							$calling_leads = mysqli_query($link, "SELECT * FROM `calling_lead` WHERE INACTIVE_LEAD_TITLE='1' $srchAGENTS $srchSTATUS $DATEDG $srchASSDATE $srchLEADS $srchEMAIL");
 						} else {
 							$calling_leads = '';
 						}
@@ -429,37 +429,8 @@
 								$LEAD_ID = $calling_lead['LEADTID'];
 								$STATUS = $calling_lead['STATUS'];
 								$active_calls = $calling_lead['calls'];
-								$calling_lead_agents = mysqli_query($link, "SELECT PERSON_NAME FROM `calling_lead_agents` WHERE ID='$USERID'");
-								if (!empty($calling_lead_agents)) {
-									foreach ($calling_lead_agents as $calling_lead_agent) {
-										$PERSON_NAME = $calling_lead_agent['PERSON_NAME'];
-									}
-								} else {
-									$PERSON_NAME = '';
-								}
-								$calling_lead_titles = mysqli_query($link, "SELECT `LEAD_CATEGORY`,`LEAD_TYPE`,`DATED` FROM `calling_lead_title` WHERE ID='$LEAD_ID'");
-								if (!empty($calling_lead_titles)) {
-									foreach ($calling_lead_titles as $calling_lead_title) {
-										$LEAD_CATEGORY_clt = $calling_lead_title['LEAD_CATEGORY'];
-										$LEAD_TYPE_clt = $calling_lead_title['LEAD_TYPE'];
-										$LEAD_DATED_clt = date('Y-m-d', strtotime($calling_lead_title['DATED']));
-									}
-								} else {
-									$LEAD_CATEGORY_clt = '';
-									$LEAD_TYPE_clt = '';
-									$LEAD_DATED_clt = '';
-								}
-								$currencies = mysqli_query($link, "SELECT `name` FROM `currencies` WHERE iso3='$SENDING_COUNTRY'");
-								if (!empty($currencies)) {
-									foreach ($currencies as $currency) {
-										$SENDING_COUNTRY = $currency['name'];
-									}
-								} else {
-									$SENDING_COUNTRY = '';
-								}
 
-								// Last Status--------------------------------------
-
+								// --------------------------------- Last Status Start --------------------------------------
 								$calling_lead_comments = mysqli_query($link, "SELECT `LEAD_STATUS`, `DATED` FROM `calling_lead_comments` WHERE LEAD_R_ID='$ID'");
 								if (!empty($calling_lead_comments)) {
 									foreach ($calling_lead_comments as $calling_lead_comment) {
@@ -469,78 +440,108 @@
 									$result_lead_status = mysqli_query($link, "SELECT * FROM `lead_status` WHERE ID='$LEAD_STATUS_sclc'");
 									$rows_ls = mysqli_fetch_array($result_lead_status);
 									$STATUS_TITLE_STATUS = $rows_ls['STATUS_HEADING'];
-								} else {
-									$STATUS_TITLE_STATUS = '';
-								}
+									// --------------------------------- Last Status End ---------------------------------
 
-								// Last Status End ---------------------------------
-								//Comments
-
+									// --------------------------------- Lead Agent Start ---------------------------------
+									$calling_lead_agents = mysqli_query($link, "SELECT PERSON_NAME FROM `calling_lead_agents` WHERE ID='$USERID'");
+									if (!empty($calling_lead_agents)) {
+										foreach ($calling_lead_agents as $calling_lead_agent) {
+											$PERSON_NAME = $calling_lead_agent['PERSON_NAME'];
+										}
+									} else {
+										$PERSON_NAME = '';
+									}
+									// --------------------------------- Lead Agent End ---------------------------------
+									// --------------------------------- Lead Category Start ---------------------------------
+									$calling_lead_titles = mysqli_query($link, "SELECT `LEAD_CATEGORY`,`LEAD_TYPE`,`DATED` FROM `calling_lead_title` WHERE ID='$LEAD_ID'");
+									if (!empty($calling_lead_titles)) {
+										foreach ($calling_lead_titles as $calling_lead_title) {
+											$LEAD_CATEGORY_clt = $calling_lead_title['LEAD_CATEGORY'];
+											$LEAD_TYPE_clt = $calling_lead_title['LEAD_TYPE'];
+											$LEAD_DATED_clt = date('Y-m-d', strtotime($calling_lead_title['DATED']));
+										}
+									} else {
+										$LEAD_CATEGORY_clt = '';
+										$LEAD_TYPE_clt = '';
+										$LEAD_DATED_clt = '';
+									}
+									// --------------------------------- Lead Category End ---------------------------------
+									// --------------------------------- Lead Country Start ---------------------------------
+									$currencies = mysqli_query($link, "SELECT `name` FROM `currencies` WHERE iso3='$SENDING_COUNTRY'");
+									if (!empty($currencies)) {
+										foreach ($currencies as $currency) {
+											$SENDING_COUNTRY = $currency['name'];
+										}
+									} else {
+										$SENDING_COUNTRY = '';
+									}
+									// --------------------------------- Lead Country End ---------------------------------
 						?>
-								<tr id="<?php echo $ID; ?>">
-									<td></td>
-									<td><?php echo $PERSON_NAME; ?></td>
-									<td><small><?php echo $LEAD_CATEGORY_clt; ?></small></td>
-									<td><small><?php if ($LEAD_TYPE_clt == 1) {
-													echo "New Reg";
-												} elseif ($LEAD_TYPE_clt == 2) {
-													echo "Dormant";
-												} elseif ($LEAD_TYPE_clt == 3) {
-													echo "Inactive";
-												} ?></small></td>
-									<td><?php echo $RMS_ID; ?></td>
-									<td><?php echo $LEAD_DATED_clt; ?></td>
-									<td><?php echo $REGISTER_DATE; ?></td>
-									<td><?php echo $PHONE; ?></td>
-									<td><?php echo $EMAIL; ?></td>
-									<td><?php echo $SENDING_COUNTRY; ?></td>
-									<td><?php echo $PREFFERED_COUNTRY; ?></td>
-									<td><?php echo $LAST_TRANSACTION_DATE; ?><br> <?php echo $TRANSACTION_COUNT; ?></td>
-									<td><?php echo $STATUS_TITLE_STATUS; ?><br> <small><?php echo $DATED_sclc; ?></small></td>
-									<td style="display: none;"><?php $counter = 1;
-																$result_calling_lead_comments = mysqli_query($link, "SELECT * FROM `calling_lead_comments` WHERE LEAD_R_ID='$ID'");
-																$query_counts = mysqli_num_rows($result_calling_lead_comments);
-																while ($call_summary = mysqli_fetch_array($result_calling_lead_comments)) {
-																	$LEAD_STATUS = $call_summary['LEAD_STATUS'];
-																	$results1 = mysqli_query($link, "SELECT * FROM `lead_status` WHERE ID='$LEAD_STATUS'");
-																	$rows1 = mysqli_fetch_array($results1);
-																	$STATUS_HEADING = $rows1['STATUS_HEADING'];
-																	if ($counter < $query_counts) {
-																		echo $STATUS_HEADING . ' | ';
-																	} else {
-																		echo $STATUS_HEADING;
-																	}
-																	$counter++;
-																} ?></td>
-									<td style="display: none;"><?php $counter1 = 1;
-																$result_calling_lead_comments = mysqli_query($link, "SELECT * FROM `calling_lead_comments` WHERE LEAD_R_ID='$ID'");
-																$query_counts = mysqli_num_rows($result_calling_lead_comments);
-																while ($all_comments = mysqli_fetch_array($result_calling_lead_comments)) {
-																	$LEAD_CMT_ID = $all_comments['LEAD_CMT_ID'];
-																	$lead_comments = mysqli_query($link, "SELECT * FROM `lead_comments` WHERE ID='$LEAD_CMT_ID'");
-																	// print_r(mysqli_fetch_array($lead_comments));
-																	if (mysqli_num_rows($lead_comments) > 0) {
-																		$lead_comments_row = mysqli_fetch_array($lead_comments);
-																		$COMMENT_HEADING = $lead_comments_row['HEADING'];
-																		// exit;
-																		if ($COMMENT_HEADING == "Other") {
-																			$COMMENT_AREA = $all_comments['COMMENT_AREA'];
+									<tr id="<?php echo $ID; ?>">
+										<td></td>
+										<td><?php echo $PERSON_NAME; ?></td>
+										<td><small><?php echo $LEAD_CATEGORY_clt; ?></small></td>
+										<td><small><?php if ($LEAD_TYPE_clt == 1) {
+														echo "New Reg";
+													} elseif ($LEAD_TYPE_clt == 2) {
+														echo "Dormant";
+													} elseif ($LEAD_TYPE_clt == 3) {
+														echo "Inactive";
+													} ?></small></td>
+										<td><?php echo $RMS_ID; ?></td>
+										<td><?php echo $LEAD_DATED_clt; ?></td>
+										<td><?php echo $REGISTER_DATE; ?></td>
+										<td><?php echo $PHONE; ?></td>
+										<td><?php echo $EMAIL; ?></td>
+										<td><?php echo $SENDING_COUNTRY; ?></td>
+										<td><?php echo $PREFFERED_COUNTRY; ?></td>
+										<td><?php echo $LAST_TRANSACTION_DATE; ?><br> <?php echo $TRANSACTION_COUNT; ?></td>
+										<td><?php echo $STATUS_TITLE_STATUS; ?><br> <small><?php echo $DATED_sclc; ?></small></td>
+										<td style="display: none;"><?php $counter = 1;
+																	$result_calling_lead_comments = mysqli_query($link, "SELECT * FROM `calling_lead_comments` WHERE LEAD_R_ID='$ID'");
+																	$query_counts = mysqli_num_rows($result_calling_lead_comments);
+																	while ($call_summary = mysqli_fetch_array($result_calling_lead_comments)) {
+																		$LEAD_STATUS = $call_summary['LEAD_STATUS'];
+																		$results1 = mysqli_query($link, "SELECT * FROM `lead_status` WHERE ID='$LEAD_STATUS'");
+																		$rows1 = mysqli_fetch_array($results1);
+																		$STATUS_HEADING = $rows1['STATUS_HEADING'];
+																		if ($counter < $query_counts) {
+																			echo $STATUS_HEADING . ' | ';
 																		} else {
+																			echo $STATUS_HEADING;
+																		}
+																		$counter++;
+																	} ?></td>
+										<td style="display: none;"><?php $counter1 = 1;
+																	$result_calling_lead_comments = mysqli_query($link, "SELECT * FROM `calling_lead_comments` WHERE LEAD_R_ID='$ID'");
+																	$query_counts = mysqli_num_rows($result_calling_lead_comments);
+																	while ($all_comments = mysqli_fetch_array($result_calling_lead_comments)) {
+																		$LEAD_CMT_ID = $all_comments['LEAD_CMT_ID'];
+																		$lead_comments = mysqli_query($link, "SELECT * FROM `lead_comments` WHERE ID='$LEAD_CMT_ID'");
+																		// print_r(mysqli_fetch_array($lead_comments));
+																		if (mysqli_num_rows($lead_comments) > 0) {
+																			$lead_comments_row = mysqli_fetch_array($lead_comments);
+																			$COMMENT_HEADING = $lead_comments_row['HEADING'];
+																			// exit;
+																			if ($COMMENT_HEADING == "Other") {
+																				$COMMENT_AREA = $all_comments['COMMENT_AREA'];
+																			} else {
+																				$COMMENT_AREA = '';
+																			}
+																		} else {
+																			$COMMENT_HEADING = '';
 																			$COMMENT_AREA = '';
 																		}
-																	} else {
-																		$COMMENT_HEADING = '';
-																		$COMMENT_AREA = '';
-																	}
-																	if ($counter1 < $query_counts) {
-																		echo $COMMENT_HEADING . ': ' . $COMMENT_AREA . ' | ';
-																	} else {
-																		echo $COMMENT_HEADING . ': ' . $COMMENT_AREA;
-																	}
-																	$counter1++;
-																} ?></td>
-								</tr>
+																		if ($counter1 < $query_counts) {
+																			echo $COMMENT_HEADING . ': ' . $COMMENT_AREA . ' | ';
+																		} else {
+																			echo $COMMENT_HEADING . ': ' . $COMMENT_AREA;
+																		}
+																		$counter1++;
+																	} ?></td>
+									</tr>
 						<?php
+								}
 							}
 						}
 						?>
