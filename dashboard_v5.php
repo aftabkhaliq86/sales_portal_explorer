@@ -27,7 +27,7 @@ if (isset($_POST['srchfilter'])) //submit button name
 	}
 	//----------------------------------------------
 	if (!empty($srch_DATEFROM != NULL && $srch_DATETO != NULL)) {
-		$DATEDG = "AND DATE(LEAD_STATUS_DATED) BETWEEN '$srch_DATEFROM' AND '$srch_DATETO'";
+		$DATEDG = "AND DATE(DATED) BETWEEN '$srch_DATEFROM' AND '$srch_DATETO'";
 	}
 	if (!empty($srch_DATEFROM != NULL && $srch_DATETO != NULL)) {
 		$DATEDG_other = "AND DATE(calls_start_time) BETWEEN '$srch_DATEFROM' AND '$srch_DATETO'";

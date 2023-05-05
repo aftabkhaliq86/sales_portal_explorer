@@ -197,7 +197,7 @@
 
 
 						if (!empty($srch_DATEFROM != NULL && $srch_DATETO != NULL)) {
-							$DATEDG = "AND DATE(LEAD_STATUS_DATED) BETWEEN '$srch_DATEFROM' AND '$srch_DATETO'";
+						$DATEDG = "AND DATE(LEAD_STATUS_DATED) BETWEEN '$srch_DATEFROM' AND '$srch_DATETO'";
 							// echo "YES";
 							// exit;
 						}

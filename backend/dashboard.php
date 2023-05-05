@@ -18,10 +18,10 @@ function call_record($link, $DATEDG_other)
 }
 function  profile_completed($link, $DATEDG)
 {
-    $Profile_Completed = mysqli_query($link, "SELECT USERID, COUNT(LEAD_STATUS) as `profile_completed` FROM `calling_lead` WHERE LEAD_STATUS='11' AND STATUS='1' $DATEDG AND USERID > 0 GROUP by USERID ORDER BY USERID ASC");
+    $Profile_Completed = mysqli_query($link, "SELECT USERID, COUNT(LEAD_STATUS) as `profile_completed` FROM `calling_lead_comments` WHERE LEAD_STATUS='11' $DATEDG AND USERID > 0 GROUP by USERID ORDER BY USERID ASC");
     $Profile_Completed_arr = [];
     foreach ($Profile_Completed as  $Profile_Complete) {
-        $calling_lead_agents = mysqli_query($link, "SELECT `PERSON_NAME` FROM `calling_lead_agents` WHERE ID='$Profile_Complete[USERID]' AND STATUS='1'");
+        $calling_lead_agents = mysqli_query($link, "SELECT `PERSON_NAME` FROM `calling_lead_agents` WHERE ID='$Profile_Complete[USERID]'");
         foreach ($calling_lead_agents as $calling_lead_agent) {
             $PERSON_NAME = $calling_lead_agent['PERSON_NAME'];
             $Profile_Completed_arr[] = [
@@ -35,10 +35,10 @@ function  profile_completed($link, $DATEDG)
 }
 function lead_converted($link, $DATEDG)
 {
-    $Lead_Converted = mysqli_query($link, "SELECT USERID, COUNT(LEAD_STATUS) as `Lead_Converted` FROM `calling_lead` WHERE LEAD_STATUS='12' AND STATUS='1' $DATEDG AND USERID > 0 GROUP by USERID ORDER BY USERID ASC");
+    $Lead_Converted = mysqli_query($link, "SELECT USERID, COUNT(LEAD_STATUS) as `Lead_Converted` FROM `calling_lead_comments` WHERE LEAD_STATUS='12' $DATEDG AND USERID > 0 GROUP by USERID ORDER BY USERID ASC");
     $Lead_Converted_arr = [];
     foreach ($Lead_Converted as  $Lead_Convert) {
-        $calling_lead_agents = mysqli_query($link, "SELECT `PERSON_NAME` FROM `calling_lead_agents` WHERE ID='$Lead_Convert[USERID]' AND STATUS='1'");
+        $calling_lead_agents = mysqli_query($link, "SELECT `PERSON_NAME` FROM `calling_lead_agents` WHERE ID='$Lead_Convert[USERID]'");
         foreach ($calling_lead_agents as $calling_lead_agent) {
             $PERSON_NAME = $calling_lead_agent['PERSON_NAME'];
             $Lead_Converted_arr[] = [
