@@ -229,10 +229,8 @@ if (isset($_REQUEST['actc'])) {
                                     //exit;
                                     ?>
                                     <div class="container" id="filters">
-                                        <form name="frmSRCH" class="form-horizontal" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
-
+                                        <form name="frmSRCH" class="form-horizontal" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>?sts=<?php echo $sts; ?>" method="post">
                                             <div class="form-group al-right">
-
                                                 <label class="col-lg-1 control-label" style="padding:10px;">Dated :</label>
                                                 <div class="col-lg-8">
                                                     <div class="input-daterange input-group">
@@ -247,13 +245,9 @@ if (isset($_REQUEST['actc'])) {
                                                 <div class="col-lg-1">
                                                     <a href="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" class="btn btn-warning"><i class="fa fa-times"></i></a>
                                                 </div>
-
                                             </div>
-
-
                                         </form>
                                     </div>
-
                                     <?php if (isset($_GET['delete'])) { ?>
                                         <div class="alert alert-danger">
                                             <div class="container"><strong>Row is successfully deleted!</strong></div>
@@ -293,11 +287,16 @@ if (isset($_REQUEST['actc'])) {
                                                 //----------------------------------------------
 
                                                 if ($srch_DATEFROM != NULL && $srch_DATETO != NULL) {
-
-                                                    $result = mysqli_query($link, "SELECT * FROM `calling_lead_title` WHERE DATED BETWEEN '$srch_DATEFROM' AND '$srch_DATETO' ORDER BY DATED");
+                                                    if ($sts == 1) {
+                                                        $sts_query = "AND `STATUS`='1'";
+                                                    } else if ($sts == 2) {
+                                                        $sts_query = "AND `STATUS`='0'";
+                                                    } else {
+                                                        $sts_query = '';
+                                                    }
+                                                    $result = mysqli_query($link, "SELECT * FROM `calling_lead_title` WHERE DATED BETWEEN '$srch_DATEFROM' AND '$srch_DATETO' $sts_query ORDER BY DATED");
                                                 }
                                             } else {
-
                                                 if ($sts == 1) {
                                                     $result = mysqli_query($link, "SELECT * FROM `calling_lead_title` WHERE STATUS='1' ORDER BY DATED DESC");
                                                 } elseif ($sts == 2) {
