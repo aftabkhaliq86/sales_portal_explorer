@@ -68,7 +68,7 @@ $Sales_Agnet_ID = $_SESSION['USERID'];
                                     $leads = '';
                                     if (isset($_POST['filter'])) {
                                         $email = trim($_POST['email']);
-                                        $leads = mysqli_query($link, "SELECT * FROM `calling_lead` WHERE EMAIL='$email'");
+                                        $leads = mysqli_query($link, "SELECT * FROM `calling_lead` WHERE TRIM(EMAIL)='$email'");
                                     }
 
                                     ?>
