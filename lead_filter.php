@@ -169,31 +169,7 @@ $Sales_Agnet_ID = $_SESSION['USERID'];
                                                         </td>
                                                         <td data-title="Action" class="al-center">
 
-                                                            <?php if ($status == 1) { ?>
-
-                                                                <?php
-                                                                if ($active_calls > 0) {
-                                                                ?>
-                                                                    <a href="calling_lead_comment.php?id=<?php echo $lead_id; ?>" data-toggle="tooltip" class="btn btn-primary btn-sm"><i class="fa fa-phone"></i></a>
-                                                                <?php } ?>
-
-                                                                <?php if ($STATUS_note_s == 1) { ?>
-                                                                    <a href="calling_lead_comment.php?id=<?php echo $lead_id; ?>&nid=<?php echo $ID_note_s; ?>" data-toggle="tooltip" class="btn btn-warning btn-sm"><i class="fa fa-bell-o"></i> Used</a>
-                                                                <?php } else { ?>
-                                                                    <a href="calling_lead_comment.php?id=<?php echo $lead_id; ?>" data-toggle="tooltip" class="btn btn-warning btn-sm">Used</a>
-                                                                <?php } ?>
-
-                                                            <?php } else { ?>
-                                                                <?php
-                                                                if ($result_calling_comments_call_count > 0) {
-                                                                ?>
-                                                                    <span data-toggle="tooltip" class="btn btn-default btn-sm">Take It</span>
-                                                                <?php } else { ?>
-                                                                    <a href="calling_lead_comment.php?id=<?php echo $lead_id; ?>" data-toggle="tooltip" class="btn btn-success btn-sm">Take It</a>
-                                                                <?php } ?>
-
-                                                            <?php } ?>
-
+                                                        <a href="calling_lead_comment_preview.php?id=<?php echo $lead_id; ?>" data-toggle="tooltip" data-placement="top" title="Preview" class="btn btn-success btn-sm"><i class="fa fa-search"></i></a><a href="<?php echo basename($_SERVER['PHP_SELF']) . "?del=" . $lead_id ?>" onclick="javascript:return confirm('Are you sure you want to delete ?')" data-toggle="tooltip" data-placement="top" title="Delete" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a>
                                                         </td>
                                                     </tr>
                                                 <?php }
