@@ -73,15 +73,15 @@ $Sales_Agnet_ID = $_SESSION['USERID'];
 
                                     ?>
                                     <form action="" method="post">
-                                        <div class="col-lg-4">
+                                        <div class="col-lg-4 col-lg-4 col-sm-4 col-xs-4">
                                         </div>
-                                        <div class="col-lg-4">
+                                        <div class="col-lg-4 col-lg-4 col-sm-4 col-xs-4">
                                             <input type="text" class="form-control" name="email" value="<?php if (isset($_POST['email'])) {
                                                                                                             echo $_POST['email'];
                                                                                                         } ?>">
                                         </div>
-                                        <div class="col-lg-4">
-                                            <button class="btn btn-success al-center col-lg-2" type="submit" name="filter"><i class="fa fa-search"></i></button>
+                                        <div class="col-lg-4 col-lg-4 col-sm-4 col-xs-4">
+                                            <button class="btn btn-success al-center col-lg-2 col-lg-2 col-sm-2 col-xs-2" type="submit" name="filter"><i class="fa fa-search"></i></button>
                                         </div>
                                     </form>
                                 </div>
