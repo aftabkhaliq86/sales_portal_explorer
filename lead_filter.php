@@ -3,8 +3,7 @@
     <?php
     $page_link_url = basename($_SERVER['PHP_SELF']);
     $plu_del_ext = rtrim($page_link_url, ' .php');
-    //echo $plu_del_rep = ucwords(str_replace("_", " ", $plu_del_ext));
-    echo $plu_del_rep = 'My Leads';
+    echo $plu_del_rep = ucwords(str_replace("_", " ", $plu_del_ext));
     ?>
     <?php include('inc_page_title.php'); ?>
 </title>
@@ -169,7 +168,7 @@ $Sales_Agnet_ID = $_SESSION['USERID'];
                                                         </td>
                                                         <td data-title="Action" class="al-center">
 
-                                                        <a href="calling_lead_comment_preview.php?id=<?php echo $lead_id; ?>" data-toggle="tooltip" data-placement="top" title="Preview" class="btn btn-success btn-sm"><i class="fa fa-search"></i></a><a href="<?php echo basename($_SERVER['PHP_SELF']) . "?del=" . $lead_id ?>" onclick="javascript:return confirm('Are you sure you want to delete ?')" data-toggle="tooltip" data-placement="top" title="Delete" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a>
+                                                            <a href="calling_lead_comment_preview.php?id=<?php echo $lead_id; ?>" data-toggle="tooltip" data-placement="top" title="Preview" class="btn btn-success btn-sm"><i class="fa fa-search"></i></a><a href="<?php echo basename($_SERVER['PHP_SELF']) . "?del=" . $lead_id ?>" onclick="javascript:return confirm('Are you sure you want to delete ?')" data-toggle="tooltip" data-placement="top" title="Delete" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a>
                                                         </td>
                                                     </tr>
                                                 <?php }
