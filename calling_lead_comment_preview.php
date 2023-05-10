@@ -232,13 +232,12 @@ while ($row_clcmts = mysqli_fetch_array($result_clcmts)) {
                                                 <label class="Commments" for="Commments"><i class="fa fa-commenting"></i> Comments</label>
                                                 <?php
                                                 $DID = $_GET['id'];
-                                                $results = mysqli_query($link, "SELECT * FROM `calling_lead_comments` WHERE LEAD_R_ID='$DID' ");
+                                                $results = mysqli_query($link, "SELECT * FROM `calling_lead_comments` WHERE LEAD_R_ID='$DID' ORDER BY ID DESC");
                                                 while ($rows = mysqli_fetch_array($results)) {
                                                     $LEAD_ID_rows = $rows['ID'];
                                                     $LEAD_STATUS = $rows['LEAD_STATUS'];
-                                                    $DATED = $rows['DATED'];
                                                     $LEAD_PICPATH = $rows['PICPATH'];
-
+                                                    $DATED = $rows['DATED'];
                                                     $LEAD_CMT_ID = $rows['LEAD_CMT_ID'];
                                                     $lead_comments = mysqli_query($link, "SELECT * FROM `lead_comments` WHERE ID='$LEAD_CMT_ID'");
                                                     if (mysqli_num_rows($lead_comments) > 0) {
@@ -252,9 +251,6 @@ while ($row_clcmts = mysqli_fetch_array($result_clcmts)) {
                                                     } else {
                                                         $COMMENT_HEADING = '';
                                                     }
-
-
-
                                                     $results1 = mysqli_query($link, "SELECT * FROM `lead_status` WHERE ID='$LEAD_STATUS'");
                                                     $rows1 = mysqli_fetch_array($results1);
                                                     $STATUS_HEADING = $rows1['STATUS_HEADING'];
@@ -265,7 +261,29 @@ while ($row_clcmts = mysqli_fetch_array($result_clcmts)) {
                                                                 <i class="fa fa-comment-o"></i> <strong><?php echo $rows1['STATUS_HEADING'] ?>:</strong>
                                                             </div>
                                                             <div class="col-lg-4">
-                                                                <strong><?php echo $COMMENT_HEADING; ?>:</strong> <?php echo $COMMENT_AREA; ?>
+                                                                <?php if ($COMMENT_AREA == '') {
+                                                                ?>
+                                                                    <strong>
+                                                                        <?php
+                                                                        echo $COMMENT_HEADING;
+                                                                        ?>
+                                                                    </strong>
+                                                                <?php
+                                                                } else {
+                                                                ?>
+                                                                    <strong>
+                                                                        <?php
+                                                                        echo $COMMENT_HEADING . ':';
+                                                                        ?>
+                                                                    </strong>
+                                                                    <span style="word-wrap: break-word;">
+                                                                        <?php
+                                                                        echo $COMMENT_AREA;
+                                                                        ?>
+                                                                    </span>
+                                                                <?php
+                                                                }
+                                                                ?>
                                                             </div>
                                                             <div class="col-lg-4">
                                                                 [ <?php echo $DATED ?> ]
@@ -278,16 +296,8 @@ while ($row_clcmts = mysqli_fetch_array($result_clcmts)) {
                                                                 <div class="modal fade" id="exampleModal<?php echo $LEAD_ID_rows; ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                                                     <div class="modal-dialog" role="document">
                                                                         <div class="modal-content">
-                                                                            <!--<div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>-->
                                                                             <div class="modal-body">
-
                                                                                 <img src="webpics/<?php echo $LEAD_PICPATH; ?>" style="width: 100%;">
-
                                                                             </div>
                                                                             <div class="modal-footer" align="center" style="text-align: center;">
                                                                                 <button type="button" class="btn btn-primary" data-dismiss="modal" style="float: none;">Close</button>
@@ -296,7 +306,6 @@ while ($row_clcmts = mysqli_fetch_array($result_clcmts)) {
                                                                     </div>
                                                                 </div>
                                                             <?php } ?>
-
                                                         </div>
                                                     </div>
                                                 <?php
@@ -304,10 +313,44 @@ while ($row_clcmts = mysqli_fetch_array($result_clcmts)) {
                                                 ?>
                                             </div>
                                             <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 text-center">
-                                                <label class="Commments" for="phone"><i class="fa fa-phone"></i> Calls</label>
+                                                <label class="Commments" for="phone"><i class="fa fa-phone"></i>3cx Calls</label>
                                                 <?php
                                                 $DID = $_GET['id'];
-                                                $result1s = mysqli_query($link, "SELECT * FROM calling_comments_call WHERE Cl_ID ='$DID'");
+                                                $call_logs = mysqli_query($link, "SELECT * FROM three_cx_call_logs WHERE CI_ID ='$DID' ORDER BY call_time DESC");
+                                                ?>
+                                                <table class="table table-bordered">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Agent Name</th>
+                                                            <th>Call Date</th>
+                                                            <th>Duration</th>
+                                                            <th>Answered</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <?php
+                                                        while ($logs = mysqli_fetch_array($call_logs)) {
+                                                        ?>
+                                                            <tr>
+                                                                <td><?php echo  $logs['agent_name'] ?></td>
+                                                                <td><?php echo  date('d-m-Y h:i:s', strtotime($logs['call_time'])) ?></td>
+                                                                <td><?php echo  $logs['duration'] ?></td>
+                                                                <td><?php echo  $logs['is_answered'] ? 'YES' : 'NO' ?></td>
+                                                            </tr>
+                                                        <?php
+                                                        } ?>
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div id="3cx-logs"></div>
+                                            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 text-center">
+                                            </div>
+                                            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 text-center">
+                                                <label class="Commments" for="phone"><i class="fa fa-phone"></i>Old Calls</label>
+                                                <?php
+                                                /*old calling comments*/
+                                                $result1s = mysqli_query($link, "SELECT * FROM calling_comments_call WHERE Cl_ID ='$DID' ORDER BY ID DESC");
                                                 while ($rows1 = mysqli_fetch_array($result1s)) {
                                                     $calls_start_time = $rows1['calls_start_time'];
                                                     $calls_end_time = $rows1['calls_end_time'];

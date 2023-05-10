@@ -339,12 +339,27 @@ if (isset($_REQUEST['actc'])) {
                                                                                 $three_cx_call_logs = mysqli_query($link, "SELECT * FROM `three_cx_call_logs` WHERE CI_ID='$ID'");
                                                                                 $three_cx_call_logs_count = mysqli_num_rows($three_cx_call_logs);
                                                                                 foreach ($three_cx_call_logs as $three_cx_call) {
-                                                                                    $call_time = $three_cx_call['call_time'];
+                                                                                    $call_date = date('Y-m-d', strtotime($three_cx_call['call_time']));
+                                                                                    $call_start_time = date('h:i:s', strtotime($three_cx_call['call_time']));
                                                                                     $duration = $three_cx_call['duration'];
+                                                                                    // Create a DateTime object for the call start time
+                                                                                    $start_time = new DateTime($call_start_time);
+                                                                                    // Split the duration into hours, minutes, and seconds
+                                                                                    $duration_parts = explode(':', $duration);
+                                                                                    $duration_hours = $duration_parts[0];
+                                                                                    $duration_minutes = $duration_parts[1];
+                                                                                    $duration_seconds = $duration_parts[2];
+                                                                                    // Create a DateInterval object for the duration
+                                                                                    $duration_interval = new DateInterval('PT' . $duration_hours . 'H' . $duration_minutes . 'M' . $duration_seconds . 'S');
+                                                                                    // Add the duration to the call start time
+                                                                                    $end_time = $start_time->add($duration_interval);
+                                                                                    // Format the end time as a string in the desired format
+                                                                                    $call_end_time = $end_time->format('h:i:s');
+
                                                                                     if ($counter2 < $three_cx_call_logs_count) {
-                                                                                        echo $call_time . ' [ ' . $duration . ' ] | ';
+                                                                                        echo $call_date . ' [ ' . $call_start_time . ' - ' . $call_end_time . ' ] | ';
                                                                                     } else {
-                                                                                        echo $call_time . ' [ ' . $duration . ' ] ';
+                                                                                        echo $call_date . ' [ ' . $call_start_time . ' - ' . $call_end_time . ' ] ';
                                                                                     }
                                                                                     $counter2++;
                                                                                 } ?></td>
