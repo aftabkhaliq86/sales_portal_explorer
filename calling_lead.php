@@ -138,13 +138,6 @@ if (isset($_REQUEST['actc'])) {
     echo ("<script>location='" . basename($_SERVER['PHP_SELF']) . "'</script>");
 }
 ?>
-<style>
-    #calling-loader {
-        text-align: center;
-        font-weight: bold;
-        font-size: 20px;
-    }
-</style>
 
 <body class="nav-md">
     <div class="container body">
