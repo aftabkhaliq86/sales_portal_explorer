@@ -219,6 +219,36 @@ if (isset($_REQUEST['actc'])) {
                                     </div>
                                 <?php } ?>
                                 <div class="x_content">
+                                    <?php
+                                    if (isset($_POST['srchfilter'])) //submit button name
+                                    {
+                                        $DATEFROM = date('Y-m-d', strtotime($_POST['DATEFROM']));
+                                        $DATETO = date('Y-m-d', strtotime($_POST['DATETO']));
+                                    } else {
+                                        $DATEFROM = date('Y-m-d', strtotime('-61 days'));
+                                        $DATETO = date('Y-m-d');
+                                    }
+                                    ?>
+                                    <div class="container" id="filters">
+                                        <form name="frmSRCH" class="form-horizontal" action="calling_lead.php?sts=<?php echo $sts; ?>" method="post">
+                                            <div class="form-group al-right">
+                                                <label class="col-lg-1 control-label" style="padding:10px;">Dated :</label>
+                                                <div class="col-lg-8">
+                                                    <div class="input-daterange input-group">
+                                                        <input type="date" class="form-control" name="DATEFROM" placeholder="Start Date" autocomplete="off" value="<?php echo $DATEFROM; ?>" />
+                                                        <span class="input-group-addon">to</span>
+                                                        <input type="date" class="form-control input-date-picker" id="DATETO" name="DATETO" placeholder="End Date" autocomplete="off" value="<?php echo $DATETO; ?>" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-2">
+                                                    <button type="submit" name="srchfilter" class="btn btn-success btn-block">Search <i class="fa fa-search"></i></button>
+                                                </div>
+                                                <div class="col-lg-1">
+                                                    <a href="calling_lead.php" class="btn btn-warning"><i class="fa fa-times"></i></a>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
                                     <div id="calling-lead">
                                         <div id="calling-loader">Loading.... Please Wait</div>
                                     </div>
@@ -235,7 +265,7 @@ if (isset($_REQUEST['actc'])) {
     <?php include('inc_foot.php'); ?>
     <script>
         $(document).ready(function() {
-            $('#calling-lead').load(`ajax_load/calling_lead.php?sts=<?php echo $sts; ?>`, function() {
+            $('#calling-lead').load(`ajax_load/calling_lead.php?sts=<?php echo $sts; ?>&DATEFROM=<?php echo $DATEFROM; ?>&DATETO=<?php echo $DATETO; ?>`, function() {
                 $('#leads').DataTable();
                 $('#calling-loader').hide();
             });
