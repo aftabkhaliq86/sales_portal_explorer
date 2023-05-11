@@ -147,6 +147,8 @@
 					$srchLEADSi = '';
 					$srchSTATUS = '';
 					$srchSTATUSi = '';
+					$srchLEADS_TYPE = '';
+					$srchLEADS_TYPEi = '';
 					$resultsssfor_Lead_Converted_ego = '';
 					if (isset($_POST['srchfilter'])) //submit button name
 					{
@@ -197,7 +199,7 @@
 
 
 						if (!empty($srch_DATEFROM != NULL && $srch_DATETO != NULL)) {
-						$DATEDG = "AND DATE(LEAD_STATUS_DATED) BETWEEN '$srch_DATEFROM' AND '$srch_DATETO'";
+							$DATEDG = "AND DATE(LEAD_STATUS_DATED) BETWEEN '$srch_DATEFROM' AND '$srch_DATETO'";
 							// echo "YES";
 							// exit;
 						}
@@ -233,8 +235,12 @@
 							$srchSTATUS = "AND LEAD_STATUS='$_POST[srchSTATUS]'";
 							$srchSTATUSi = $_POST['srchSTATUS'];
 						}
-						if (!empty($srchAGENTS) || !empty($srchSTATUS) || !empty($DATEDG) || !empty($srchASSDATE) || !empty($srchLEADS) || !empty($srchEMAIL)) {
-							$calling_leads = mysqli_query($link, "SELECT `cl`.*,`clt`.`LEAD_CATEGORY` AS `LEAD_CATEGORY_clt`,`clt`.`LEAD_TYPE` AS `LEAD_TYPE_clt`,DATE(`clt`.`DATED`) AS `LEAD_DATED_clt`,`cla`.`PERSON_NAME` AS `PERSON_NAME`,`ls`.`STATUS_HEADING` AS `STATUS_TITLE_STATUS`,`curr`.`name` AS `SENDING_COUNTRY_NAME` FROM `calling_lead` AS `cl` INNER JOIN `calling_lead_title` AS `clt` ON `cl`.`LEADTID`=`clt`.`ID` INNER JOIN `calling_lead_agents` AS `cla` ON `cl`.`USERID`=`cla`.`ID` INNER JOIN `lead_status` AS `ls` ON `cl`.`LEAD_STATUS`=`ls`.`ID` INNER JOIN `currencies` AS `curr` ON `cl`.`SENDING_COUNTRY`=`curr`.`iso3` WHERE INACTIVE_LEAD_TITLE='1' $srchAGENTS $srchSTATUS $DATEDG $srchASSDATE $srchLEADS $srchEMAIL");
+						if (isset($_POST['srchLEADS_TYPE']) && !empty($_POST['srchLEADS_TYPE'] != NULL)) {
+							$srchLEADS_TYPE = "AND `clt`.`LEAD_TYPE`='$_POST[srchLEADS_TYPE]'";
+							$srchLEADS_TYPEi = $_POST['srchLEADS_TYPE'];
+						}
+						if (!empty($srchAGENTS) || !empty($srchSTATUS) || !empty($DATEDG) || !empty($srchASSDATE) || !empty($srchLEADS) || !empty($srchEMAIL) || !empty($srchLEADS_TYPE)) {
+							$calling_leads = mysqli_query($link, "SELECT `cl`.*,`clt`.`LEAD_CATEGORY` AS `LEAD_CATEGORY_clt`,`clt`.`LEAD_TYPE` AS `LEAD_TYPE_clt`,DATE(`clt`.`DATED`) AS `LEAD_DATED_clt`,`cla`.`PERSON_NAME` AS `PERSON_NAME`,`ls`.`STATUS_HEADING` AS `STATUS_TITLE_STATUS`,`curr`.`name` AS `SENDING_COUNTRY_NAME` FROM `calling_lead` AS `cl` INNER JOIN `calling_lead_title` AS `clt` ON `cl`.`LEADTID`=`clt`.`ID` INNER JOIN `calling_lead_agents` AS `cla` ON `cl`.`USERID`=`cla`.`ID` INNER JOIN `lead_status` AS `ls` ON `cl`.`LEAD_STATUS`=`ls`.`ID` INNER JOIN `currencies` AS `curr` ON `cl`.`SENDING_COUNTRY`=`curr`.`iso3` WHERE INACTIVE_LEAD_TITLE='1' $srchAGENTS $srchSTATUS $srchLEADS_TYPE $DATEDG $srchASSDATE $srchLEADS $srchEMAIL");
 						} else {
 							$calling_leads = '';
 						}
@@ -320,6 +326,23 @@
 								</select>
 							</div>
 							<div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
+								<label style="padding-top:7px;">Lead Type</label>
+								<select name="srchLEADS_TYPE" class="form-control">
+									<option value="" hidden disabled selected>SELECT</option>
+									<option value="" style="font-weight: bold;text-align: center;">Reset</option>
+									<?php
+									$calling_lead_types = mysqli_query($link, "SELECT * FROM `calling_lead_types`");
+									foreach ($calling_lead_types as $calling_lead_type) {
+									?>
+										<option value="<?php echo $calling_lead_type['ID'] ?>" <?php if ($srchLEADS_TYPEi == $calling_lead_type['ID']) {
+																									echo 'selected';
+																								} ?>><?php echo $calling_lead_type['HEADING'] ?></option>
+									<?php
+									}
+									?>
+								</select>
+							</div>
+							<div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
 								<label style="padding-top:7px;">Leads</label>
 								<select name="srchLEADS" class="form-control">
 									<option value="" hidden disabled selected>SELECT</option>
@@ -343,19 +366,9 @@
 									<option value="" style="font-weight: bold;text-align: center;">Reset</option>
 									<?php
 									$select_lead_status = mysqli_query($link, "SELECT * FROM `lead_status`");
-
 									foreach ($select_lead_status as $value_ls) {
 										if ($value_ls['STATUS_HEADING'] != "Lead Converted") {
 									?>
-											<option value="<?php echo $value_ls['ID'] ?>" <?php if ($srchSTATUSi == $value_ls['ID']) {
-																								echo 'selected';
-																							} ?>><?php echo $value_ls['STATUS_HEADING'] ?></option>
-										<?php
-										}
-									}
-									foreach ($select_lead_status as $value_ls) {
-										if ($value_ls['STATUS_HEADING'] == "Lead Converted") {
-										?>
 											<option value="<?php echo $value_ls['ID'] ?>" <?php if ($srchSTATUSi == $value_ls['ID']) {
 																								echo 'selected';
 																							} ?>><?php echo $value_ls['STATUS_HEADING'] ?></option>
@@ -365,7 +378,7 @@
 									?>
 								</select>
 							</div>
-							<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+							<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
 								<div class="form-group al-right" style="padding-top: 31px;">
 									<div class="col-lg-12" style="padding: 0!important;">
 										<div class="input-daterange input-group">
