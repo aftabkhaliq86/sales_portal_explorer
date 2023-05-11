@@ -57,13 +57,10 @@
         echo '<li><a href="?' . http_build_query($params) . '">Next</a></li>';
     }
     echo '</ul>';
+    if ($total_records != 0) {
     ?>
-
-    <!--    <nav aria-label="...">-->
-    <!--        <ul class="pagination pagination-lg">-->
-    <!--            <li class="disabled"><a href="#" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>-->
-    <!--            <li class="active"><a href="#">1 <span class="sr-only">(current)</span></a></li>-->
-    <!--            ...-->
-    <!--        </ul>-->
-    <!--    </nav>-->
+        <ul class="pagination pagination-lg">
+            <li class="active"><a href="#"> Total: <?php echo $total_records; ?></a></li>
+        </ul>
+    <?php } ?>
 </div>

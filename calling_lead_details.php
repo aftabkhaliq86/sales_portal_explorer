@@ -224,6 +224,11 @@ if (isset($_REQUEST['actc'])) {
                                         <?php } ?>
 
                                     </div>
+                                    <div class="progress" style="margin: 10px;display: none;">
+                                        <div class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                                            <span class="sr-only">0% Complete</span>
+                                        </div>
+                                    </div>
                                     <?php if (isset($_GET['AGID'])) { ?>
                                         <table id="leads" class="col-lg-12 table-striped table-condensed cf tbl table-responsive">
                                             <thead class="cf">
@@ -390,16 +395,27 @@ if (isset($_REQUEST['actc'])) {
     <?php include('inc_foot.php'); ?>
     <?php if (isset($_GET['AGID'])) { ?>
         <script>
-            $(document).ready(function() {
-                $('#btnExport').click(function(e) {
-                    let AGID = '<?php echo $_GET['AGID']; ?>';
-                    let ID = '<?php echo $_GET['id']; ?>';
-                    $.get('export/calling_lead_details.php?id=' + ID + '&AGID=' + AGID, function(data) {
-                        var tableId = "leads_export"; // assign an id to the new table element
-                        var newTable = $("<table>").attr("id", tableId).html(data);
-                        $("body").append(newTable); // append the new table to the body
-                        xport.toCSV(tableId);
-                        newTable.remove(); // remove the new table after the export is done
+            $('#btnExport').click(function(e) {
+                e.preventDefault();
+                $('#btnExport').button('loading');
+                $('.progress').show();
+                let AGID = '<?php echo $_GET['AGID']; ?>';
+                let ID = '<?php echo $_GET['id']; ?>';
+                $.get('export/calling_lead_details.php?id=' + ID + '&AGID=' + AGID, function(data) {
+                    var progressBar = $('.progress-bar');
+                    var progressWidth = 1;
+                    var interval = setInterval(function() {
+                        progressWidth += 1;
+                        progressBar.css('width', progressWidth + '%').attr('aria-valuenow', progressWidth).text(progressWidth + '%');
+                        if (progressWidth >= 100) {
+                            clearInterval(interval);
+                            var tableId = "leads_export"; // assign an id to the new table element
+                            var newTable = $("<table>").attr("id", tableId).html(data);
+                            $("body").append(newTable); // append the new table to the body
+                            xport.toCSV(tableId);
+                            newTable.remove(); // remove the new table after the export is done
+                            $('#btnExport').button('reset');
+                        }
                     });
                 });
             });
