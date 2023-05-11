@@ -179,7 +179,7 @@ if (isset($_REQUEST['actc'])) {
                                     <h4><?php echo $plu_del_rep; ?></h4>
                                     <a href="<?php echo basename($_SERVER['PHP_SELF']) ?>?id=<?php echo $LEADTID ?>" class="btn btn-default btn-xs pull-right" data-toggle="tooltip" data-placement="top" title="Page Refresh"><i class="fa fa-refresh"></i></a>
 
-                                    <button type="button" id="btnExport" onclick="javascript:xport.toCSV('example');" class="btn btn-default btn-xs pull-right"><i class="fa fa-download"></i>&nbsp;Export to CSV</button>
+                                    <button type="button" id="btnExport" onclick="javascript:xport.toCSV('leads');" class="btn btn-default btn-xs pull-right"><i class="fa fa-download"></i>&nbsp;Export to CSV</button>
 
                                     <div class="clearfix"></div>
                                 </div>
