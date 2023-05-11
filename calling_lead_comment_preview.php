@@ -14,6 +14,27 @@ $Cl_ID = $_GET['id'];
 if (isset($_GET['id'])) {
     $Cl_ID = $_GET['id'];
 }
+if (isset($_POST['update_phone_number'])) {
+    $new_phone = $_POST['update_phone'];
+    $existing_phone = "SELECT phone FROM `calling_lead` WHERE `INACTIVE_LEAD_TITLE` = 1 AND `PHONE` like '%$new_phone%' AND `ID` != '$Cl_ID' ";
+    $existing_phone = mysqli_query($link, $existing_phone);
+    $existing_phone = mysqli_fetch_assoc($existing_phone);
+    if (is_null($existing_phone)){
+        $UPDATE_CALLINGLEADPHONE = "UPDATE `calling_lead` SET PHONE='$new_phone' WHERE ID='$Cl_ID'";
+        if (!mysqli_query($link, $UPDATE_CALLINGLEADPHONE)) {
+            echo "ERROR: Could not able to execute $UPDATE_CALLINGLEADPHONE. " . mysqli_error($link);
+        }
+    }else{
+        ?>
+        <script>
+            alert("Number is already associated with other active lead.");
+        </script>
+        <?php
+
+    }
+
+    unset($_POST['update_phone_number']);
+}
 
 $innd = '';
 $inndl = '';
@@ -183,7 +204,35 @@ while ($row_clcmts = mysqli_fetch_array($result_clcmts)) {
                                                         <span>
                                                             <?php echo $PHONE; ?>
                                                         </span>
-
+                                                                                                                <i class="fa fa-pencil btn btn-primary " data-toggle="modal" data-target="#flipFlop"></i>
+                                                        <div class="modal fade" id="flipFlop" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+                                                            <div class="modal-dialog" role="document">
+                                                                <div class="modal-content">
+                                                                    <form action="<?php echo $_SERVER['PHP_SELF']; ?>?id=<?php echo $Cl_ID; ?>" method="post" name="updateform">
+                                                                        <div class="modal-header">
+                                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                                <span aria-hidden="true">&times;</span>
+                                                                            </button>
+                                                                            <h4 class="modal-title" id="modalLabel">Edit Phone Number</h4>
+                                                                        </div>
+                                                                        <div class="modal-body">
+                                                                            <div class="container">
+                                                                                <div class="row sml-padding">
+                                                                                    <div class="col-lg-3"><label class="control-label">Phone</label></div>
+                                                                                    <div class="col-lg-9 w-100">
+                                                                                        <input type="text" name="update_phone" value="<?php echo  $PHONE ?>">
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <input type="submit" name="update_phone_number" class="btn btn-primary" value="Update Phone">
+                                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                                        </div>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div class="row sml-padding">
