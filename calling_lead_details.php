@@ -418,7 +418,7 @@ if (isset($_REQUEST['actc'])) {
                             clearInterval(interval);
                             setInterval(function() {
                                 $('.progress').hide();
-                            },5000);
+                            }, 5000);
                         }
                     }, 200); // Set interval to 100ms for faster updates
                 });

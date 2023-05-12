@@ -106,7 +106,6 @@
 	};
 </script>
 
-
 <body class="nav-md">
 
 	<div class="container body">
@@ -118,11 +117,8 @@
 			<!-- breadcrumb -->
 			<div class="breadcrumb_content">
 				<div class="breadcrumb_text">Dashboard /
-					<!--<a href="dashboard.php">Dashboard</a> / -->
 				</div>
 			</div>
-			<!-- /breadcrumb -->
-
 			<!-- page content -->
 			<div class="right_col bg_fff" role="main">
 				<div class="">
@@ -141,152 +137,71 @@
 											<div class="container"><strong>Data diffrence is not More than two months!</strong></div>
 										</div>
 									<?php } ?>
-									<form name="frmSRCH" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="get">
+									<form name="form_submit" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="get">
 										<?php
-										$sts = '';
-										$srch_DATEFROM = '';
-										$srch_DATETO = '';
-										$DATEDG = '';
-										$srchREGDATE = '';
-										$srchSENDINGCOUNT = '';
-										$srchSENDINGCOUNTi = '';
-										$srchRECCOUNT = '';
-										$srchRECCOUNTi = '';
-										$srchEMAIL = '';
-										$srchASSDATE = '';
-										$srchASSDATEFROM = '';
-										$srchASSDATETO = '';
-										$srchAGENTS = '';
-										$srchAGENTSi = '';
-										$srchLEADS = '';
-										$srchLEADSi = '';
-										$srchSTATUS = '';
-										$srchSTATUSi = '';
-										$srchLEADS_TYPE = '';
-										$srchLEADS_TYPEi = '';
-										$resultsssfor_Lead_Converted_ego = '';
-										if (isset($_GET['srchfilter'])) //submit button name
+										if (isset($_GET)) //submit button name
 										{
-											$srch_DATEFROM = $_GET['DATEFROM'];
-											$srch_DATETO = $_GET['DATETO'];
-											$srchASSDATEFROM = $_GET['srchASSDATEFROM'];
-											$srchASSDATETO = $_GET['srchASSDATETO'];
-											//echo '<hr>';
-
-											//Get previous Date From-----------------------
-											if ($srch_DATEFROM) {
-												$srch_DATEFROM = strtotime($srch_DATEFROM);
-												//$srch_DATEFROM = strtotime('-1 day', $srch_DATEFROM);
-												$srch_DATEFROM = date('Y-m-d', $srch_DATEFROM);
-											} else {
-												$srch_DATEFROM = '';
-											}
-											//------------------------------------------
-											//Get previous Date To-----------------------
-											if ($srch_DATETO) {
-												$srch_DATETO = strtotime($srch_DATETO);
-												// $srch_DATETO = strtotime('+1 day', $srch_DATETO);
-												$srch_DATETO = date('Y-m-d', $srch_DATETO);
-											} else {
-												$srch_DATETO = '';
-											}
-											// echo $srch_DATEFROM;
-											// echo $srch_DATETO;
-											//----------------------------------------------
-
-											//Get Assignee previous Date From-----------------------
-											if ($srchASSDATEFROM) {
-												$srchASSDATEFROM = strtotime($srchASSDATEFROM);
-												$srchASSDATEFROM = date('Y-m-d', $srchASSDATEFROM);
-											} else {
-												$srchASSDATEFROM = '';
-											}
-											//----------------------------------------------
-											//Get Assignee previous Date To-----------------------
-											if ($srchASSDATETO) {
-												$srchASSDATETO = strtotime($srchASSDATETO);
-												// $srchASSDATETO = strtotime('+1 day', $srchASSDATETO);
-												$srchASSDATETO = date('Y-m-d', $srchASSDATETO);
-											} else {
-												$srchASSDATETO = '';
-											}
-											//----------------------------------------------
-
-
-											if (!empty($srch_DATEFROM != NULL && $srch_DATETO != NULL)) {
-												//date diffrence Start
-												$lmt_DATEFROM = new DateTime($srch_DATEFROM);
-												$lmt_DATETO = new DateTime($srch_DATETO);
-												$interval = $lmt_DATEFROM->diff($lmt_DATETO);
-												$monthsDiff = $interval->m;
-												if ($monthsDiff <= 2) {
-													$DATEDG = "AND DATE(`cl`.`DATED`) BETWEEN '$srch_DATEFROM' AND '$srch_DATETO'";
-												} else {
+											//Get previous Date From   to   Date To----------------------
+											$date_from = !empty($_GET['date_from']) ? date('Y-m-d', strtotime($_GET['date_from'])) : '';
+											$date_to = !empty($_GET['date_to']) ? date('Y-m-d', strtotime($_GET['date_to'])) : '';
+											//date diffrence Start
+											$date_from_to = '';
+											if (!empty($date_from != NULL && $date_to != NULL)) {
+												$monthsDiff = !empty($date_from) && !empty($date_to) ? (new DateTime($date_from))->diff(new DateTime($date_to))->m : 0;
+												if ($monthsDiff > 2) {
 													echo ("<script>location='" . basename($_SERVER['PHP_SELF']) . "?date=high'</script>");
 												}
-												//date diffrence End
+												$date_from_to = "AND DATE(`cl`.`DATED`) BETWEEN '$date_from' AND '$date_to'";
 											}
-											if (isset($_GET['srchREGDATE']) && !empty($_GET['srchREGDATE'] != NULL)) {
-												$srchREGDATE = "AND REGISTER_DATE='$_GET[srchREGDATE]'";
-											}
-											if (isset($_GET['srchSENDINGCOUNT']) && !empty($_GET['srchSENDINGCOUNT'] != NULL)) {
-												$srchSENDINGCOUNT = "AND SENDING_COUNTRY='$_GET[srchSENDINGCOUNT]'";
-												$srchSENDINGCOUNTi = $_GET['srchSENDINGCOUNT'];
-											}
-											if (isset($_GET['srchRECCOUNT']) && !empty($_GET['srchRECCOUNT'] != NULL)) {
-												$srchRECCOUNT = "AND PREFFERED_COUNTRY='$_GET[srchRECCOUNT]'";
-												$srchRECCOUNTi = $_GET['srchRECCOUNT'];
-											}
-											if (!empty($_GET['srchEMAIL'] != NULL)) {
-												$srchEMAIL = "AND EMAIL='$_GET[srchEMAIL]'";
-											}
-
-											if (!empty($srchASSDATEFROM) && empty($srchASSDATETO)) {
-												$srchASSDATE = "AND DATE(U_DATED) = '$srchASSDATEFROM'";
-											} elseif (!empty($srchASSDATEFROM != NULL && $srchASSDATETO != NULL)) {
-												$srchASSDATE = "AND DATE(U_DATED) BETWEEN '$srchASSDATEFROM' AND '$srchASSDATETO'";
-											}
-											if (isset($_GET['srchAGENTS']) && !empty($_GET['srchAGENTS'] != NULL)) {
-												$srchAGENTS = "AND USERID='$_GET[srchAGENTS]'";
-												$srchAGENTSi = $_GET['srchAGENTS'];
-											}
-											if (isset($_GET['srchLEADS']) && !empty($_GET['srchLEADS'] != NULL)) {
-												$srchLEADS = "AND LEADTID='$_GET[srchLEADS]'";
-												$srchLEADSi = $_GET['srchLEADS'];
-											}
-											if (isset($_GET['srchSTATUS']) && !empty($_GET['srchSTATUS'] != NULL)) {
-												$srchSTATUS = "AND LEAD_STATUS='$_GET[srchSTATUS]'";
-												$srchSTATUSi = $_GET['srchSTATUS'];
-											}
-											if (isset($_GET['srchLEADS_TYPE']) && !empty($_GET['srchLEADS_TYPE'] != NULL)) {
-												$srchLEADS_TYPE = "AND `clt`.`LEAD_TYPE`='$_GET[srchLEADS_TYPE]'";
-												$srchLEADS_TYPEi = $_GET['srchLEADS_TYPE'];
-											}
-											if (!empty($srchAGENTS) || !empty($srchSTATUS) || !empty($DATEDG) || !empty($srchASSDATE) || !empty($srchLEADS) || !empty($srchEMAIL) || !empty($srchLEADS_TYPE)) {
+											//date diffrence End
+											//----------------------------------------------
+											//Get Assignee previous Date From  Date To-----------------------
+											$assign_date_from = !empty($_GET['assign_date_from']) ? date('Y-m-d', strtotime($_GET['assign_date_from'])) : '';
+											$assign_date_to = !empty($_GET['assign_date_to']) ? date('Y-m-d', strtotime($_GET['assign_date_to'])) : '';
+											$assign_date_query = !empty($assign_date_from) && empty($assign_date_to) ? "AND DATE(U_DATED) = '$assign_date_from'"
+												: (!empty($assign_date_from) && !empty($assign_date_to) ? "AND DATE(U_DATED) BETWEEN '$assign_date_from' AND '$assign_date_to'" : '');
+											//----------------------------------------------
+											//Get reg_date-----------------------
+											$reg_date_query = !empty($_GET['reg_date']) ? "AND REGISTER_DATE='{$_GET['reg_date']}'" : '';
+											//----------------------------------------------
+											//Get sending_country-----------------------
+											$sending_country_query = !empty($_GET['sending_country']) ? "AND SENDING_COUNTRY='{$_GET['sending_country']}'" : '';
+											//----------------------------------------------
+											//Get receiving_country-----------------------
+											$receiving_country_query = !empty($_GET['receiving_country']) ? "AND PREFFERED_COUNTRY='{$_GET['receiving_country']}'" : '';
+											//----------------------------------------------
+											//Get email-----------------------
+											$email_query = !empty($_GET['email']) ? "AND EMAIL='{$_GET['email']}'" : '';
+											//----------------------------------------------
+											//Get email-----------------------
+											$agent_query = !empty($_GET['agent']) ? "AND USERID='{$_GET['agent']}'" : '';
+											//----------------------------------------------
+											//Get lead-----------------------
+											$lead_query = !empty($_GET['lead']) ? "AND LEADTID='{$_GET['lead']}'" : '';
+											//----------------------------------------------
+											//Get status-----------------------
+											$status_query = !empty($_GET['status']) ? "AND LEAD_STATUS='{$_GET['status']}'" : '';
+											//----------------------------------------------
+											//Get lead_type-----------------------
+											$lead_type_query = !empty($_GET['lead_type']) ? "AND `clt`.`LEAD_TYPE`='{$_GET['lead_type']}'" : '';
+											//----------------------------------------------
+											if (!empty($agent_query) || !empty($status_query) || !empty($date_from_to) || !empty($assign_date_query) || !empty($lead_query) || !empty($email_query) || !empty($lead_type_query)) {
 												// Determine current page number
 												$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-
 												// Number of records to display per page
 												$records_per_page = 10;
-
 												// Query string parameters
 												$params = $_GET;
 												unset($params['page']); // Remove the 'page' parameter
-
 												// Calculate the starting point of the records
 												$offset = ($page - 1) * $records_per_page;
 												$invalid_lead_sts = 0;
 												$total_records = 0;
-
 												// Calculate the starting point of the records
-												$calling_leads_query = "SELECT `cl`.*,`clt`.`LEAD_CATEGORY` AS `LEAD_CATEGORY_clt`,`clt`.`LEAD_TYPE` AS `LEAD_TYPE_clt`,DATE(`clt`.`DATED`) AS `LEAD_DATED_clt`,`cla`.`PERSON_NAME` AS `PERSON_NAME`,`ls`.`STATUS_HEADING` AS `STATUS_TITLE_STATUS`,`curr`.`name` AS `SENDING_COUNTRY_NAME` FROM `calling_lead` AS `cl` INNER JOIN `calling_lead_title` AS `clt` ON `cl`.`LEADTID`=`clt`.`ID` INNER JOIN `calling_lead_agents` AS `cla` ON `cl`.`USERID`=`cla`.`ID` INNER JOIN `lead_status` AS `ls` ON `cl`.`LEAD_STATUS`=`ls`.`ID` LEFT JOIN `currencies` AS `curr` ON `cl`.`SENDING_COUNTRY`=`curr`.`iso3` WHERE INACTIVE_LEAD_TITLE='1' $srchAGENTS $srchSTATUS $srchLEADS_TYPE $DATEDG $srchASSDATE $srchLEADS $srchEMAIL";
+												$calling_leads_query = "SELECT `cl`.*,`clt`.`LEAD_CATEGORY` AS `LEAD_CATEGORY_clt`,`clt`.`LEAD_TYPE` AS `LEAD_TYPE_clt`,DATE(`clt`.`DATED`) AS `LEAD_DATED_clt`,`cla`.`PERSON_NAME` AS `PERSON_NAME`,`ls`.`STATUS_HEADING` AS `STATUS_TITLE_STATUS`,`curr`.`name` AS `SENDING_COUNTRY_NAME` FROM `calling_lead` AS `cl` INNER JOIN `calling_lead_title` AS `clt` ON `cl`.`LEADTID`=`clt`.`ID` INNER JOIN `calling_lead_agents` AS `cla` ON `cl`.`USERID`=`cla`.`ID` INNER JOIN `lead_status` AS `ls` ON `cl`.`LEAD_STATUS`=`ls`.`ID` LEFT JOIN `currencies` AS `curr` ON `cl`.`SENDING_COUNTRY`=`curr`.`iso3` WHERE INACTIVE_LEAD_TITLE='1' $agent_query $status_query $lead_type_query $date_from_to $assign_date_query $lead_query $email_query";
 												$calling_leads = mysqli_query($link, "$calling_leads_query LIMIT " . $offset . "," . $records_per_page);
 												$total_records = $link->query($calling_leads_query)->num_rows;
 												$total_pages = ceil($total_records / $records_per_page);
-												$postData =  "&srchAGENTS=$srchAGENTS&srchSTATUS=$srchSTATUS&srchLEADS=$srchLEADS&srchLEADS_TYPE=$srchLEADS_TYPE&DATEDG=$DATEDG&srchASSDATE=$srchASSDATE&srchEMAIL=$srchEMAIL";
-
-												// Encode the POST data into a query string
-												// $queryString = http_build_query($postData);
 											} else {
 												$calling_leads = '';
 											}
@@ -296,22 +211,18 @@
 											<div class="col-lg-12">
 												<div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
 													<label style="padding-top:7px;">Registration Date</label>
-													<input type="date" name="srchREGDATE" class="form-control" value="<?php if ($srchREGDATE != NULL) {
-																															echo $_GET['srchREGDATE'];
-																														} ?>">
+													<input type="date" name="reg_date" class="form-control" value="<?= ($_GET['reg_date'] ?? '') ? $_GET['reg_date'] : '' ?>">
 												</div>
 												<div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
 													<label style="padding-top:7px;">Sending Country</label>
-													<select name="srchSENDINGCOUNT" class="form-control">
+													<select name="sending_country" class="form-control">
 														<option value="" hidden disabled selected>SELECT</option>
 														<option value="" style="font-weight: bold;text-align: center;">Reset</option>
 														<?php
 														$select_currencies_sc = mysqli_query($link, "SELECT * FROM `currencies`");
 														foreach ($select_currencies_sc as $value_sc) {
 														?>
-															<option value="<?php echo $value_sc['iso3']; ?>" <?php if ($srchSENDINGCOUNTi == $value_sc['iso3']) {
-																													echo 'selected';
-																												} ?>><?php echo $value_sc['name'] ?></option>
+															<option value="<?= $value_sc['iso3']; ?>" <?= ($_GET['sending_country'] ?? '') == $value_sc['iso3'] ? 'selected' : '' ?>><?= $value_sc['name'] ?></option>
 														<?php
 														}
 														?>
@@ -319,16 +230,14 @@
 												</div>
 												<div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
 													<label style="padding-top:7px;">Receiving Country</label>
-													<select name="srchRECCOUNT" class="form-control">
+													<select name="receiving_country" class="form-control">
 														<option value="" hidden disabled selected>SELECT</option>
 														<option value="" style="font-weight: bold;text-align: center;">Reset</option>
 														<?php
 														$select_currencies_rc = mysqli_query($link, "SELECT * FROM `currencies`");
 														foreach ($select_currencies_rc as $value_rc) {
 														?>
-															<option value="<?php echo $value_rc['name'] ?>" <?php if ($srchRECCOUNTi == $value_rc['name']) {
-																												echo 'selected';
-																											} ?>><?php echo $value_rc['name'] ?></option>
+															<option value="<?= $value_rc['name'] ?>" <?= ($_GET['receiving_country'] ?? '') == $value_rc['name'] ? 'selected' : '' ?>><?= $value_rc['name'] ?></option>
 														<?php
 														}
 														?>
@@ -336,36 +245,28 @@
 												</div>
 												<div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
 													<label style="padding-top:7px;">Email Search</label>
-													<input type="email" name="srchEMAIL" class="form-control" value="<?php if ($srchEMAIL != NULL) {
-																															echo $_GET['srchEMAIL'];
-																														} ?>">
+													<input type="email" name="email" class="form-control" value="<?= ($_GET['email'] ?? '') ? $_GET['email'] : '' ?>">
 												</div>
 												<div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
 													<label style="padding-top:7px;">Assigned Date From</label>
-													<input type="date" name="srchASSDATEFROM" class="form-control" value="<?php if ($srchASSDATEFROM != NULL) {
-																																echo $_GET['srchASSDATEFROM'];
-																															} ?>">
+													<input type="date" name="assign_date_from" class="form-control" value="<?= ($_GET['assign_date_from'] ?? '') ? $_GET['assign_date_from'] : '' ?>">
 												</div>
 												<div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
 													<label style="padding-top:7px;">Assigned Date To</label>
-													<input type="date" name="srchASSDATETO" class="form-control" value="<?php if ($srchASSDATETO != NULL) {
-																															echo $_GET['srchASSDATETO'];
-																														} ?>">
+													<input type="date" name="assign_date_to" class="form-control" value="<?= ($_GET['assign_date_to'] ?? '') ? $_GET['assign_date_to'] : '' ?>">
 												</div>
 											</div>
 											<div class="col-lg-12">
 												<div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
 													<label style="padding-top:7px;">Agents</label>
-													<select name="srchAGENTS" class="form-control">
+													<select name="agent" class="form-control">
 														<option value="" hidden disabled selected>SELECT</option>
 														<option value="" style="font-weight: bold;text-align: center;">Reset</option>
 														<?php
 														$Agent_query = mysqli_query($link, "SELECT * FROM `calling_lead_agents`");
 														foreach ($Agent_query as $value) {
 														?>
-															<option value="<?php echo $value['ID'] ?>" <?php if ($srchAGENTSi == $value['ID']) {
-																											echo 'selected';
-																										} ?>><?php echo $value['PERSON_NAME'] ?></option>
+															<option value="<?= $value['ID'] ?>" <?= ($_GET['agent'] ?? '') == $value['ID'] ? 'selected' : '' ?>><?= $value['PERSON_NAME'] ?></option>
 														<?php
 														}
 														?>
@@ -373,16 +274,14 @@
 												</div>
 												<div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
 													<label style="padding-top:7px;">Lead Type</label>
-													<select name="srchLEADS_TYPE" class="form-control">
+													<select name="lead_type" class="form-control">
 														<option value="" hidden disabled selected>SELECT</option>
 														<option value="" style="font-weight: bold;text-align: center;">Reset</option>
 														<?php
 														$calling_lead_types = mysqli_query($link, "SELECT * FROM `calling_lead_types`");
 														foreach ($calling_lead_types as $calling_lead_type) {
 														?>
-															<option value="<?php echo $calling_lead_type['ID'] ?>" <?php if ($srchLEADS_TYPEi == $calling_lead_type['ID']) {
-																														echo 'selected';
-																													} ?>><?php echo $calling_lead_type['HEADING'] ?></option>
+															<option value="<?= $calling_lead_type['ID'] ?>" <?= ($_GET['lead_type'] ?? '') == $calling_lead_type['ID'] ? 'selected' : '' ?>><?= $calling_lead_type['HEADING'] ?></option>
 														<?php
 														}
 														?>
@@ -390,16 +289,14 @@
 												</div>
 												<div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
 													<label style="padding-top:7px;">Leads</label>
-													<select name="srchLEADS" class="form-control">
+													<select name="lead" class="form-control">
 														<option value="" hidden disabled selected>SELECT</option>
 														<option value="" style="font-weight: bold;text-align: center;">Reset</option>
 														<?php
 														$select_lead_title = mysqli_query($link, "SELECT * FROM `calling_lead_title`");
 														foreach ($select_lead_title as $value_lt) {
 														?>
-															<option value="<?php echo $value_lt['ID'] ?>" <?php if ($srchLEADSi == $value_lt['ID']) {
-																												echo 'selected';
-																											} ?>><?php echo $value_lt['LEAD_CATEGORY'] ?></option>
+															<option value="<?= $value_lt['ID'] ?>" <?= ($_GET['lead'] ?? '') == $value_lt['ID'] ? 'selected' : '' ?>><?= $value_lt['LEAD_CATEGORY'] ?></option>
 														<?php
 														}
 														?>
@@ -407,7 +304,7 @@
 												</div>
 												<div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
 													<label style="padding-top:7px;">Status</label>
-													<select name="srchSTATUS" class="form-control">
+													<select name="status" class="form-control">
 														<option disabled hidden selected>SELECT</option>
 														<option value="" style="font-weight: bold;text-align: center;">Reset</option>
 														<?php
@@ -415,9 +312,7 @@
 														foreach ($select_lead_status as $value_ls) {
 															if ($value_ls['STATUS_HEADING'] != "Lead Converted") {
 														?>
-																<option value="<?php echo $value_ls['ID'] ?>" <?php if ($srchSTATUSi == $value_ls['ID']) {
-																													echo 'selected';
-																												} ?>><?php echo $value_ls['STATUS_HEADING'] ?></option>
+																<option value="<?= $value_ls['ID'] ?>" <?= ($_GET['status'] ?? '') == $value_ls['ID'] ? 'selected' : '' ?>><?= $value_ls['STATUS_HEADING'] ?></option>
 														<?php
 															}
 														}
@@ -428,13 +323,9 @@
 													<div class="form-group al-right" style="padding-top: 31px;">
 														<div class="col-lg-12" style="padding: 0!important;">
 															<div class="input-daterange input-group">
-																<input type="date" class="form-control input-date-picker datepicker-dropdown" id="DATEFROM" name="DATEFROM" placeholder="Start Date" autocomplete="off" value="<?php if ($srch_DATEFROM != NULL) {
-																																																									echo $_GET['DATEFROM'];
-																																																								} ?>" />
+																<input type="date" class="form-control input-date-picker datepicker-dropdown" id="date_from" name="date_from" placeholder="Start Date" autocomplete="off" value="<?= ($_GET['date_from'] ?? '') ? $_GET['date_from'] : '' ?>" />
 																<span class="input-group-addon"><i class="fa fa-angle-left"></i> From DATE To <i class="fa fa-angle-right"></i></span>
-																<input type="date" class="form-control input-date-picker" id="DATETO" name="DATETO" placeholder="End Date" autocomplete="off" value="<?php if ($srch_DATETO != NULL) {
-																																																			echo $_GET['DATETO'];
-																																																		} ?>" />
+																<input type="date" class="form-control input-date-picker" id="date_to" name="date_to" placeholder="End Date" autocomplete="off" value="<?= ($_GET['date_to'] ?? '') ? $_GET['date_to'] : '' ?>" />
 															</div>
 														</div>
 													</div>
@@ -442,9 +333,9 @@
 											</div>
 											<div class="col-lg-12" align="center">
 												<label>&nbsp;<br><br></label>
-												<button type="submit" name="srchfilter" class="btn btn-success"><i class="fa fa-search"></i> Search</button>
+												<button type="submit" class="btn btn-success"><i class="fa fa-search"></i> Search</button>
 												<a href="<?php echo $_SERVER['PHP_SELF']; ?>" class="btn btn-warning"><i class="fa fa-times"></i></a>
-												<?php if (isset($_GET['srchfilter'])) {
+												<?php if (isset($_GET)) {
 												?>
 													<button type="button" id="btnExport" class="btn btn-default"><i class="fa fa-download"></i>&nbsp;Export to CSV</button>
 												<?php }
@@ -598,43 +489,9 @@
 	</div>
 	<?php include('inc_foot.php'); ?>
 	<script>
-		// $('#btnExport').click(function(e) {
-		// 	e.preventDefault();
-		// 	$('#btnExport').button('loading');
-		// 	$('.progress').show();
-		// 	let calling_leads = "<?php //echo $calling_leads_all; 
-									?>";
-		// 	$.get('export/report_all.php?calling_leads=' + calling_leads, function(data) {
-		// 		var progressBar = $('.progress-bar');
-		// 		var progressWidth = 1;
-		// 		var interval = setInterval(function() {
-		// 			progressWidth += 1;
-		// 			// progressBar.css('width', progressWidth + '%').attr('aria-valuenow', progressWidth).text(progressWidth + '%');
-		// 			// if (progressWidth >= 100) {
-		// 			// 	clearInterval(interval);
-		// 			// 	var tableId = "leads_export"; // assign an id to the new table element
-		// 			// 	var newTable = $("<table>").attr("id", tableId).html(data);
-		// 			// 	$("body").append(newTable); // append the new table to the body
-		// 			// 	xport.toCSV(tableId);
-		// 			// 	newTable.remove(); // remove the new table after the export is done
-		// 			// 	$('#btnExport').button('reset');
-		// 			// }
-		// 			progressBar.css('width', progressWidth + '%').attr('aria-valuenow', progressWidth).text(progressWidth + '%');
-		// 			if (progressWidth >= 100) {
-		// 				var tableId = "leads_export"; // assign an id to the new table element
-		// 				var newTable = $("<table>").attr("id", tableId).html(data);
-		// 				$("body").append(newTable); // append the new table to the body
-		// 				xport.toCSV(tableId);
-		// 				newTable.remove(); // remove the new table after the export is done
-		// 				$('#btnExport').button('reset');
-		// 				clearInterval(interval);
-		// 			}
-		// 		}, 20000);
-		// 	});
-		// });
 		$('#btnExport').click(function(e) {
 			e.preventDefault();
-			$('#btnExport').button('loading');
+			$('#btnExport').button('Exporting');
 			$('.progress').show();
 			let calling_leads = "<?php echo $calling_leads_query; ?>";
 			$.get('export/report_all.php?calling_leads=' + calling_leads, function(data) {
@@ -653,8 +510,8 @@
 						$('#btnExport').button('reset');
 						clearInterval(interval);
 						setInterval(function() {
-                                $('.progress').hide();
-                        },5000);
+							$('.progress').hide();
+						}, 5000);
 					}
 				}, 200); // Set interval to 100ms for faster updates
 			});
