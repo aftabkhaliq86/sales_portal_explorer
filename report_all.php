@@ -491,7 +491,7 @@
 	<script>
 		$('#btnExport').click(function(e) {
 			e.preventDefault();
-			$('#btnExport').button('Exporting');
+			$('#btnExport').button('loading');
 			$('.progress').show();
 			let calling_leads = "<?php echo $calling_leads_query; ?>";
 			$.get('export/report_all.php?calling_leads=' + calling_leads, function(data) {
