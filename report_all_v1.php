@@ -215,12 +215,12 @@
 
 											if (!empty($srch_DATEFROM != NULL && $srch_DATETO != NULL)) {
 												//date diffrence Start
-												$srch_DATEFROM = new DateTime($srch_DATEFROM);
-												$srch_DATETO = new DateTime($srch_DATETO);
-												$interval = $srch_DATEFROM->diff($srch_DATETO);
+												$lmt_DATEFROM = new DateTime($srch_DATEFROM);
+												$lmt_DATETO = new DateTime($srch_DATETO);
+												$interval = $lmt_DATEFROM->diff($lmt_DATETO);
 												$monthsDiff = $interval->m;
 												if ($monthsDiff <= 2) {
-													$DATEDG = "AND DATE(LEAD_STATUS_DATED) BETWEEN '$srch_DATEFROM' AND '$srch_DATETO'";
+													$DATEDG = "AND DATE(`cl`.`DATED`) BETWEEN '$srch_DATEFROM' AND '$srch_DATETO'";
 												} else {
 													echo ("<script>location='" . basename($_SERVER['PHP_SELF']) . "?date=high'</script>");
 												}
@@ -279,10 +279,9 @@
 												$total_records = 0;
 
 												// Calculate the starting point of the records
-												$calling_leads = mysqli_query($link, "SELECT `cl`.*,`clt`.`LEAD_CATEGORY` AS `LEAD_CATEGORY_clt`,`clt`.`LEAD_TYPE` AS `LEAD_TYPE_clt`,DATE(`clt`.`DATED`) AS `LEAD_DATED_clt`,`cla`.`PERSON_NAME` AS `PERSON_NAME`,`ls`.`STATUS_HEADING` AS `STATUS_TITLE_STATUS`,`curr`.`name` AS `SENDING_COUNTRY_NAME` FROM `calling_lead` AS `cl` INNER JOIN `calling_lead_title` AS `clt` ON `cl`.`LEADTID`=`clt`.`ID` INNER JOIN `calling_lead_agents` AS `cla` ON `cl`.`USERID`=`cla`.`ID` INNER JOIN `lead_status` AS `ls` ON `cl`.`LEAD_STATUS`=`ls`.`ID` INNER JOIN `currencies` AS `curr` ON `cl`.`SENDING_COUNTRY`=`curr`.`iso3` WHERE INACTIVE_LEAD_TITLE='1' $srchAGENTS $srchSTATUS $srchLEADS_TYPE $DATEDG $srchASSDATE $srchLEADS $srchEMAIL LIMIT " . $offset . "," . $records_per_page);
-												$calling_leads_all = "SELECT `cl`.*,`clt`.`LEAD_CATEGORY` AS `LEAD_CATEGORY_clt`,`clt`.`LEAD_TYPE` AS `LEAD_TYPE_clt`,DATE(`clt`.`DATED`) AS `LEAD_DATED_clt`,`cla`.`PERSON_NAME` AS `PERSON_NAME`,`ls`.`STATUS_HEADING` AS `STATUS_TITLE_STATUS`,`curr`.`name` AS `SENDING_COUNTRY_NAME` FROM `calling_lead` AS `cl` INNER JOIN `calling_lead_title` AS `clt` ON `cl`.`LEADTID`=`clt`.`ID` INNER JOIN `calling_lead_agents` AS `cla` ON `cl`.`USERID`=`cla`.`ID` INNER JOIN `lead_status` AS `ls` ON `cl`.`LEAD_STATUS`=`ls`.`ID` INNER JOIN `currencies` AS `curr` ON `cl`.`SENDING_COUNTRY`=`curr`.`iso3` WHERE INACTIVE_LEAD_TITLE='1' $srchAGENTS $srchSTATUS $srchLEADS_TYPE $DATEDG $srchASSDATE $srchLEADS $srchEMAIL";
-
-												$total_records = $link->query("SELECT `cl`.*,`clt`.`LEAD_CATEGORY` AS `LEAD_CATEGORY_clt`,`clt`.`LEAD_TYPE` AS `LEAD_TYPE_clt`,DATE(`clt`.`DATED`) AS `LEAD_DATED_clt`,`cla`.`PERSON_NAME` AS `PERSON_NAME`,`ls`.`STATUS_HEADING` AS `STATUS_TITLE_STATUS`,`curr`.`name` AS `SENDING_COUNTRY_NAME` FROM `calling_lead` AS `cl` INNER JOIN `calling_lead_title` AS `clt` ON `cl`.`LEADTID`=`clt`.`ID` INNER JOIN `calling_lead_agents` AS `cla` ON `cl`.`USERID`=`cla`.`ID` INNER JOIN `lead_status` AS `ls` ON `cl`.`LEAD_STATUS`=`ls`.`ID` INNER JOIN `currencies` AS `curr` ON `cl`.`SENDING_COUNTRY`=`curr`.`iso3` WHERE INACTIVE_LEAD_TITLE='1' $srchAGENTS $srchSTATUS $srchLEADS_TYPE $DATEDG $srchASSDATE $srchLEADS $srchEMAIL")->num_rows;
+												$calling_leads_query = "SELECT `cl`.*,`clt`.`LEAD_CATEGORY` AS `LEAD_CATEGORY_clt`,`clt`.`LEAD_TYPE` AS `LEAD_TYPE_clt`,DATE(`clt`.`DATED`) AS `LEAD_DATED_clt`,`cla`.`PERSON_NAME` AS `PERSON_NAME`,`ls`.`STATUS_HEADING` AS `STATUS_TITLE_STATUS`,`curr`.`name` AS `SENDING_COUNTRY_NAME` FROM `calling_lead` AS `cl` INNER JOIN `calling_lead_title` AS `clt` ON `cl`.`LEADTID`=`clt`.`ID` INNER JOIN `calling_lead_agents` AS `cla` ON `cl`.`USERID`=`cla`.`ID` INNER JOIN `lead_status` AS `ls` ON `cl`.`LEAD_STATUS`=`ls`.`ID` LEFT JOIN `currencies` AS `curr` ON `cl`.`SENDING_COUNTRY`=`curr`.`iso3` WHERE INACTIVE_LEAD_TITLE='1' $srchAGENTS $srchSTATUS $srchLEADS_TYPE $DATEDG $srchASSDATE $srchLEADS $srchEMAIL";
+												$calling_leads = mysqli_query($link, "$calling_leads_query LIMIT " . $offset . "," . $records_per_page);
+												$total_records = $link->query($calling_leads_query)->num_rows;
 												$total_pages = ceil($total_records / $records_per_page);
 												$postData =  "&srchAGENTS=$srchAGENTS&srchSTATUS=$srchSTATUS&srchLEADS=$srchLEADS&srchLEADS_TYPE=$srchLEADS_TYPE&DATEDG=$DATEDG&srchASSDATE=$srchASSDATE&srchEMAIL=$srchEMAIL";
 
@@ -637,7 +636,7 @@
 			e.preventDefault();
 			$('#btnExport').button('loading');
 			$('.progress').show();
-			let calling_leads = "<?php echo $calling_leads_all; ?>";
+			let calling_leads = "<?php echo $calling_leads_query; ?>";
 			$.get('export/report_all.php?calling_leads=' + calling_leads, function(data) {
 				var progressBar = $('.progress-bar');
 				var progressWidth = 0;
@@ -658,9 +657,6 @@
                         },5000);
 					}
 				}, 200); // Set interval to 100ms for faster updates
-				setInterval(function() {
-                        $('.progress').hide();
-                },5000);
 			});
 		});
 	</script>
