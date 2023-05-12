@@ -28,8 +28,7 @@ if (isset($_POST['submit'])) //submit button name
 					text: "Number of Calls"
 				},
 				axisX: {
-					// maximum: <?php //$no_of_calls_count; 
-								?>,
+					// maximum: //$no_of_calls_count;,
 					interval: 1,
 					labelMaxWidth: 180,
 					labelAngle: -70, //90,
@@ -122,7 +121,40 @@ if (isset($_POST['submit'])) //submit button name
 			<!-- /breadcrumb -->
 			<!-- page content -->
 			<div class="right_col bg_fff" role="main">
+				<div class="container" style="margin-bottom: 20px;">
+					<form action="" method="post" id="import-logs">
+						<div class="col-lg-12 mt-2">
+							<div class="col-lg-9 col-md-9 col-sm-12 col-xs-12 col-lg-offset-1">
+								<h3>Import 3cx Call Logs</h3>
+								<div class="form-group al-right" style="padding-top: 7px;">
 
+									<div class="col-lg-9 text-left">
+										<label class="radio-inline">
+											<input type="radio" name="import_date" id="inlineRadio1" value="Yesterday">Import yesterday Call Cogs
+										</label>
+										<label class="radio-inline">
+											<input type="radio" name="import_date" id="inlineRadio2" value="Today">Import Today Call Cogs
+										</label>
+									</div>
+									<div class="col-lg-3">
+										<button type="button" data-loading-text="Loading..." name="start_import" id="start-import" class="btn btn-success rounded"><i class="fa fa-cloud-download"></i>Start Import</button>
+									</div>
+
+
+								</div>
+
+
+							</div>
+						</div>
+
+					</form>
+					<div class="progress " style="margin: 10px">
+						<div class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+							<span class="sr-only">0% Complete</span>
+						</div>
+					</div>
+
+				</div>
 				<div class="container">
 					<form action="<?= $_SERVER['PHP_SELF']; ?>" method="post">
 
@@ -170,4 +202,41 @@ if (isset($_POST['submit'])) //submit button name
 
 		</div>
 	</div>
+	<script>
+		$("#start-import").on('click', function() {
+			if ($('#import-logs').serialize() == '') {
+				alert('Please select  Import Date');
+				exit();
+			}
+			var $btn = $(this);
+			console.log($('#import-logs').serialize());
+			$.ajax({
+				type: "POST",
+				url: "three_cx_call_logs.php",
+				data: $('#import-logs').serialize(),
+				cache: false,
+				beforeSend: function() {
+					$btn.button('loading');
+					var progressBar = $('.progress-bar');
+					var progressWidth = 1;
+					var interval = setInterval(function() {
+						progressWidth += 1;
+						if (progressWidth >= 100) {
+							clearInterval(interval);
+						} else {
+							progressBar.css('width', progressWidth + '%').attr('aria-valuenow', progressWidth).text(progressWidth + '%');
+						}
+					}, 20000);
+				},
+				success: function(data) {
+
+				},
+				complete: function() {
+					$btn.button('reset');
+					$('.progress').addClass('hidden');
+					alert('Well done! You successfully Imported call logs.');
+				}
+			});
+		})
+	</script>
 	<?php include('inc_foot.php'); ?>
