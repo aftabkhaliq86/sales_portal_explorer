@@ -139,7 +139,7 @@
 									<?php } ?>
 									<form name="form_submit" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="get">
 										<?php
-										if (isset($_GET)) //submit button name
+										if (isset($_GET['submit'])) //submit button name
 										{
 											//Get previous Date From   to   Date To----------------------
 											$date_from = !empty($_GET['date_from']) ? date('Y-m-d', strtotime($_GET['date_from'])) : '';
@@ -333,9 +333,9 @@
 											</div>
 											<div class="col-lg-12" align="center">
 												<label>&nbsp;<br><br></label>
-												<button type="submit" class="btn btn-success"><i class="fa fa-search"></i> Search</button>
+												<button type="submit" name="submit" class="btn btn-success"><i class="fa fa-search"></i> Search</button>
 												<a href="<?php echo $_SERVER['PHP_SELF']; ?>" class="btn btn-warning"><i class="fa fa-times"></i></a>
-												<?php if (isset($_GET)) {
+												<?php if (isset($_GET['submit'])) {
 												?>
 													<button type="button" id="btnExport" class="btn btn-default"><i class="fa fa-download"></i>&nbsp;Export to CSV</button>
 												<?php }
