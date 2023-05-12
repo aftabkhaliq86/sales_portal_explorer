@@ -3,125 +3,109 @@
 <?php include('inc_head.php'); ?>
 <?php include('backend/dashboard.php'); ?>
 <?php
-$DATEDG = '';
-if (isset($_POST['srchfilter'])) //submit button name
+if (isset($_POST['submit'])) //submit button name
 {
-	$srch_DATEFROM = $_POST['DATEFROM'];
-	$srch_DATETO = $_POST['DATETO'];
-	//Get previous Date From-----------------------
-	if ($srch_DATEFROM) {
-		$srch_DATEFROM = strtotime($srch_DATEFROM);
-		//$srch_DATEFROM = strtotime('-1 day', $srch_DATEFROM);
-		$srch_DATEFROM = date('Y-m-d', $srch_DATEFROM);
-	} else {
-		$srch_DATEFROM = '';
-	}
+	$date_from = !empty($_POST['date_from']) ? date('Y-m-d', strtotime($_POST['date_from'])) : '';
+	$date_to = !empty($_POST['date_to']) ? date('Y-m-d', strtotime($_POST['date_to'])) : '';
+	$date_from_to = !empty($date_from) && !empty($date_to) ? "AND DATE(DATED) BETWEEN '$date_from' AND '$date_to'" : '';
+	$date_from_to_call = !empty($date_from) && !empty($date_to) ? "AND DATE(call_time) BETWEEN '$date_from' AND '$date_to'" : '';
 	//----------------------------------------------
-	//Get previous Date To-----------------------
-	if ($srch_DATETO) {
-		$srch_DATETO = strtotime($srch_DATETO);
-		$srch_DATETO = strtotime('+1 day', $srch_DATETO);
-		$srch_DATETO = date('Y-m-d', $srch_DATETO);
-	} else {
-		$srch_DATETO = '';
-	}
-	//----------------------------------------------
-	if (!empty($srch_DATEFROM != NULL && $srch_DATETO != NULL)) {
-		$DATEDG = "AND DATE(DATED) BETWEEN '$srch_DATEFROM' AND '$srch_DATETO'";
-	}
-	if (!empty($srch_DATEFROM != NULL && $srch_DATETO != NULL)) {
-		$DATEDG_other = "AND DATE(calls_start_time) BETWEEN '$srch_DATEFROM' AND '$srch_DATETO'";
-	}
 
-	$no_of_calls = call_record($link, $DATEDG_other);
+	$no_of_calls = call_record($link, $date_from_to_call)['name'];
+	$no_of_calls_count = call_record($link, $date_from_to_call)['count'];
 	// For Profile Completed
-	$Profile_Completed_arr = profile_completed($link, $DATEDG);
+	$Profile_Completed_arr = profile_completed($link, $date_from_to);
 	// For Lead Converted
-	$Lead_Converted_arr = lead_converted($link, $DATEDG);
+	$Lead_Converted_arr = lead_converted($link, $date_from_to);
+?>
+	<script>
+		window.onload = function() {
+			var chart = new CanvasJS.Chart("chartContainer", {
+				animationEnabled: true,
+				theme: "light", // "light1", "dark1", "dark2"
+				animationDuration: 2000,
+				title: {
+					text: "Number of Calls"
+				},
+				axisX: {
+					// maximum: <?php //$no_of_calls_count; 
+								?>,
+					interval: 1,
+					labelMaxWidth: 180,
+					labelAngle: -70, //90,
+					labelFontFamily: "verdana0"
+				},
+				data: [{
+					type: "column",
+					indexLabel: "{y}",
+					dataPoints: <?php echo $no_of_calls; ?>
+				}],
+				options: {
+					indexAxis: 'x',
+					scales: {
+						x: {
+							type: 'time',
+							source: 'data',
+							ticks: {
+								autoSkip: false
+							}
+						},
+					}
+				}
+			});
+			chart.render();
+			//Multi Chart
+			var chart_multi = new CanvasJS.Chart("chartContainer_multi", {
+				animationEnabled: true,
+				theme: "light2", // "light1", "dark1", "dark2"
+				animationDuration: 2000,
+				title: {
+					text: "Targets"
+				},
+				axisX: {
+					interval: 1,
+					labelMaxWidth: 180,
+					labelAngle: -70, //90,
+					labelFontFamily: "verdana0"
+				},
+				legend: {
+					cursor: "pointer",
+					verticalAlign: "bottom",
+					horizontalAlign: "center",
+					itemclick: toggleDataSeries
+				},
+				data: [{
+					type: "column",
+					name: "Profile Completed",
+					indexLabel: "{y}",
+					yValueFormatString: "#,###.##", //$#0.##
+					showInLegend: true,
+					dataPoints: <?php echo $Profile_Completed_arr; ?>
+				}, {
+					type: "column",
+					name: "Lead Converted",
+					indexLabel: "{y}",
+					yValueFormatString: "#,###.##", //$#0.##
+					showInLegend: true,
+					dataPoints: <?php echo $Lead_Converted_arr; ?>
+				}]
+			});
+			chart_multi.render();
+
+			function toggleDataSeries(e) {
+				if (typeof(e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+					e.dataSeries.visible = false;
+				} else {
+					e.dataSeries.visible = true;
+				}
+				chart_multi.render();
+			}
+		}
+	</script>
+<?php
 }
 ?>
-<script>
-	window.onload = function() {
-		var chart = new CanvasJS.Chart("chartContainer", {
-			animationEnabled: true,
-			theme: "light", // "light1", "dark1", "dark2"
-			animationDuration: 2000,
-			title: {
-				text: "Number of Calls"
-			},
-			axisX: {
-				interval: 1,
-				labelMaxWidth: 180,
-				labelAngle: -70, //90,
-				labelFontFamily: "verdana0"
-			},
-			data: [{
-				type: "column",
-				indexLabel: "{y}",
-				dataPoints: <?php echo $no_of_calls; ?>
-			}],
-			options: {
-				indexAxis: 'x',
-				scales: {
-					x: {
-						type: 'time',
-						source: 'data',
-						ticks: {
-							autoSkip: false
-						}
-					},
-				}
-			}
-		});
-		chart.render();
-		//Multi Chart
-		var chart_multi = new CanvasJS.Chart("chartContainer_multi", {
-			animationEnabled: true,
-			theme: "light2", // "light1", "dark1", "dark2"
-			animationDuration: 2000,
-			title: {
-				text: "Targets"
-			},
-			axisX: {
-				interval: 1,
-				labelMaxWidth: 180,
-				labelAngle: -70, //90,
-				labelFontFamily: "verdana0"
-			},
-			legend: {
-				cursor: "pointer",
-				verticalAlign: "bottom",
-				horizontalAlign: "center",
-				itemclick: toggleDataSeries
-			},
-			data: [{
-				type: "column",
-				name: "Profile Completed",
-				indexLabel: "{y}",
-				yValueFormatString: "#,###.##", //$#0.##
-				showInLegend: true,
-				dataPoints: <?php echo $Profile_Completed_arr; ?>
-			}, {
-				type: "column",
-				name: "Lead Converted",
-				indexLabel: "{y}",
-				yValueFormatString: "#,###.##", //$#0.##
-				showInLegend: true,
-				dataPoints: <?php echo $Lead_Converted_arr; ?>
-			}]
-		});
-		chart_multi.render();
 
-		function toggleDataSeries(e) {
-			if (typeof(e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
-				e.dataSeries.visible = false;
-			} else {
-				e.dataSeries.visible = true;
-			}
-			chart_multi.render();
-		}
-	}
-</script>
 
 <body class="nav-md">
 	<div class="container body">
@@ -132,7 +116,7 @@ if (isset($_POST['srchfilter'])) //submit button name
 			<?php include('inc_header.php'); ?>
 			<!-- breadcrumb -->
 			<div class="breadcrumb_content">
-				<div class="breadcrumb_text">Dashboard / <!--<a href="dashboard.php">Dashboard</a> / -->
+				<div class="breadcrumb_text">Dashboard /
 				</div>
 			</div>
 			<!-- /breadcrumb -->
@@ -140,7 +124,7 @@ if (isset($_POST['srchfilter'])) //submit button name
 			<div class="right_col bg_fff" role="main">
 
 				<div class="container">
-					<form action="" method="post">
+					<form action="<?= $_SERVER['PHP_SELF']; ?>" method="post">
 
 						<div class="col-lg-12">
 							<div class="col-lg-10 col-md-10 col-sm-12 col-xs-12 col-lg-offset-1">
@@ -149,17 +133,13 @@ if (isset($_POST['srchfilter'])) //submit button name
 
 									<div class="col-lg-11">
 										<div class="input-daterange input-group">
-											<input type="date" class="form-control input-date-picker datepicker-dropdown" id="DATEFROM" name="DATEFROM" placeholder="Start Date" autocomplete="off" value="<?php if ($srch_DATEFROM != NULL) {
-																																																				echo $_POST['DATEFROM'];
-																																																			} ?>" />
+											<input type="date" class="form-control input-date-picker datepicker-dropdown" id="date_from" name="date_from" placeholder="Start Date" autocomplete="off" value="<?= ($_POST['date_from'] ?? '') ? $_POST['date_from'] : '' ?>" />
 											<span class="input-group-addon"><i class="fa fa-angle-left"></i> From DATE To <i class="fa fa-angle-right"></i></span>
-											<input type="date" class="form-control input-date-picker" id="DATETO" name="DATETO" placeholder="End Date" autocomplete="off" value="<?php if ($srch_DATETO != NULL) {
-																																														echo $_POST['DATETO'];
-																																													} ?>" />
+											<input type="date" class="form-control input-date-picker" id="date_to" name="date_to" placeholder="End Date" autocomplete="off" value="<?= ($_POST['date_to'] ?? '') ? $_POST['date_to'] : '' ?>" />
 										</div>
 									</div>
 									<div class="col-lg-1">
-										<button type="submit" name="srchfilter" class="btn btn-success"><i class="fa fa-search"></i> Search</button>
+										<button type="submit" name="submit" class="btn btn-success"><i class="fa fa-search"></i> Search</button>
 									</div>
 
 								</div>
