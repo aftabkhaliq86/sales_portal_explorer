@@ -403,20 +403,21 @@ if (isset($_REQUEST['actc'])) {
                 let ID = '<?php echo $_GET['id']; ?>';
                 $.get('export/calling_lead_details.php?id=' + ID + '&AGID=' + AGID, function(data) {
                     var progressBar = $('.progress-bar');
-                    var progressWidth = 1;
+                    var progressWidth = 0;
                     var interval = setInterval(function() {
                         progressWidth += 1;
                         progressBar.css('width', progressWidth + '%').attr('aria-valuenow', progressWidth).text(progressWidth + '%');
+                        $('.progress-text').text(progressWidth + '%'); // Update text element with progress percentage
                         if (progressWidth >= 100) {
-                            clearInterval(interval);
                             var tableId = "leads_export"; // assign an id to the new table element
                             var newTable = $("<table>").attr("id", tableId).html(data);
                             $("body").append(newTable); // append the new table to the body
                             xport.toCSV(tableId);
                             newTable.remove(); // remove the new table after the export is done
                             $('#btnExport').button('reset');
+                            clearInterval(interval);
                         }
-                    });
+                    }, 200); // Set interval to 100ms for faster updates
                 });
             });
         </script>

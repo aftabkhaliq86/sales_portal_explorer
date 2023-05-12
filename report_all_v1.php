@@ -136,7 +136,12 @@
 								</div>
 
 								<div class="x_content">
-									<form name="frmSRCH" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+									<?php if (isset($_GET['date'])) { ?>
+										<div class="alert alert-warning">
+											<div class="container"><strong>Data diffrence is not More than two months!</strong></div>
+										</div>
+									<?php } ?>
+									<form name="frmSRCH" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="get">
 										<?php
 										$sts = '';
 										$srch_DATEFROM = '';
@@ -160,12 +165,12 @@
 										$srchLEADS_TYPE = '';
 										$srchLEADS_TYPEi = '';
 										$resultsssfor_Lead_Converted_ego = '';
-										if (isset($_POST['srchfilter'])) //submit button name
+										if (isset($_GET['srchfilter'])) //submit button name
 										{
-											$srch_DATEFROM = $_POST['DATEFROM'];
-											$srch_DATETO = $_POST['DATETO'];
-											$srchASSDATEFROM = $_POST['srchASSDATEFROM'];
-											$srchASSDATETO = $_POST['srchASSDATETO'];
+											$srch_DATEFROM = $_GET['DATEFROM'];
+											$srch_DATETO = $_GET['DATETO'];
+											$srchASSDATEFROM = $_GET['srchASSDATEFROM'];
+											$srchASSDATETO = $_GET['srchASSDATETO'];
 											//echo '<hr>';
 
 											//Get previous Date From-----------------------
@@ -209,23 +214,31 @@
 
 
 											if (!empty($srch_DATEFROM != NULL && $srch_DATETO != NULL)) {
-												$DATEDG = "AND DATE(LEAD_STATUS_DATED) BETWEEN '$srch_DATEFROM' AND '$srch_DATETO'";
-												// echo "YES";
-												// exit;
+												//date diffrence Start
+												$srch_DATEFROM = new DateTime($srch_DATEFROM);
+												$srch_DATETO = new DateTime($srch_DATETO);
+												$interval = $srch_DATEFROM->diff($srch_DATETO);
+												$monthsDiff = $interval->m;
+												if ($monthsDiff <= 2) {
+													$DATEDG = "AND DATE(LEAD_STATUS_DATED) BETWEEN '$srch_DATEFROM' AND '$srch_DATETO'";
+												} else {
+													echo ("<script>location='" . basename($_SERVER['PHP_SELF']) . "?date=high'</script>");
+												}
+												//date diffrence End
 											}
-											if (isset($_POST['srchREGDATE']) && !empty($_POST['srchREGDATE'] != NULL)) {
-												$srchREGDATE = "AND REGISTER_DATE='$_POST[srchREGDATE]'";
+											if (isset($_GET['srchREGDATE']) && !empty($_GET['srchREGDATE'] != NULL)) {
+												$srchREGDATE = "AND REGISTER_DATE='$_GET[srchREGDATE]'";
 											}
-											if (isset($_POST['srchSENDINGCOUNT']) && !empty($_POST['srchSENDINGCOUNT'] != NULL)) {
-												$srchSENDINGCOUNT = "AND SENDING_COUNTRY='$_POST[srchSENDINGCOUNT]'";
-												$srchSENDINGCOUNTi = $_POST['srchSENDINGCOUNT'];
+											if (isset($_GET['srchSENDINGCOUNT']) && !empty($_GET['srchSENDINGCOUNT'] != NULL)) {
+												$srchSENDINGCOUNT = "AND SENDING_COUNTRY='$_GET[srchSENDINGCOUNT]'";
+												$srchSENDINGCOUNTi = $_GET['srchSENDINGCOUNT'];
 											}
-											if (isset($_POST['srchRECCOUNT']) && !empty($_POST['srchRECCOUNT'] != NULL)) {
-												$srchRECCOUNT = "AND PREFFERED_COUNTRY='$_POST[srchRECCOUNT]'";
-												$srchRECCOUNTi = $_POST['srchRECCOUNT'];
+											if (isset($_GET['srchRECCOUNT']) && !empty($_GET['srchRECCOUNT'] != NULL)) {
+												$srchRECCOUNT = "AND PREFFERED_COUNTRY='$_GET[srchRECCOUNT]'";
+												$srchRECCOUNTi = $_GET['srchRECCOUNT'];
 											}
-											if (!empty($_POST['srchEMAIL'] != NULL)) {
-												$srchEMAIL = "AND EMAIL='$_POST[srchEMAIL]'";
+											if (!empty($_GET['srchEMAIL'] != NULL)) {
+												$srchEMAIL = "AND EMAIL='$_GET[srchEMAIL]'";
 											}
 
 											if (!empty($srchASSDATEFROM) && empty($srchASSDATETO)) {
@@ -233,21 +246,21 @@
 											} elseif (!empty($srchASSDATEFROM != NULL && $srchASSDATETO != NULL)) {
 												$srchASSDATE = "AND DATE(U_DATED) BETWEEN '$srchASSDATEFROM' AND '$srchASSDATETO'";
 											}
-											if (isset($_POST['srchAGENTS']) && !empty($_POST['srchAGENTS'] != NULL)) {
-												$srchAGENTS = "AND USERID='$_POST[srchAGENTS]'";
-												$srchAGENTSi = $_POST['srchAGENTS'];
+											if (isset($_GET['srchAGENTS']) && !empty($_GET['srchAGENTS'] != NULL)) {
+												$srchAGENTS = "AND USERID='$_GET[srchAGENTS]'";
+												$srchAGENTSi = $_GET['srchAGENTS'];
 											}
-											if (isset($_POST['srchLEADS']) && !empty($_POST['srchLEADS'] != NULL)) {
-												$srchLEADS = "AND LEADTID='$_POST[srchLEADS]'";
-												$srchLEADSi = $_POST['srchLEADS'];
+											if (isset($_GET['srchLEADS']) && !empty($_GET['srchLEADS'] != NULL)) {
+												$srchLEADS = "AND LEADTID='$_GET[srchLEADS]'";
+												$srchLEADSi = $_GET['srchLEADS'];
 											}
-											if (isset($_POST['srchSTATUS']) && !empty($_POST['srchSTATUS'] != NULL)) {
-												$srchSTATUS = "AND LEAD_STATUS='$_POST[srchSTATUS]'";
-												$srchSTATUSi = $_POST['srchSTATUS'];
+											if (isset($_GET['srchSTATUS']) && !empty($_GET['srchSTATUS'] != NULL)) {
+												$srchSTATUS = "AND LEAD_STATUS='$_GET[srchSTATUS]'";
+												$srchSTATUSi = $_GET['srchSTATUS'];
 											}
-											if (isset($_POST['srchLEADS_TYPE']) && !empty($_POST['srchLEADS_TYPE'] != NULL)) {
-												$srchLEADS_TYPE = "AND `clt`.`LEAD_TYPE`='$_POST[srchLEADS_TYPE]'";
-												$srchLEADS_TYPEi = $_POST['srchLEADS_TYPE'];
+											if (isset($_GET['srchLEADS_TYPE']) && !empty($_GET['srchLEADS_TYPE'] != NULL)) {
+												$srchLEADS_TYPE = "AND `clt`.`LEAD_TYPE`='$_GET[srchLEADS_TYPE]'";
+												$srchLEADS_TYPEi = $_GET['srchLEADS_TYPE'];
 											}
 											if (!empty($srchAGENTS) || !empty($srchSTATUS) || !empty($DATEDG) || !empty($srchASSDATE) || !empty($srchLEADS) || !empty($srchEMAIL) || !empty($srchLEADS_TYPE)) {
 												// Determine current page number
@@ -271,6 +284,10 @@
 
 												$total_records = $link->query("SELECT `cl`.*,`clt`.`LEAD_CATEGORY` AS `LEAD_CATEGORY_clt`,`clt`.`LEAD_TYPE` AS `LEAD_TYPE_clt`,DATE(`clt`.`DATED`) AS `LEAD_DATED_clt`,`cla`.`PERSON_NAME` AS `PERSON_NAME`,`ls`.`STATUS_HEADING` AS `STATUS_TITLE_STATUS`,`curr`.`name` AS `SENDING_COUNTRY_NAME` FROM `calling_lead` AS `cl` INNER JOIN `calling_lead_title` AS `clt` ON `cl`.`LEADTID`=`clt`.`ID` INNER JOIN `calling_lead_agents` AS `cla` ON `cl`.`USERID`=`cla`.`ID` INNER JOIN `lead_status` AS `ls` ON `cl`.`LEAD_STATUS`=`ls`.`ID` INNER JOIN `currencies` AS `curr` ON `cl`.`SENDING_COUNTRY`=`curr`.`iso3` WHERE INACTIVE_LEAD_TITLE='1' $srchAGENTS $srchSTATUS $srchLEADS_TYPE $DATEDG $srchASSDATE $srchLEADS $srchEMAIL")->num_rows;
 												$total_pages = ceil($total_records / $records_per_page);
+												$postData =  "&srchAGENTS=$srchAGENTS&srchSTATUS=$srchSTATUS&srchLEADS=$srchLEADS&srchLEADS_TYPE=$srchLEADS_TYPE&DATEDG=$DATEDG&srchASSDATE=$srchASSDATE&srchEMAIL=$srchEMAIL";
+
+												// Encode the POST data into a query string
+												// $queryString = http_build_query($postData);
 											} else {
 												$calling_leads = '';
 											}
@@ -281,7 +298,7 @@
 												<div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
 													<label style="padding-top:7px;">Registration Date</label>
 													<input type="date" name="srchREGDATE" class="form-control" value="<?php if ($srchREGDATE != NULL) {
-																															echo $_POST['srchREGDATE'];
+																															echo $_GET['srchREGDATE'];
 																														} ?>">
 												</div>
 												<div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
@@ -321,19 +338,19 @@
 												<div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
 													<label style="padding-top:7px;">Email Search</label>
 													<input type="email" name="srchEMAIL" class="form-control" value="<?php if ($srchEMAIL != NULL) {
-																															echo $_POST['srchEMAIL'];
+																															echo $_GET['srchEMAIL'];
 																														} ?>">
 												</div>
 												<div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
 													<label style="padding-top:7px;">Assigned Date From</label>
 													<input type="date" name="srchASSDATEFROM" class="form-control" value="<?php if ($srchASSDATEFROM != NULL) {
-																																echo $_POST['srchASSDATEFROM'];
+																																echo $_GET['srchASSDATEFROM'];
 																															} ?>">
 												</div>
 												<div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
 													<label style="padding-top:7px;">Assigned Date To</label>
 													<input type="date" name="srchASSDATETO" class="form-control" value="<?php if ($srchASSDATETO != NULL) {
-																															echo $_POST['srchASSDATETO'];
+																															echo $_GET['srchASSDATETO'];
 																														} ?>">
 												</div>
 											</div>
@@ -413,11 +430,11 @@
 														<div class="col-lg-12" style="padding: 0!important;">
 															<div class="input-daterange input-group">
 																<input type="date" class="form-control input-date-picker datepicker-dropdown" id="DATEFROM" name="DATEFROM" placeholder="Start Date" autocomplete="off" value="<?php if ($srch_DATEFROM != NULL) {
-																																																									echo $_POST['DATEFROM'];
+																																																									echo $_GET['DATEFROM'];
 																																																								} ?>" />
 																<span class="input-group-addon"><i class="fa fa-angle-left"></i> From DATE To <i class="fa fa-angle-right"></i></span>
 																<input type="date" class="form-control input-date-picker" id="DATETO" name="DATETO" placeholder="End Date" autocomplete="off" value="<?php if ($srch_DATETO != NULL) {
-																																																			echo $_POST['DATETO'];
+																																																			echo $_GET['DATETO'];
 																																																		} ?>" />
 															</div>
 														</div>
@@ -428,7 +445,7 @@
 												<label>&nbsp;<br><br></label>
 												<button type="submit" name="srchfilter" class="btn btn-success"><i class="fa fa-search"></i> Search</button>
 												<a href="<?php echo $_SERVER['PHP_SELF']; ?>" class="btn btn-warning"><i class="fa fa-times"></i></a>
-												<?php if (isset($_POST['srchfilter'])) {
+												<?php if (isset($_GET['srchfilter'])) {
 												?>
 													<button type="button" id="btnExport" class="btn btn-default"><i class="fa fa-download"></i>&nbsp;Export to CSV</button>
 												<?php }
@@ -582,6 +599,40 @@
 	</div>
 	<?php include('inc_foot.php'); ?>
 	<script>
+		// $('#btnExport').click(function(e) {
+		// 	e.preventDefault();
+		// 	$('#btnExport').button('loading');
+		// 	$('.progress').show();
+		// 	let calling_leads = "<?php //echo $calling_leads_all; 
+									?>";
+		// 	$.get('export/report_all.php?calling_leads=' + calling_leads, function(data) {
+		// 		var progressBar = $('.progress-bar');
+		// 		var progressWidth = 1;
+		// 		var interval = setInterval(function() {
+		// 			progressWidth += 1;
+		// 			// progressBar.css('width', progressWidth + '%').attr('aria-valuenow', progressWidth).text(progressWidth + '%');
+		// 			// if (progressWidth >= 100) {
+		// 			// 	clearInterval(interval);
+		// 			// 	var tableId = "leads_export"; // assign an id to the new table element
+		// 			// 	var newTable = $("<table>").attr("id", tableId).html(data);
+		// 			// 	$("body").append(newTable); // append the new table to the body
+		// 			// 	xport.toCSV(tableId);
+		// 			// 	newTable.remove(); // remove the new table after the export is done
+		// 			// 	$('#btnExport').button('reset');
+		// 			// }
+		// 			progressBar.css('width', progressWidth + '%').attr('aria-valuenow', progressWidth).text(progressWidth + '%');
+		// 			if (progressWidth >= 100) {
+		// 				var tableId = "leads_export"; // assign an id to the new table element
+		// 				var newTable = $("<table>").attr("id", tableId).html(data);
+		// 				$("body").append(newTable); // append the new table to the body
+		// 				xport.toCSV(tableId);
+		// 				newTable.remove(); // remove the new table after the export is done
+		// 				$('#btnExport').button('reset');
+		// 				clearInterval(interval);
+		// 			}
+		// 		}, 20000);
+		// 	});
+		// });
 		$('#btnExport').click(function(e) {
 			e.preventDefault();
 			$('#btnExport').button('loading');
@@ -589,20 +640,21 @@
 			let calling_leads = "<?php echo $calling_leads_all; ?>";
 			$.get('export/report_all.php?calling_leads=' + calling_leads, function(data) {
 				var progressBar = $('.progress-bar');
-				var progressWidth = 1;
+				var progressWidth = 0;
 				var interval = setInterval(function() {
 					progressWidth += 1;
 					progressBar.css('width', progressWidth + '%').attr('aria-valuenow', progressWidth).text(progressWidth + '%');
+					$('.progress-text').text(progressWidth + '%'); // Update text element with progress percentage
 					if (progressWidth >= 100) {
-						clearInterval(interval);
 						var tableId = "leads_export"; // assign an id to the new table element
 						var newTable = $("<table>").attr("id", tableId).html(data);
 						$("body").append(newTable); // append the new table to the body
 						xport.toCSV(tableId);
 						newTable.remove(); // remove the new table after the export is done
 						$('#btnExport').button('reset');
+						clearInterval(interval);
 					}
-				});
+				}, 200); // Set interval to 100ms for faster updates
 			});
 		});
 	</script>
