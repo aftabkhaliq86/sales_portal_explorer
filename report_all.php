@@ -217,7 +217,7 @@
 													<label style="padding-top:7px;">Sending Country</label>
 													<select name="sending_country" class="form-control">
 														<option value="" hidden disabled selected>SELECT</option>
-														<option style="font-weight: bold;text-align: center;">Reset</option>
+														<option value="" style="font-weight: bold;text-align: center;">Reset</option>
 														<?php
 														$select_currencies_sc = mysqli_query($link, "SELECT * FROM `currencies`");
 														foreach ($select_currencies_sc as $value_sc) {
@@ -232,7 +232,7 @@
 													<label style="padding-top:7px;">Receiving Country</label>
 													<select name="receiving_country" class="form-control">
 														<option value="" hidden disabled selected>SELECT</option>
-														<option style="font-weight: bold;text-align: center;">Reset</option>
+														<option value="" style="font-weight: bold;text-align: center;">Reset</option>
 														<?php
 														$select_currencies_rc = mysqli_query($link, "SELECT * FROM `currencies`");
 														foreach ($select_currencies_rc as $value_rc) {
