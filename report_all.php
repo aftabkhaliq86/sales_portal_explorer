@@ -185,7 +185,7 @@
 											//Get lead_type-----------------------
 											$lead_type_query = !empty($_GET['lead_type']) ? "AND `clt`.`LEAD_TYPE`='{$_GET['lead_type']}'" : '';
 											//----------------------------------------------
-											if (!empty($agent_query) || !empty($status_query) || !empty($date_from_to) || !empty($assign_date_query) || !empty($lead_query) || !empty($email_query) || !empty($lead_type_query)) {
+											if (!empty($agent_query) || !empty($status_query) || !empty($date_from_to) || !empty($assign_date_query) || !empty($lead_query) || !empty($email_query) || !empty($lead_type_query) || !empty($sending_country_query) || !empty($receiving_country_query)) {
 												// Determine current page number
 												$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 												// Number of records to display per page
@@ -198,7 +198,7 @@
 												$invalid_lead_sts = 0;
 												$total_records = 0;
 												// Calculate the starting point of the records
-												$calling_leads_query = "SELECT `cl`.*,`clt`.`LEAD_CATEGORY` AS `LEAD_CATEGORY_clt`,`clt`.`LEAD_TYPE` AS `LEAD_TYPE_clt`,DATE(`clt`.`DATED`) AS `LEAD_DATED_clt`,`cla`.`PERSON_NAME` AS `PERSON_NAME`,`ls`.`STATUS_HEADING` AS `STATUS_TITLE_STATUS`,`curr`.`name` AS `SENDING_COUNTRY_NAME` FROM `calling_lead` AS `cl` INNER JOIN `calling_lead_title` AS `clt` ON `cl`.`LEADTID`=`clt`.`ID` INNER JOIN `calling_lead_agents` AS `cla` ON `cl`.`USERID`=`cla`.`ID` INNER JOIN `lead_status` AS `ls` ON `cl`.`LEAD_STATUS`=`ls`.`ID` LEFT JOIN `currencies` AS `curr` ON `cl`.`SENDING_COUNTRY`=`curr`.`iso3` WHERE INACTIVE_LEAD_TITLE='1' $agent_query $status_query $lead_type_query $date_from_to $assign_date_query $lead_query $email_query";
+												$calling_leads_query = "SELECT `cl`.*,`clt`.`LEAD_CATEGORY` AS `LEAD_CATEGORY_clt`,`clt`.`LEAD_TYPE` AS `LEAD_TYPE_clt`,DATE(`clt`.`DATED`) AS `LEAD_DATED_clt`,`cla`.`PERSON_NAME` AS `PERSON_NAME`,`ls`.`STATUS_HEADING` AS `STATUS_TITLE_STATUS`,`curr`.`name` AS `SENDING_COUNTRY_NAME` FROM `calling_lead` AS `cl` INNER JOIN `calling_lead_title` AS `clt` ON `cl`.`LEADTID`=`clt`.`ID` INNER JOIN `calling_lead_agents` AS `cla` ON `cl`.`USERID`=`cla`.`ID` INNER JOIN `lead_status` AS `ls` ON `cl`.`LEAD_STATUS`=`ls`.`ID` LEFT JOIN `currencies` AS `curr` ON `cl`.`SENDING_COUNTRY`=`curr`.`iso3` WHERE INACTIVE_LEAD_TITLE='1' $date_from_to $assign_date_query $reg_date_query $sending_country_query $receiving_country_query $email_query $agent_query $lead_query $status_query $lead_type_query";
 												$calling_leads = mysqli_query($link, "$calling_leads_query LIMIT " . $offset . "," . $records_per_page);
 												$total_records = $link->query($calling_leads_query)->num_rows;
 												$total_pages = ceil($total_records / $records_per_page);
