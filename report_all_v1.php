@@ -653,8 +653,14 @@
 						newTable.remove(); // remove the new table after the export is done
 						$('#btnExport').button('reset');
 						clearInterval(interval);
+						setInterval(function() {
+                                $('.progress').hide();
+                        },5000);
 					}
 				}, 200); // Set interval to 100ms for faster updates
+				setInterval(function() {
+                        $('.progress').hide();
+                },5000);
 			});
 		});
 	</script>
