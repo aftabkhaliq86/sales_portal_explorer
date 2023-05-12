@@ -23,19 +23,14 @@ function CheckLogin()
 
 	if (isset($_SESSION['adminz']) && (time() - $_SESSION['adminz'] > 1800)) {
 		// 30 Minutes
-	    session_unset(); 
-	    session_destroy();
-	    echo ("<script>location='index.php?err=3'</script>"); 
-	}
-	else if ($_SESSION['adminz']=="") {
-		session_unset(); 
-	    session_destroy();
-	    echo ("<script>location='index.php?err=3'</script>"); 
-	}
-	else {
+		session_unset();
+		session_destroy();
+		echo ("<script>location='./?err=3'</script>");
+	} else if ($_SESSION['adminz'] == "") {
+		session_unset();
+		session_destroy();
+		echo ("<script>location='./?err=3'</script>");
+	} else {
 		//echo "de";
 	}
-
 }
-
-?>
