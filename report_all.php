@@ -151,7 +151,7 @@
 												if ($monthsDiff > 2) {
 													echo ("<script>location='" . basename($_SERVER['PHP_SELF']) . "?date=high'</script>");
 												}
-												$date_from_to = "AND DATE(`cl`.`DATED`) BETWEEN '$date_from' AND '$date_to'";
+												$date_from_to = "AND DATE(`cl`.`LEAD_STATUS_DATED`) BETWEEN '$date_from' AND '$date_to'";
 											}
 											//date diffrence End
 											//----------------------------------------------
