@@ -310,11 +310,9 @@
 														<?php
 														$select_lead_status = mysqli_query($link, "SELECT * FROM `lead_status`");
 														foreach ($select_lead_status as $value_ls) {
-															if ($value_ls['STATUS_HEADING'] != "Lead Converted") {
 														?>
-																<option value="<?= $value_ls['ID'] ?>" <?= ($_GET['status'] ?? '') == $value_ls['ID'] ? 'selected' : '' ?>><?= $value_ls['STATUS_HEADING'] ?></option>
+															<option value="<?= $value_ls['ID'] ?>" <?= ($_GET['status'] ?? '') == $value_ls['ID'] ? 'selected' : '' ?>><?= $value_ls['STATUS_HEADING'] ?></option>
 														<?php
-															}
 														}
 														?>
 													</select>
