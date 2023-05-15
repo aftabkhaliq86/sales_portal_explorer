@@ -130,10 +130,10 @@ if (isset($_POST['submit'])) //submit button name
 
 									<div class="col-lg-9 text-left">
 										<label class="radio-inline">
-											<input type="radio" name="import_date" id="inlineRadio1" value="Yesterday">Import yesterday Call Cogs
+											<input type="radio" name="import_date" id="inlineRadio1" value="Yesterday">Import yesterday Call logs
 										</label>
 										<label class="radio-inline">
-											<input type="radio" name="import_date" id="inlineRadio2" value="Today">Import Today Call Cogs
+											<input type="radio" name="import_date" id="inlineRadio2" value="Today">Import Today Call logs
 										</label>
 									</div>
 									<div class="col-lg-3">
