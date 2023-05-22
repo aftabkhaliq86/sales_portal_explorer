@@ -131,11 +131,16 @@ if (isset($_POST["Import"])) {
                                                 <div class="sml-padding" style="margin-top: 4%;">
                                                     <div class="col-lg-2"><label class="control-label">Lead Type<span class="text-danger">*</span></label></div>
                                                     <div class="col-lg-9">
-                                                        <select name="LEAD_TYPE" class="form-control" id="" required>
-                                                            <option selected hidden disabled>SELECT</option>
-                                                            <option value="1">New Reg</option>
-                                                            <option value="2">Dormant</option>
-                                                            <option value="3">Inactive</option>
+                                                        <select name="LEAD_TYPE" class="form-control" required>
+                                                            <option value="" hidden disabled selected>SELECT</option>
+                                                            <?php
+                                                            $calling_lead_types = mysqli_query($link, "SELECT * FROM `calling_lead_types`");
+                                                            foreach ($calling_lead_types as $calling_lead_type) {
+                                                            ?>
+                                                                <option value="<?= $calling_lead_type['ID'] ?>"><?= $calling_lead_type['HEADING'] ?></option>
+                                                            <?php
+                                                            }
+                                                            ?>
                                                         </select>
                                                     </div>
                                                 </div>
