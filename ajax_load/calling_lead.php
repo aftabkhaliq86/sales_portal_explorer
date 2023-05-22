@@ -15,7 +15,7 @@ if (isset($_GET['DATEFROM']) && isset($_GET['DATETO'])) //submit button name
     } else {
         $sts_query = '';
     }
-    $result_query = mysqli_query($link, "SELECT `clt`.*,`clty`.`HEADING` AS `clty_HEADING`,SUM(IF(`cl`.`LEADTID`=`clt`.`ID` && `cl`.`STATUS`='1',1,0)) AS `used`,SUM(IF(`cl`.`LEADTID`=`clt`.`ID` && `cl`.`STATUS`='0',1,0)) AS `take` FROM `calling_lead_title` AS `clt` INNER JOIN `calling_lead` AS `cl` ON `clt`.`ID`=`cl`.`LEADTID` INNER JOIN `calling_lead_types` AS `clty` ON `clty`.`ID`=`clt`.`LEAD_TYPE` WHERE DATE(`clt`.`DATED`) BETWEEN '$DATEFROM' AND '$DATETO' $sts_query GROUP BY `clt`.`ID` ORDER BY `clt`.`DATED`");
+    $result_query = mysqli_query($link, "SELECT `clt`.*,`clty`.`HEADING` AS `clty_HEADING`,SUM(IF(`cl`.`LEADTID`=`clt`.`ID` && `cl`.`STATUS`='1',1,0)) AS `used`,SUM(IF(`cl`.`LEADTID`=`clt`.`ID` && `cl`.`STATUS`='0',1,0)) AS `take` FROM `calling_lead_title` AS `clt` INNER JOIN `calling_lead` AS `cl` ON `clt`.`ID`=`cl`.`LEADTID` INNER JOIN `calling_lead_types` AS `clty` ON `clty`.`ID`=`clt`.`LEAD_TYPE` WHERE DATE(`clt`.`DATED`) BETWEEN '$DATEFROM' AND '$DATETO' $sts_query GROUP BY `clt`.`ID` ORDER BY `clt`.`DATED` DESC");
 }
 ?>
 <table id="leads" class="col-lg-12 table-striped table-condensed cf tbl">

@@ -115,10 +115,10 @@
 
 <?php
 if (isset($_GET['id'])) {
-    $ID = $_GET['id'];
+    $LEADTID = $_GET['id'];
 }
 
-$lead_name_get = mysqli_query($link, "SELECT LEAD_CATEGORY, LEAD_DATE FROM `calling_lead_title` WHERE ID='$ID'");
+$lead_name_get = mysqli_query($link, "SELECT LEAD_CATEGORY, LEAD_DATE FROM `calling_lead_title` WHERE ID='$LEADTID'");
 while ($row_lng = mysqli_fetch_array($lead_name_get)) {
     $LEAD_CATEGORY_lng = $row_lng['LEAD_CATEGORY'];
     $LEAD_DATE_lng = $row_lng['LEAD_DATE'];
@@ -126,12 +126,27 @@ while ($row_lng = mysqli_fetch_array($lead_name_get)) {
 
 if (isset($_GET['del'])) {
     $del = $_GET['del'];
+    $AGID = $_GET['AGID'];
+    $LEADTID = $_GET['LEADTID'];
     //UPDATE SQL Statement
     $sql = "DELETE FROM calling_lead WHERE ID = $del";
     if (!mysqli_query($link, $sql)) {
         echo "ERROR: Could not able to execute $sql. " . mysqli_error($link);
     }
-    echo ("<script>location='" . basename($_SERVER['PHP_SELF']) . "?delete=y'</script>");
+    echo ("<script>location='" . basename($_SERVER['PHP_SELF']) . "?id=$LEADTID&AGID=$AGID&&delete=y'</script>");
+}
+if (isset($_POST['detach'])) {
+    $calling_lead_id = $_POST['calling_lead_id'];
+    $total_selected = count($calling_lead_id);
+    $lead_ids = '';
+    $counter = 0;
+    foreach ($calling_lead_id as $lead_id) {
+        $lead_ids .= ($counter++ === 0 || $counter++ === $total_selected - 1) ? $lead_id : ',' . $lead_id;
+    }
+    $sql = "UPDATE calling_lead SET USERID=NULL,U_DATED=NULL WHERE ID IN ($lead_ids) ";
+    if (!mysqli_query($link, $sql)) {
+        echo "ERROR: Could not able to execute $sql. " . mysqli_error($link);
+    }
 }
 //============ Approve Unapprove in List ================
 if (isset($_REQUEST['actc'])) {
@@ -196,13 +211,13 @@ if (isset($_REQUEST['actc'])) {
                                         $USERIDCI = '';
                                         $USERIDC = '';
                                         $USERID = '';
-                                        $result_person_counter = mysqli_query($link, "SELECT COUNT(USERID) AS USERIDC, USERID FROM `calling_lead` WHERE LEADTID='$ID' GROUP BY USERID");
+                                        $result_person_counter = mysqli_query($link, "SELECT COUNT(USERID) AS USERIDC, USERID FROM `calling_lead` WHERE LEADTID='$LEADTID' GROUP BY USERID");
                                         $counters = '0';
                                         while ($row_pc = mysqli_fetch_array($result_person_counter)) {
                                             $USERIDC = $row_pc['USERIDC'];
                                             $USERID = $row_pc['USERID'];
 
-                                            $result_person_counteri = mysqli_query($link, "SELECT COUNT(USERID) AS USERIDC, USERID FROM `calling_lead` WHERE LEADTID='$ID' AND USERID='$USERID' AND STATUS='1' GROUP BY USERID");
+                                            $result_person_counteri = mysqli_query($link, "SELECT COUNT(USERID) AS USERIDC, USERID FROM `calling_lead` WHERE LEADTID='$LEADTID' AND USERID='$USERID' AND STATUS='1' GROUP BY USERID");
                                             $USERIDCI = 0;
                                             while ($row_pci = mysqli_fetch_array($result_person_counteri)) {
                                                 $USERIDCI = $row_pci['USERIDC'];
@@ -217,7 +232,7 @@ if (isset($_REQUEST['actc'])) {
 
                                             $counters = $counters + 1;
                                         ?>
-                                            <a href="<?php echo basename($_SERVER['PHP_SELF']) . "?id=" . $ID ?>&AGID=<?php echo $AGID; ?>" class="col-lg-2 c2i btn btn-default al-center">
+                                            <a href="<?php echo basename($_SERVER['PHP_SELF']) . "?id=" . $LEADTID ?>&AGID=<?php echo $AGID; ?>&LEADTID=<?php echo $LEADTID; ?>" class="col-lg-2 c2i btn btn-default al-center">
                                                 <span class="fa-2x"><?php echo $USERIDC; ?> / <?php echo $USERIDCI; ?></span><br>
                                                 <?php echo $counters; ?>. <?php echo $PERSON_NAME; ?>
                                             </a>
@@ -229,158 +244,167 @@ if (isset($_REQUEST['actc'])) {
                                             <span class="sr-only">0% Complete</span>
                                         </div>
                                     </div>
-                                    <?php if (isset($_GET['AGID'])) { ?>
-                                        <table id="leads" class="col-lg-12 table-striped table-condensed cf tbl table-responsive">
-                                            <thead class="cf">
-                                                <tr>
-                                                    <th>#</th>
-                                                    <th>DATED</th>
-                                                    <th>RMS ID</th>
-                                                    <th>Phone</th>
-                                                    <th>Email</th>
-                                                    <th>Sending Country</th>
-                                                    <th>Preffered Country</th>
-                                                    <th>Register Date</th>
-                                                    <th>Last Transaction Details</th>
-                                                    <th>USER</th>
-                                                    <th>Lead Status</th>
-                                                    <th style="display: none;">Status Summary</th>
-                                                    <td style="display: none;">Comments</td>
-                                                    <th style="display: none;">Call Summary</th>
-                                                    <th class="al-center">Action</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php
-                                                if (isset($_GET['AGID'])) {
-                                                    // Determine current page number
-                                                    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+                                    <?php if (isset($_GET['AGID']) && !empty($_GET['AGID'])) { ?>
+                                        <form action="" method="post">
+                                            <table id="leads" class="col-lg-12 table-striped table-condensed cf tbl table-responsive">
+                                                <thead class="cf">
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th></th>
+                                                        <th>DATED</th>
+                                                        <th>RMS ID</th>
+                                                        <th>Phone</th>
+                                                        <th>Email</th>
+                                                        <th>Sending Country</th>
+                                                        <th>Preffered Country</th>
+                                                        <th>Register Date</th>
+                                                        <th>Last Transaction Details</th>
+                                                        <th>USER</th>
+                                                        <th>Lead Status</th>
+                                                        <th style="display: none;">Status Summary</th>
+                                                        <td style="display: none;">Comments</td>
+                                                        <th style="display: none;">Call Summary</th>
+                                                        <th class="al-center">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php
+                                                    if (isset($_GET['AGID'])) {
+                                                        // Determine current page number
+                                                        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 
-                                                    // Number of records to display per page
-                                                    $records_per_page = 10;
+                                                        // Number of records to display per page
+                                                        $records_per_page = 10;
 
-                                                    // Query string parameters
-                                                    $params = $_GET;
-                                                    unset($params['page']); // Remove the 'page' parameter
+                                                        // Query string parameters
+                                                        $params = $_GET;
+                                                        unset($params['page']); // Remove the 'page' parameter
 
-                                                    // Calculate the starting point of the records
-                                                    $offset = ($page - 1) * $records_per_page;
-                                                    $invalid_lead_sts = 0;
-                                                    $total_records = 0;
+                                                        // Calculate the starting point of the records
+                                                        $offset = ($page - 1) * $records_per_page;
+                                                        $invalid_lead_sts = 0;
+                                                        $total_records = 0;
 
 
-                                                    $AGID = $_GET['AGID'];
-                                                    $LEAD_STATUS_sclc = '';
-                                                    $STATUS_TITLE_STATUS = '';
-                                                    $DATED_sclc = '';
-                                                    $result = mysqli_query($link, "SELECT `cl`.*,`clg`.`PERSON_NAME` FROM `calling_lead` AS `cl` INNER JOIN `calling_lead_agents` AS `clg` ON `cl`.`USERID`=`clg`.`ID` WHERE `cl`.`LEADTID`='$ID' AND `cl`.`USERID`='$AGID' ORDER BY `cl`.`DATED` LIMIT " . $offset . "," . $records_per_page);
-                                                    $total_records = $link->query("SELECT `cl`.*,`clg`.`PERSON_NAME` FROM `calling_lead` AS `cl` INNER JOIN `calling_lead_agents` AS `clg` ON `cl`.`USERID`=`clg`.`ID` WHERE `cl`.`LEADTID`='$ID' AND `cl`.`USERID`='$AGID' ORDER BY `cl`.`DATED`")->num_rows;
-                                                    $total_pages = ceil($total_records / $records_per_page);
-                                                    $counters = '0';
-                                                    while ($row = mysqli_fetch_array($result)) {
-                                                        $ID = $row['ID'];
-                                                        $DATED = $row['DATED'];
-                                                        $RMS_ID = $row['RMS_ID'];
-                                                        $PHONE = $row['PHONE'];
-                                                        $EMAIL = $row['EMAIL'];
-                                                        $PREFFERED_COUNTRY = $row['PREFFERED_COUNTRY'];
-                                                        $REGISTER_DATE = $row['REGISTER_DATE'];
-                                                        $SENDING_COUNTRY = $row['SENDING_COUNTRY'];
-                                                        $TRANSACTION_COUNT = $row['TRANSACTION_COUNT'];
-                                                        $LAST_TRANSACTION_DATE = $row['LAST_TRANSACTION_DATE'];
-                                                        $USERID = $row['USERID'];
-                                                        $U_DATED = $row['U_DATED'];
-                                                        $LEAD_STATUS = $row['LEAD_STATUS'];
-                                                        $LEAD_STATUS_DATED = $row['LEAD_STATUS_DATED'];
-                                                        $STATUS = $row['STATUS'];
-                                                        $counters = $counters + 1;
-                                                        // Last Status--------------------------------------
-                                                        $sel_calling_lead_comments = mysqli_query($link, "SELECT `LEAD_STATUS`, `DATED` FROM `calling_lead_comments` WHERE LEAD_R_ID='$ID'");
-                                                        while ($row_sclc = mysqli_fetch_array($sel_calling_lead_comments)) {
-                                                            $LEAD_STATUS_sclc = $row_sclc['LEAD_STATUS'];
-                                                            $DATED_sclc = $row_sclc['DATED'];
-                                                        }
-                                                        $result_lead_status = mysqli_query($link, "SELECT * FROM `lead_status` WHERE ID='$LEAD_STATUS_sclc'");
-                                                        $rows_ls = mysqli_fetch_array($result_lead_status);
-                                                        if (!empty($rows_ls['STATUS_HEADING'])) {
-                                                            $STATUS_TITLE_STATUS = $rows_ls['STATUS_HEADING'];
-                                                        }
-                                                        // Last Status End ---------------------------------	
-                                                ?>
-                                                        <tr>
-                                                            <td></td>
-                                                            <td><?php echo $DATED; ?></td>
-                                                            <td><?php echo $RMS_ID; ?></td>
-                                                            <td><a href="tel:8<?php echo $PHONE; ?>"><?php echo $PHONE; ?></a></td>
-                                                            <td><?php echo $EMAIL; ?></td>
-                                                            <td><?php echo $SENDING_COUNTRY; ?></td>
-                                                            <td><?php echo $PREFFERED_COUNTRY; ?></td>
-                                                            <td><?php echo $REGISTER_DATE; ?></td>
-                                                            <td><?php echo $LAST_TRANSACTION_DATE; ?><br><?php echo $TRANSACTION_COUNT; ?></td>
-                                                            <td><?php if (!empty($row['PERSON_NAME'])) {
-                                                                    echo $row['PERSON_NAME']; ?><br><small><?php echo $U_DATED;
-                                                                                                        } ?></small></td>
-                                                            <?php
-                                                            $calling_lead_comments = mysqli_query($link, "SELECT * FROM `calling_lead_comments` WHERE LEAD_R_ID='$ID'");
-                                                            $query_counts = mysqli_num_rows($calling_lead_comments);
-                                                            ?>
-                                                            <td style="display: none;"><?php $counter = 1;
-                                                                                        foreach ($calling_lead_comments as $call_summary) {
-                                                                                            $LEAD_STATUS = $call_summary['LEAD_STATUS'];
-                                                                                            $results1 = mysqli_query($link, "SELECT * FROM `lead_status` WHERE ID='$LEAD_STATUS'");
-                                                                                            $rows1 = mysqli_fetch_array($results1);
-                                                                                            $STATUS_HEADING = $rows1['STATUS_HEADING'];
-                                                                                            if ($counter < $query_counts) {
-                                                                                                echo $STATUS_HEADING . ' | ';
-                                                                                            } else {
-                                                                                                echo $STATUS_HEADING;
-                                                                                            }
-                                                                                            $counter++;
-                                                                                        } ?></td>
-                                                            <td style="display: none;"><?php $counter1 = 1;
-                                                                                        foreach ($calling_lead_comments as $all_comments) {
-                                                                                            $LEAD_CMT_ID = $all_comments['LEAD_CMT_ID'];
-                                                                                            $lead_comments = mysqli_query($link, "SELECT * FROM `lead_comments` WHERE ID='$LEAD_CMT_ID'");
-                                                                                            if (mysqli_num_rows($lead_comments) > 0) {
-                                                                                                $lead_comments_row = mysqli_fetch_array($lead_comments);
-                                                                                                $COMMENT_HEADING = $lead_comments_row['HEADING'];
-                                                                                                if ($COMMENT_HEADING == "Other") {
-                                                                                                    $COMMENT_AREA = $all_comments['COMMENT_AREA'];
+                                                        $AGID = $_GET['AGID'];
+                                                        $LEAD_STATUS_sclc = '';
+                                                        $STATUS_TITLE_STATUS = '';
+                                                        $DATED_sclc = '';
+                                                        $result = mysqli_query($link, "SELECT `cl`.*,`clg`.`PERSON_NAME` FROM `calling_lead` AS `cl` INNER JOIN `calling_lead_agents` AS `clg` ON `cl`.`USERID`=`clg`.`ID` WHERE `cl`.`LEADTID`='$LEADTID' AND `cl`.`USERID`='$AGID' ORDER BY `cl`.`DATED` LIMIT " . $offset . "," . $records_per_page);
+                                                        $total_records = $link->query("SELECT `cl`.*,`clg`.`PERSON_NAME` FROM `calling_lead` AS `cl` INNER JOIN `calling_lead_agents` AS `clg` ON `cl`.`USERID`=`clg`.`ID` WHERE `cl`.`LEADTID`='$LEADTID' AND `cl`.`USERID`='$AGID' ORDER BY `cl`.`DATED`")->num_rows;
+                                                        $total_pages = ceil($total_records / $records_per_page);
+                                                        $counters = '0';
+                                                        while ($row = mysqli_fetch_array($result)) {
+                                                            $ID = $row['ID'];
+                                                            $DATED = $row['DATED'];
+                                                            $RMS_ID = $row['RMS_ID'];
+                                                            $PHONE = $row['PHONE'];
+                                                            $EMAIL = $row['EMAIL'];
+                                                            $PREFFERED_COUNTRY = $row['PREFFERED_COUNTRY'];
+                                                            $REGISTER_DATE = $row['REGISTER_DATE'];
+                                                            $SENDING_COUNTRY = $row['SENDING_COUNTRY'];
+                                                            $TRANSACTION_COUNT = $row['TRANSACTION_COUNT'];
+                                                            $LAST_TRANSACTION_DATE = $row['LAST_TRANSACTION_DATE'];
+                                                            $USERID = $row['USERID'];
+                                                            $U_DATED = $row['U_DATED'];
+                                                            $LEAD_STATUS = $row['LEAD_STATUS'];
+                                                            $LEAD_STATUS_DATED = $row['LEAD_STATUS_DATED'];
+                                                            $STATUS = $row['STATUS'];
+                                                            $counters = $counters + 1;
+                                                            // Last Status--------------------------------------
+                                                            $sel_calling_lead_comments = mysqli_query($link, "SELECT `LEAD_STATUS`, `DATED` FROM `calling_lead_comments` WHERE LEAD_R_ID='$ID'");
+                                                            while ($row_sclc = mysqli_fetch_array($sel_calling_lead_comments)) {
+                                                                $LEAD_STATUS_sclc = $row_sclc['LEAD_STATUS'];
+                                                                $DATED_sclc = $row_sclc['DATED'];
+                                                            }
+                                                            $result_lead_status = mysqli_query($link, "SELECT * FROM `lead_status` WHERE ID='$LEAD_STATUS_sclc'");
+                                                            $rows_ls = mysqli_fetch_array($result_lead_status);
+                                                            if (!empty($rows_ls['STATUS_HEADING'])) {
+                                                                $STATUS_TITLE_STATUS = $rows_ls['STATUS_HEADING'];
+                                                            }
+                                                            // Last Status End ---------------------------------	
+                                                    ?>
+                                                            <tr>
+                                                                <td></td>
+                                                                <td><?php if (mysqli_num_rows($sel_calling_lead_comments) == 0) {  ?><input type="checkbox" name="calling_lead_id[]" id="Detach" value="<?= $ID; ?>"><?php } ?></td>
+                                                                <td><?= $DATED; ?></td>
+                                                                <td><?= $RMS_ID; ?></td>
+                                                                <td><a href="tel:8<?= $PHONE; ?>"><?= $PHONE; ?></a></td>
+                                                                <td><?= $EMAIL; ?></td>
+                                                                <td><?= $SENDING_COUNTRY; ?></td>
+                                                                <td><?= $PREFFERED_COUNTRY; ?></td>
+                                                                <td><?= $REGISTER_DATE; ?></td>
+                                                                <td><?= $LAST_TRANSACTION_DATE; ?><br><?= $TRANSACTION_COUNT; ?></td>
+                                                                <td><?php if (!empty($row['PERSON_NAME'])) {
+                                                                        echo $row['PERSON_NAME']; ?><br><small><?= $U_DATED;
+                                                                                                            } ?></small></td>
+                                                                <?php
+                                                                $calling_lead_comments = mysqli_query($link, "SELECT * FROM `calling_lead_comments` WHERE LEAD_R_ID='$ID'");
+                                                                $query_counts = mysqli_num_rows($calling_lead_comments);
+                                                                ?>
+                                                                <td style="display: none;"><?php $counter = 1;
+                                                                                            foreach ($calling_lead_comments as $call_summary) {
+                                                                                                $LEAD_STATUS = $call_summary['LEAD_STATUS'];
+                                                                                                $results1 = mysqli_query($link, "SELECT * FROM `lead_status` WHERE ID='$LEAD_STATUS'");
+                                                                                                $rows1 = mysqli_fetch_array($results1);
+                                                                                                $STATUS_HEADING = $rows1['STATUS_HEADING'];
+                                                                                                if ($counter < $query_counts) {
+                                                                                                    echo $STATUS_HEADING . ' | ';
                                                                                                 } else {
+                                                                                                    echo $STATUS_HEADING;
+                                                                                                }
+                                                                                                $counter++;
+                                                                                            } ?></td>
+                                                                <td style="display: none;"><?php $counter1 = 1;
+                                                                                            foreach ($calling_lead_comments as $all_comments) {
+                                                                                                $LEAD_CMT_ID = $all_comments['LEAD_CMT_ID'];
+                                                                                                $lead_comments = mysqli_query($link, "SELECT * FROM `lead_comments` WHERE ID='$LEAD_CMT_ID'");
+                                                                                                if (mysqli_num_rows($lead_comments) > 0) {
+                                                                                                    $lead_comments_row = mysqli_fetch_array($lead_comments);
+                                                                                                    $COMMENT_HEADING = $lead_comments_row['HEADING'];
+                                                                                                    if ($COMMENT_HEADING == "Other") {
+                                                                                                        $COMMENT_AREA = $all_comments['COMMENT_AREA'];
+                                                                                                    } else {
+                                                                                                        $COMMENT_AREA = '';
+                                                                                                    }
+                                                                                                } else {
+                                                                                                    $COMMENT_HEADING = '';
                                                                                                     $COMMENT_AREA = '';
                                                                                                 }
-                                                                                            } else {
-                                                                                                $COMMENT_HEADING = '';
-                                                                                                $COMMENT_AREA = '';
-                                                                                            }
-                                                                                            if ($counter1 < $query_counts) {
-                                                                                                echo $COMMENT_HEADING . ': ' . $COMMENT_AREA . ' | ';
-                                                                                            } else {
-                                                                                                echo $COMMENT_HEADING . ': ' . $COMMENT_AREA;
-                                                                                            }
-                                                                                            $counter1++;
-                                                                                        } ?></td>
-                                                            <td style="display: none;"><?php $counter2 = 1;
-                                                                                        $three_cx_call_logs = mysqli_query($link, "SELECT * FROM `three_cx_call_logs` WHERE CI_ID='$ID'");
-                                                                                        $three_cx_call_logs_count = mysqli_num_rows($three_cx_call_logs);
-                                                                                        foreach ($three_cx_call_logs as $three_cx_call) {
-                                                                                            $call_time = $three_cx_call['call_time'];
-                                                                                            $duration = $three_cx_call['duration'];
-                                                                                            if ($counter2 < $three_cx_call_logs_count) {
-                                                                                                echo $call_time . ' [ ' . $duration . ' ] | ';
-                                                                                            } else {
-                                                                                                echo $call_time . ' [ ' . $duration . ' ] ';
-                                                                                            }
-                                                                                            $counter2++;
-                                                                                        } ?></td>
-                                                            <td><?php if ($DATED_sclc != NULL) { ?> <?php echo $STATUS_TITLE_STATUS; ?><br><small><?php echo $DATED_sclc; ?></small><?php } ?></td>
-                                                            <td data-title="Action" class="al-center"><a href="calling_lead_comment_preview.php?id=<?php echo $ID; ?>" data-toggle="tooltip" data-placement="top" title="Preview" class="btn btn-success btn-sm"><i class="fa fa-search"></i></a><a href="<?php echo basename($_SERVER['PHP_SELF']) . "?del=" . $ID ?>" onclick="javascript:return confirm('Are you sure you want to delete ?')" data-toggle="tooltip" data-placement="top" title="Delete" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a></td>
-                                                        </tr>
-                                                <?php }
-                                                } ?>
-                                            </tbody>
-                                        </table>
-                                        <?php include('pagination.php'); ?>
+                                                                                                if ($counter1 < $query_counts) {
+                                                                                                    echo $COMMENT_HEADING . ': ' . $COMMENT_AREA . ' | ';
+                                                                                                } else {
+                                                                                                    echo $COMMENT_HEADING . ': ' . $COMMENT_AREA;
+                                                                                                }
+                                                                                                $counter1++;
+                                                                                            } ?></td>
+                                                                <td style="display: none;"><?php $counter2 = 1;
+                                                                                            $three_cx_call_logs = mysqli_query($link, "SELECT * FROM `three_cx_call_logs` WHERE CI_ID='$ID'");
+                                                                                            $three_cx_call_logs_count = mysqli_num_rows($three_cx_call_logs);
+                                                                                            foreach ($three_cx_call_logs as $three_cx_call) {
+                                                                                                $call_time = $three_cx_call['call_time'];
+                                                                                                $duration = $three_cx_call['duration'];
+                                                                                                if ($counter2 < $three_cx_call_logs_count) {
+                                                                                                    echo $call_time . ' [ ' . $duration . ' ] | ';
+                                                                                                } else {
+                                                                                                    echo $call_time . ' [ ' . $duration . ' ] ';
+                                                                                                }
+                                                                                                $counter2++;
+                                                                                            } ?></td>
+                                                                <td><?php if ($DATED_sclc != NULL) { ?> <?= $STATUS_TITLE_STATUS; ?><br><small><?= $DATED_sclc; ?></small><?php } ?></td>
+                                                                <td data-title="Action" class="al-center"><a href="calling_lead_comment_preview.php?id=<?= $ID; ?>" data-toggle="tooltip" data-placement="top" title="Preview" class="btn btn-success btn-sm"><i class="fa fa-search"></i></a><a href="<?= basename($_SERVER['PHP_SELF']) . "?del=" . $ID . '&AGID=' . $USERID . '&LEADTID=' . $LEADTID; ?>" onclick="javascript:return confirm('Are you sure you want to delete ?')" data-toggle="tooltip" data-placement="top" title="Delete" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a></td>
+                                                            </tr>
+                                                    <?php }
+                                                    } ?>
+                                                </tbody>
+                                            </table>
+                                            <?php include('pagination.php'); ?>
+                                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 text-right">
+                                                <ul class="pagination pagination-lg">
+                                                    <li class="active"><button type="submit" name="detach" class="btn btn-warning btn-md">Detach</button></li>
+                                                </ul>
+                                            </div>
+                                        </form>
                                     <?php } ?>
                                 </div>
                             </div>
@@ -399,7 +423,7 @@ if (isset($_REQUEST['actc'])) {
                 e.preventDefault();
                 $('#btnExport').button('loading');
                 $('.progress').show();
-                let AGID = '<?php echo $_GET['AGID']; ?>';
+                let AGID = '<?= $_GET['AGID']; ?>';
                 let ID = '<?php echo $_GET['id']; ?>';
                 $.get('export/calling_lead_details.php?id=' + ID + '&AGID=' + AGID, function(data) {
                     var progressBar = $('.progress-bar');
