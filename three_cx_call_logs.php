@@ -1,6 +1,6 @@
 <?php
 
- include('including_connection.php'); 
+include('including_connection.php');
 //Set our script to JSON
 
 
@@ -44,9 +44,9 @@ function Get3CXCookie()
         $expire_at = gmdate('Y-m-d H:i:s', $expire_at);
         if (!is_null($cx_cookie)) {
             $cookie_id = $cx_cookie['id'];
-             mysqli_query($link, "UPDATE `three_cx_cookie` SET `cookie`='$FinalCookie',`expire_at`='$expire_at' WHERE  id = '$cookie_id'");
+            mysqli_query($link, "UPDATE `three_cx_cookie` SET `cookie`='$FinalCookie',`expire_at`='$expire_at' WHERE  id = '$cookie_id'");
         } else {
-             mysqli_query($link, "INSERT INTO `three_cx_cookie`( `cookie`, `expire_at`) VALUES ('$FinalCookie','$expire_at')");
+            mysqli_query($link, "INSERT INTO `three_cx_cookie`( `cookie`, `expire_at`) VALUES ('$FinalCookie','$expire_at')");
         }
 
         return $FinalCookie;
@@ -65,35 +65,28 @@ function getCallLogs($import_date)
     if (strlen($Auth3CX) != 0) {
         global $ServerURL;
         //Create our GET with headers
-        $GetData = @file_get_contents("https://" . $ServerURL . "/api/CallLog?TimeZoneName=Asia%2FKarachi&callState=All&dateRangeType=".$import_date."&fromFilter=&fromFilterType=Any&numberOfRows=5000&searchFilter=&startRow=0&toFilter=&toFilterType=Any", null, stream_context_create(array('http' => array('protocol_version' => '1.1', 'user-agent' => 'PHP', 'method' => 'GET', 'header' => 'Cookie: ' . $Auth3CX . ''),)));
+        $GetData = @file_get_contents("https://" . $ServerURL . "/api/CallLog?TimeZoneName=Asia%2FKarachi&callState=All&dateRangeType=" . $import_date . "&fromFilter=&fromFilterType=Any&numberOfRows=5000&searchFilter=&startRow=0&toFilter=&toFilterType=Any", null, stream_context_create(array('http' => array('protocol_version' => '1.1', 'user-agent' => 'PHP', 'method' => 'GET', 'header' => 'Cookie: ' . $Auth3CX . ''),)));
         $GetData = json_decode($GetData, true);
-        
+
         if (@count($GetData['CallLogRows']) > 0) {
             foreach ($GetData['CallLogRows'] as $key => $log) {
                 $number = substr($log['Destination'], 3);
-                $getCallingLeadQuery = mysqli_query($link,"SELECT * FROM `calling_lead` WHERE `PHONE` like '%".$number."%' ORDER by ID DESC LIMIT 1");
+                $getCallingLeadQuery = mysqli_query($link, "SELECT * FROM `calling_lead` WHERE `INACTIVE_LEAD_TITLE` = '1' AND `PHONE` like '%" . $number . "%' ORDER by ID DESC LIMIT 1");
                 $calling_lead = mysqli_fetch_assoc($getCallingLeadQuery);
-                if(!empty($calling_lead) && !preg_match('/^[A-Za-z]+$/', $number)){
-                $call_time = date('Y-m-d H:i:s', strtotime($log['CallTime']));
-                $query = "
+                if (!empty($calling_lead) && !preg_match('/^[A-Za-z]+$/', $number)) {
+                    $call_time = date('Y-m-d H:i:s', strtotime($log['CallTime']));
+                    $query = "
                 INSERT INTO `three_cx_call_logs`(`three_cx_log_id`,`CI_ID`, `agent_name`, `phone_numnber`, `duration`,`call_time`, `is_answered`) 
-                VALUES ('" . $log['Id'] . "','".$calling_lead['ID']."','" . $log['CallerId'] . "','" . $log['Destination'] . "','" . $log['Duration'] . "','$call_time','" . $log['Answered'] . "')
+                VALUES ('" . $log['Id'] . "','" . $calling_lead['ID'] . "','" . $log['CallerId'] . "','" . $log['Destination'] . "','" . $log['Duration'] . "','$call_time','" . $log['Answered'] . "')
                ON DUPLICATE KEY UPDATE call_time = '$call_time'
                 ";
-                if (mysqli_query($link, $query)) {
-
-                } else {
-                    echo "ERROR: Could not able to execute $query. " . mysqli_error($link);
+                    if (mysqli_query($link, $query)) {
+                    } else {
+                        echo "ERROR: Could not able to execute $query. " . mysqli_error($link);
+                    }
                 }
-                }
-               
             }
         }
     }
 }
 getCallLogs($_POST['import_date']);
-
-?>
-
-
-											
