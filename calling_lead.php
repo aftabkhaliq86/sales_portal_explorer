@@ -97,7 +97,7 @@ if (isset($_REQUEST['actc'])) {
 
                                 <div class="x_content">
                                     <div class="container" id="filters">
-                                        <form name="frmSRCH" class="form-horizontal" action="calling_lead.php?sts=<?php echo $sts; ?>" method="post">
+                                        <form name="frmSRCH" class="form-horizontal" action="calling_lead.php?sts=<?php echo $sts; ?>" method="get">
                                             <div class="form-group al-right">
                                                 <div class="col-lg-10">
                                                     <div class="input-daterange input-group">
