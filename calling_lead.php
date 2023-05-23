@@ -97,10 +97,11 @@ if (isset($_REQUEST['actc'])) {
 
                                 <div class="x_content">
                                     <div class="container" id="filters">
-                                        <form name="frmSRCH" class="form-horizontal" action="calling_lead.php?sts=<?php echo $sts; ?>" method="get">
+                                        <form name="frmSRCH" class="form-horizontal" action="calling_lead.php" method="get">
                                             <div class="form-group al-right">
                                                 <div class="col-lg-10">
                                                     <div class="input-daterange input-group">
+                                                        <input type="hidden" name="sts" value="<?= $sts; ?>">
                                                         <span class="input-group-addon">Dated :</span>
                                                         <input type="date" class="form-control" name="date_from" placeholder="Start Date" autocomplete="off" value="<?php echo $date_from; ?>" />
                                                         <span class="input-group-addon">to</span>
@@ -108,7 +109,7 @@ if (isset($_REQUEST['actc'])) {
                                                     </div>
                                                 </div>
                                                 <div class="col-lg-2">
-                                                    <button type="submit" name="srchfilter" class="btn btn-success btn-block">Search <i class="fa fa-search"></i></button>
+                                                    <button type="submit" class="btn btn-success btn-block">Search <i class="fa fa-search"></i></button>
                                                 </div>
                                             </div>
                                         </form>
@@ -151,7 +152,7 @@ if (isset($_REQUEST['actc'])) {
     </script>
     <script>
         $(document).ready(function() {
-            $('#calling-lead').load(`ajax_load/calling_lead.php?sts=<?php echo $sts; ?>&date_from=<?php echo $date_from; ?>&date_to=<?php echo $date_to; ?>`, function() {
+            $('#calling-lead').load(`ajax_load/calling_lead.php?sts=<?= $sts; ?>&date_from=<?= $date_from; ?>&date_to=<?= $date_to; ?>`, function() {
                 $('#leads').DataTable();
                 $('#calling-loader').hide();
             });
