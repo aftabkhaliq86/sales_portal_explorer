@@ -1,109 +1,76 @@
 <?php include('inc_meta_header.php'); ?>
 <title>Dashboard <?php include('inc_page_title.php'); ?></title>
 <?php include('inc_head.php'); ?>
-
+<?php include('backend/dashboard.php'); ?>
 <?php
-$DATEDG = '';
-if (isset($_POST['srchfilter'])) //submit button name
+if (isset($_POST['submit'])) //submit button name
 {
-	$srch_DATEFROM = $_POST['DATEFROM'];
-	$srch_DATETO = $_POST['DATETO'];
+	$date_from = !empty($_POST['date_from']) ? date('Y-m-d', strtotime($_POST['date_from'])) : '';
+	$date_to = !empty($_POST['date_to']) ? date('Y-m-d', strtotime($_POST['date_to'])) : '';
+	$date_from_to = !empty($date_from) && !empty($date_to) ? "AND DATE(DATED) BETWEEN '$date_from' AND '$date_to'" : '';
+	$date_from_to_call = !empty($date_from) && !empty($date_to) ? "AND DATE(call_time) BETWEEN '$date_from' AND '$date_to'" : '';
+	//----------------------------------------------
 
-	//Get previous Date From-----------------------
-	if ($srch_DATEFROM) {
-		$srch_DATEFROM = strtotime($srch_DATEFROM);
-		//$srch_DATEFROM = strtotime('-1 day', $srch_DATEFROM);
-		$srch_DATEFROM = date('Y-m-d', $srch_DATEFROM);
-	} else {
-		$srch_DATEFROM = '';
-	}
-	//----------------------------------------------
-	//Get previous Date To-----------------------
-	if ($srch_DATETO) {
-		$srch_DATETO = strtotime($srch_DATETO);
-		$srch_DATETO = strtotime('+1 day', $srch_DATETO);
-		$srch_DATETO = date('Y-m-d', $srch_DATETO);
-	} else {
-		$srch_DATETO = '';
-	}
-	//----------------------------------------------
-	if (!empty($srch_DATEFROM != NULL && $srch_DATETO != NULL)) {
-		$DATEDG = "AND DATE(DATED) BETWEEN '$srch_DATEFROM' AND '$srch_DATETO'";
-	}
-	if (!empty($srch_DATEFROM != NULL && $srch_DATETO != NULL)) {
-		$DATEDG_other = "AND DATE(calls_start_time) BETWEEN '$srch_DATEFROM' AND '$srch_DATETO'";
-	}
-	$dataPoints1 = array(
-		array("label" => "Ali Ali", "y" => 36.12),
-		array("label" => "", "y" => 34.87),
-		array("label" => "New", "y" => 40.30),
-		array("label" => "personal hai", "y" => 35.30),
-		array("label" => "dishu dishu", "y" => 39.50),
-		array("label" => "cancel", "y" => 50.82),
-		array("label" => "hello melo", "y" => 74.70)
-	);
-	$dataPoints2 = array(
-		array("label" => "Ali Ali", "y" => 64.61),
-		array("label" => "", "y" => 70.55),
-		array("label" => "New", "y" => 72.50),
-		array("label" => "personal hai", "y" => 81.30),
-		array("label" => "dishu dishu", "y" => 63.60),
-		array("label" => "cancel", "y" => 69.38),
-		array("label" => "hello melo", "y" => 98.70)
-	);
+	$no_of_calls = call_record($link, $date_from_to_call)['name'];
+	$no_of_calls_count = call_record($link, $date_from_to_call)['count'];
+	// For Profile Completed
+	$Profile_Completed_arr = profile_completed($link, $date_from_to);
+	// For Lead Converted
+	$Lead_Converted_arr = lead_converted($link, $date_from_to);
 ?>
 	<script>
 		window.onload = function() {
 			var chart = new CanvasJS.Chart("chartContainer", {
 				animationEnabled: true,
-				theme: "light1", // "light1", "light2", "dark1", "dark2"
+				theme: "light", // "light1", "dark1", "dark2"
+				animationDuration: 2000,
 				title: {
 					text: "Number of Calls"
 				},
-				axisY: {
-					title: "" //Numbers
+				axisX: {
+					// maximum: //$no_of_calls_count;,
+					interval: 1,
+					labelMaxWidth: 180,
+					labelAngle: -70, //90,
+					labelFontFamily: "verdana0"
 				},
 				data: [{
 					type: "column",
-					dataPoints: <?php $result_ticki = mysqli_query($link, "SELECT count(ID) AS ID, USERID FROM `calling_comments_call` WHERE calls_start_time!='' $DATEDG_other GROUP BY USERID ");
-								$num_rows_ticki = mysqli_num_rows($result_ticki);
-								$ctr = 0;
-								echo '[';
-								while ($row_ticki = mysqli_fetch_array($result_ticki)) {
-									$ctr++;
-									echo '{"label":"';
-									$result_users_IO = mysqli_query($link, "SELECT `PERSON_NAME` FROM `calling_lead_agents` WHERE ID='$row_ticki[USERID]' AND STATUS=1");
-									while ($row_users_IO = mysqli_fetch_array($result_users_IO)) {
-										echo $row_users_IO['PERSON_NAME'] . ' - ' . $row_ticki['ID'];
-									}
-									echo '","y":';
-									echo $row_ticki['ID'];
-									echo '}';
-									if ($ctr != $num_rows_ticki) {
-										echo ' , ';
-									} else {
-										echo ']';
-									}
-								}
-								?>
-				}]
+					indexLabel: "{y}",
+					dataPoints: <?php echo $no_of_calls; ?>
+				}],
+				options: {
+					indexAxis: 'x',
+					scales: {
+						x: {
+							type: 'time',
+							source: 'data',
+							ticks: {
+								autoSkip: false
+							}
+						},
+					}
+				}
 			});
 			chart.render();
-
 			//Multi Chart
 			var chart_multi = new CanvasJS.Chart("chartContainer_multi", {
 				animationEnabled: true,
-				theme: "light2",
+				theme: "light2", // "light1", "dark1", "dark2"
+				animationDuration: 2000,
 				title: {
 					text: "Targets"
 				},
-				axisY: {
-					includeZero: true
+				axisX: {
+					interval: 1,
+					labelMaxWidth: 180,
+					labelAngle: -70, //90,
+					labelFontFamily: "verdana0"
 				},
 				legend: {
 					cursor: "pointer",
-					verticalAlign: "center",
-					horizontalAlign: "right",
+					verticalAlign: "bottom",
+					horizontalAlign: "center",
 					itemclick: toggleDataSeries
 				},
 				data: [{
@@ -112,60 +79,14 @@ if (isset($_POST['srchfilter'])) //submit button name
 					indexLabel: "{y}",
 					yValueFormatString: "#,###.##", //$#0.##
 					showInLegend: true,
-					dataPoints: <?php $resultsssfor_Profile_Completed = mysqli_query($link, "SELECT USERID, COUNT(LEAD_STATUS) as LEAD_STATUSi FROM `calling_lead_comments` WHERE LEAD_STATUS='11' AND LEAD_STS_INVALID='0' AND STATUS='0' $DATEDG AND USERID > 0 GROUP by USERID ORDER BY USERID ASC");
-
-
-								$rowi = mysqli_num_rows($resultsssfor_Profile_Completed);
-								$ctr_PC = 0;
-								echo '[';
-								while ($row = mysqli_fetch_array($resultsssfor_Profile_Completed)) {
-									$ctr_PC++;
-									echo '{"label":"';
-
-									//echo $row['USERID'];
-									$result_users_IOi = mysqli_query($link, "SELECT `PERSON_NAME` FROM `calling_lead_agents` WHERE ID='$row[USERID]' AND STATUS='1'");
-									while ($row_users_IOi = mysqli_fetch_array($result_users_IOi)) {
-										echo $USERNAME = $row_users_IOi['PERSON_NAME'];
-									}
-
-									echo '","y":';
-									echo $row['LEAD_STATUSi']; //$num_rows_ticki_PC;
-									echo '}';
-									if ($ctr_PC != $rowi) {
-										echo ', ';
-									} else {
-										echo ']';
-									}
-								} ?>
+					dataPoints: <?php echo $Profile_Completed_arr; ?>
 				}, {
 					type: "column",
 					name: "Lead Converted",
 					indexLabel: "{y}",
 					yValueFormatString: "#,###.##", //$#0.##
 					showInLegend: true,
-					dataPoints: <?php $resultsssfor_Profile_Completedi = mysqli_query($link, "SELECT USERID, COUNT(LEAD_STATUS) as LEAD_STATUSi FROM `calling_lead_comments` WHERE LEAD_STATUS='12' AND LEAD_STS_INVALID='0' AND STATUS='0' $DATEDG AND USERID > 0 GROUP by USERID ORDER BY USERID ASC");
-								$rowii = mysqli_num_rows($resultsssfor_Profile_Completedi);
-								$ctr_PCi = 0;
-								echo '[';
-								while ($rowi = mysqli_fetch_array($resultsssfor_Profile_Completedi)) {
-									$ctr_PCi++;
-									echo '{"label":"';
-
-									//echo $rowi['USERID'];
-									$result_users_IOii = mysqli_query($link, "SELECT `PERSON_NAME` FROM `calling_lead_agents` WHERE ID='$rowi[USERID]' AND STATUS='1'");
-									while ($row_users_IOii = mysqli_fetch_array($result_users_IOii)) {
-										echo $USERNAMEi = $row_users_IOii['PERSON_NAME'];
-									}
-
-									echo '","y":';
-									echo $rowi['LEAD_STATUSi']; //$num_rows_ticki_PC;
-									echo '}';
-									if ($ctr_PCi != $rowii) {
-										echo ', ';
-									} else {
-										echo ']';
-									}
-								} ?>
+					dataPoints: <?php echo $Lead_Converted_arr; ?>
 				}]
 			});
 			chart_multi.render();
@@ -184,6 +105,7 @@ if (isset($_POST['srchfilter'])) //submit button name
 }
 ?>
 
+
 <body class="nav-md">
 	<div class="container body">
 		<div class="main_container">
@@ -193,11 +115,10 @@ if (isset($_POST['srchfilter'])) //submit button name
 			<?php include('inc_header.php'); ?>
 			<!-- breadcrumb -->
 			<div class="breadcrumb_content">
-				<div class="breadcrumb_text">Dashboard / <!--<a href="dashboard.php">Dashboard</a> / -->
+				<div class="breadcrumb_text">Dashboard /
 				</div>
 			</div>
 			<!-- /breadcrumb -->
-
 			<!-- page content -->
 			<div class="right_col bg_fff" role="main">
 				<div class="container" style="margin-bottom: 20px;">
@@ -209,10 +130,10 @@ if (isset($_POST['srchfilter'])) //submit button name
 
 									<div class="col-lg-9 text-left">
 										<label class="radio-inline">
-											<input type="radio" name="import_date" id="inlineRadio1" value="Yesterday">Import yesterday Call Cogs
+											<input type="radio" name="import_date" id="inlineRadio1" value="Yesterday">Import yesterday Call logs
 										</label>
 										<label class="radio-inline">
-											<input type="radio" name="import_date" id="inlineRadio2" value="Today">Import Today Call Cogs
+											<input type="radio" name="import_date" id="inlineRadio2" value="Today">Import Today Call logs
 										</label>
 									</div>
 									<div class="col-lg-3">
@@ -235,26 +156,22 @@ if (isset($_POST['srchfilter'])) //submit button name
 
 				</div>
 				<div class="container">
-					<form action="" method="post">
+					<form action="<?= $_SERVER['PHP_SELF']; ?>" method="post">
 
 						<div class="col-lg-12">
-							<div class="col-lg-9 col-md-9 col-sm-12 col-xs-12 col-lg-offset-1">
+							<div class="col-lg-10 col-md-10 col-sm-12 col-xs-12 col-lg-offset-1">
 
 								<div class="form-group al-right" style="padding-top: 7px;">
 
-									<div class="col-lg-9">
+									<div class="col-lg-11">
 										<div class="input-daterange input-group">
-											<input type="date" class="form-control input-date-picker datepicker-dropdown" id="DATEFROM" name="DATEFROM" placeholder="Start Date" autocomplete="off" value="<?php if ($srch_DATEFROM != NULL) {
-																																																				echo $_POST['DATEFROM'];
-																																																			} ?>" />
+											<input type="date" class="form-control input-date-picker datepicker-dropdown" id="date_from" name="date_from" placeholder="Start Date" autocomplete="off" value="<?= ($_POST['date_from'] ?? '') ? $_POST['date_from'] : '' ?>" />
 											<span class="input-group-addon"><i class="fa fa-angle-left"></i> From DATE To <i class="fa fa-angle-right"></i></span>
-											<input type="date" class="form-control input-date-picker" id="DATETO" name="DATETO" placeholder="End Date" autocomplete="off" value="<?php if ($srch_DATETO != NULL) {
-																																														echo $_POST['DATETO'];
-																																													} ?>" />
+											<input type="date" class="form-control input-date-picker" id="date_to" name="date_to" placeholder="End Date" autocomplete="off" value="<?= ($_POST['date_to'] ?? '') ? $_POST['date_to'] : '' ?>" />
 										</div>
 									</div>
-									<div class="col-lg-3">
-										<button type="submit" name="srchfilter" class="btn btn-success"><i class="fa fa-search"></i> Search</button>
+									<div class="col-lg-1">
+										<button type="submit" name="submit" class="btn btn-success"><i class="fa fa-search"></i> Search</button>
 									</div>
 
 								</div>
@@ -269,7 +186,7 @@ if (isset($_POST['srchfilter'])) //submit button name
 				<div class="container">
 
 					<div id="chartContainer_multi" style="height: 400px; width: 100%;"></div>
-					<div id="chartContainer" style="height: 400px; width: 100%;"></div>
+					<div id="chartContainer" style="height: 400px; width: 100%;margin-top: 1%;"></div>
 
 				</div>
 
@@ -285,7 +202,6 @@ if (isset($_POST['srchfilter'])) //submit button name
 
 		</div>
 	</div>
-
 	<script>
 		$("#start-import").on('click', function() {
 			if ($('#import-logs').serialize() == '') {
