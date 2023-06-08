@@ -413,7 +413,7 @@ if (isset($_REQUEST['actc'])) {
             $('#btnExport').button('loading');
             $('.progress').show();
             let ID = '<?php echo $_GET['id']; ?>';
-            let AGID = '<?php echo $_GET['AGID']; ?>';
+            let AGID = '<?= !empty($_GET['AGID']) ? $_GET['AGID'] : ''; ?>';
             $.get('export/calling_lead_details.php?id=' + ID + '&AGID=' + AGID, function(data) {
                 var progressBar = $('.progress-bar');
                 var progressWidth = 0;
