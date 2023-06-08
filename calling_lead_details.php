@@ -232,7 +232,7 @@ if (isset($_REQUEST['actc'])) {
 
                                             $counters = $counters + 1;
                                         ?>
-                                            <a href="<?php echo basename($_SERVER['PHP_SELF']) . "?id=" . $LEADTID ?>&AGID=<?php echo $AGID; ?>&LEADTID=<?php echo $LEADTID; ?>" class="col-lg-2 c2i btn btn-default al-center">
+                                            <a href="<?php echo basename($_SERVER['PHP_SELF']) . "?id=" . $LEADTID ?>&AGID=<?php echo $AGID; ?>" class="col-lg-2 c2i btn btn-default al-center">
                                                 <span class="fa-2x"><?php echo $USERIDC; ?> / <?php echo $USERIDCI; ?></span><br>
                                                 <?php echo $counters; ?>. <?php echo $PERSON_NAME; ?>
                                             </a>
@@ -417,38 +417,35 @@ if (isset($_REQUEST['actc'])) {
         </div>
     </div>
     <?php include('inc_foot.php'); ?>
-    <?php if (isset($_GET['AGID'])) { ?>
-        <script>
-            $('#btnExport').click(function(e) {
-                e.preventDefault();
-                $('#btnExport').button('loading');
-                $('.progress').show();
-                let AGID = '<?= $_GET['AGID']; ?>';
-                let ID = '<?php echo $_GET['id']; ?>';
-                $.get('export/calling_lead_details.php?id=' + ID + '&AGID=' + AGID, function(data) {
-                    var progressBar = $('.progress-bar');
-                    var progressWidth = 0;
-                    var interval = setInterval(function() {
-                        progressWidth += 1;
-                        progressBar.css('width', progressWidth + '%').attr('aria-valuenow', progressWidth).text(progressWidth + '%');
-                        $('.progress-text').text(progressWidth + '%'); // Update text element with progress percentage
-                        if (progressWidth >= 100) {
-                            var tableId = "leads_export"; // assign an id to the new table element
-                            var newTable = $("<table>").attr("id", tableId).html(data);
-                            $("body").append(newTable); // append the new table to the body
-                            xport.toCSV(tableId);
-                            newTable.remove(); // remove the new table after the export is done
-                            $('#btnExport').button('reset');
-                            clearInterval(interval);
-                            setInterval(function() {
-                                $('.progress').hide();
-                            }, 5000);
-                        }
-                    }, 200); // Set interval to 100ms for faster updates
-                });
+    <script>
+        $('#btnExport').click(function(e) {
+            e.preventDefault();
+            $('#btnExport').button('loading');
+            $('.progress').show();
+            let ID = '<?php echo $_GET['id']; ?>';
+            $.get('export/calling_lead_details.php?id=' + ID, function(data) {
+                var progressBar = $('.progress-bar');
+                var progressWidth = 0;
+                var interval = setInterval(function() {
+                    progressWidth += 1;
+                    progressBar.css('width', progressWidth + '%').attr('aria-valuenow', progressWidth).text(progressWidth + '%');
+                    $('.progress-text').text(progressWidth + '%'); // Update text element with progress percentage
+                    if (progressWidth >= 100) {
+                        var tableId = "leads_export"; // assign an id to the new table element
+                        var newTable = $("<table>").attr("id", tableId).html(data);
+                        $("body").append(newTable); // append the new table to the body
+                        xport.toCSV(tableId);
+                        newTable.remove(); // remove the new table after the export is done
+                        $('#btnExport').button('reset');
+                        clearInterval(interval);
+                        setInterval(function() {
+                            $('.progress').hide();
+                        }, 5000);
+                    }
+                }, 200); // Set interval to 100ms for faster updates
             });
-        </script>
-    <?php } ?>
+        });
+    </script>
     <script type="text/javascript">
         $(document).ready(function() {
             // submit form using $.ajax() method
