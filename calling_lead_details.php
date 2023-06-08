@@ -208,36 +208,26 @@ if (isset($_REQUEST['actc'])) {
 
                                     <div class="container">
                                         <?php
-                                        $USERIDCI = '';
-                                        $USERIDC = '';
-                                        $USERID = '';
-                                        $result_person_counter = mysqli_query($link, "SELECT COUNT(USERID) AS USERIDC, USERID FROM `calling_lead` WHERE LEADTID='$LEADTID' GROUP BY USERID");
+                                        $calling_lead_query = "SELECT COUNT(cl.USERID) AS USERID_COUNT, `cl`.`USERID`, `clg`.`ID` AS `AGID`, `clg`.`PERSON_NAME` FROM `calling_lead` AS `cl` INNER JOIN `calling_lead_agents` AS `clg` ON `cl`.`USERID`=`clg`.`ID` WHERE LEADTID='$LEADTID' ";
+                                        $calling_lead_query_extend = "$calling_lead_query GROUP BY USERID";
+                                        $calling_lead = mysqli_query($link, $calling_lead_query_extend);
                                         $counters = '0';
-                                        while ($row_pc = mysqli_fetch_array($result_person_counter)) {
-                                            $USERIDC = $row_pc['USERIDC'];
-                                            $USERID = $row_pc['USERID'];
-
-                                            $result_person_counteri = mysqli_query($link, "SELECT COUNT(USERID) AS USERIDC, USERID FROM `calling_lead` WHERE LEADTID='$LEADTID' AND USERID='$USERID' AND STATUS='1' GROUP BY USERID");
-                                            $USERIDCI = 0;
-                                            while ($row_pci = mysqli_fetch_array($result_person_counteri)) {
-                                                $USERIDCI = $row_pci['USERIDC'];
-                                            }
-                                            $PERSON_NAME = '';
-                                            $AGID = '';
-                                            $result_person_names = mysqli_query($link, "SELECT ID,PERSON_NAME FROM `calling_lead_agents` WHERE ID='$USERID'");
-                                            while ($row_pn = mysqli_fetch_array($result_person_names)) {
-                                                $AGID = $row_pn['ID'];
-                                                $PERSON_NAME = $row_pn['PERSON_NAME'];
-                                            }
-
-                                            $counters = $counters + 1;
+                                        foreach ($calling_lead as $lead) {
+                                            $USERID_COUNT = $lead['USERID_COUNT'];
+                                            $USERID = $lead['USERID'];
+                                            $AGID = $lead['AGID'];
+                                            $PERSON_NAME = $lead['PERSON_NAME'] ? $lead['PERSON_NAME'] : '';
+                                            $used_leads = mysqli_query($link, "$calling_lead_query AND `cl`.`USERID`='$USERID' AND `cl`.`STATUS`='1' GROUP BY `cl`.`USERID`");
+                                            $used_lead = mysqli_fetch_array($used_leads);
+                                            $USED_USERID_COUNT = $used_lead ? $used_lead['USERID_COUNT'] : 0;
+                                            $AGID_LEAD = !empty($_GET['AGID']) ? trim($_GET['AGID']) : '';
+                                            $counters++;
                                         ?>
-                                            <a href="<?php echo basename($_SERVER['PHP_SELF']) . "?id=" . $LEADTID ?>&AGID=<?php echo $AGID; ?>" class="col-lg-2 c2i btn btn-default al-center">
-                                                <span class="fa-2x"><?php echo $USERIDC; ?> / <?php echo $USERIDCI; ?></span><br>
-                                                <?php echo $counters; ?>. <?php echo $PERSON_NAME; ?>
+                                            <a href="<?= basename($_SERVER['PHP_SELF']) . "?id=" . $LEADTID ?>&AGID=<?= $AGID; ?>" class="col-lg-2 c2i btn <?= ($USERID ?? '') == $AGID_LEAD ? 'btn-success' : 'btn-default' ?> al-center">
+                                                <span class="fa-2x"><?= $USED_USERID_COUNT; ?> / <?= $USERID_COUNT; ?></span><br>
+                                                <?= $counters; ?>. <?= $PERSON_NAME; ?>
                                             </a>
                                         <?php } ?>
-
                                     </div>
                                     <div class="progress" style="margin: 10px;display: none;">
                                         <div class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
@@ -423,7 +413,8 @@ if (isset($_REQUEST['actc'])) {
             $('#btnExport').button('loading');
             $('.progress').show();
             let ID = '<?php echo $_GET['id']; ?>';
-            $.get('export/calling_lead_details.php?id=' + ID, function(data) {
+            let AGID = '<?php echo $_GET['AGID']; ?>';
+            $.get('export/calling_lead_details.php?id=' + ID + '&AGID=' + AGID, function(data) {
                 var progressBar = $('.progress-bar');
                 var progressWidth = 0;
                 var interval = setInterval(function() {

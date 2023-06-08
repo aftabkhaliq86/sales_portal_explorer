@@ -25,10 +25,12 @@ if (isset($_GET['id'])) {
     </thead>
     <tbody>
         <?php
+        $AGID = !empty($_GET['AGID']) ? $_GET['AGID'] : '';
+        $AGID_QUERY = !empty($AGID) ? "AND `cl`.`USERID`='$AGID'" : '';
         $LEAD_STATUS_sclc = '';
         $STATUS_TITLE_STATUS = '';
         $DATED_sclc = '';
-        $result = mysqli_query($link, "SELECT `cl`.*,`clg`.`PERSON_NAME` FROM `calling_lead` AS `cl` INNER JOIN `calling_lead_agents` AS `clg` ON `cl`.`USERID`=`clg`.`ID` WHERE `cl`.`LEADTID`='$ID' ORDER BY `cl`.`DATED`");
+        $result = mysqli_query($link, "SELECT `cl`.*,`clg`.`PERSON_NAME` FROM `calling_lead` AS `cl` INNER JOIN `calling_lead_agents` AS `clg` ON `cl`.`USERID`=`clg`.`ID` WHERE `cl`.`LEADTID`='$ID' $AGID_QUERY ORDER BY `cl`.`DATED`");
         $counters = '0';
         while ($row = mysqli_fetch_array($result)) {
             $ID = $row['ID'];
