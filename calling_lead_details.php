@@ -141,7 +141,8 @@ if (isset($_POST['detach'])) {
     $lead_ids = '';
     $counter = 0;
     foreach ($calling_lead_id as $lead_id) {
-        $lead_ids .= ($counter++ === 0 || $counter++ === $total_selected - 1) ? $lead_id : ',' . $lead_id;
+        $lead_ids .= ($counter === 0) ? $lead_id : ',' . $lead_id;
+        $counter++;
     }
     $sql = "UPDATE calling_lead SET USERID=NULL,U_DATED=NULL WHERE ID IN ($lead_ids) ";
     if (!mysqli_query($link, $sql)) {
