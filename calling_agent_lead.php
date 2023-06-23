@@ -109,7 +109,21 @@
                                         </thead>
                                         <tbody>
                                             <?php
-                                            $result = mysqli_query($link, "SELECT * FROM calling_lead_title  ORDER BY DATED");
+                                            $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+
+                                            // Number of records to display per page
+                                            $records_per_page = 10;
+
+                                            // Query string parameters
+                                            $params = $_GET;
+                                            unset($params['page']); // Remove the 'page' parameter
+                                            // Calculate the starting point of the records
+                                            $offset = ($page - 1) * $records_per_page;
+                                            $total_records = 0;
+                                            $calling_lead_title = "SELECT * FROM calling_lead_title  ORDER BY DATED DESC";
+                                            $result = $link->query("$calling_lead_title LIMIT " . $offset . "," . $records_per_page);
+                                            $total_records = $link->query($calling_lead_title)->num_rows;
+                                            $total_pages = ceil($total_records / $records_per_page);
                                             $counters = '0';
                                             $USERID = $_GET['id'];
                                             while ($row = mysqli_fetch_array($result)) {
@@ -118,19 +132,19 @@
                                                 $LEAD_CATEGORY = $row['LEAD_CATEGORY'];
                                                 $LEAD_DATE = $row['LEAD_DATE'];
                                                 $STATUS = $row['STATUS'];
-                                                $result_agent = mysqli_query($link, "SELECT * FROM calling_lead WHERE LEADTID='$ID' AND USERID='$USERID'");
+                                                $result_agent = mysqli_query($link, "SELECT * FROM calling_lead WHERE LEADTID='$ID' AND USERID='$USERID' AND STATUS != '2'");
                                                 $result_lead_count = mysqli_num_rows($result_agent);
                                             ?>
                                                 <tr>
                                                     <td></td>
                                                     <td>
-                                                        <?php echo $DATED; ?>
+                                                        <?= $DATED; ?>
                                                     </td>
                                                     <td>
-                                                        <?php echo $LEAD_CATEGORY; ?>
+                                                        <?= $LEAD_CATEGORY; ?>
                                                     </td>
                                                     <td>
-                                                        <?php echo $LEAD_DATE; ?>
+                                                        <?= $LEAD_DATE; ?>
                                                     </td>
                                                     <td>
                                                         <?php
@@ -145,14 +159,15 @@
                                                         }
                                                         ?>
                                                     </td>
-                                                    <td><?php echo $result_lead_count; ?></td>
+                                                    <td><?= $result_lead_count; ?></td>
                                                     <td data-title="Action" class="al-center">
-                                                        <a href="calling_agent_lead_details.php?id=<?php echo $ID; ?>&USERID=<?php echo $USERID; ?>" data-toggle="tooltip" data-placement="top" title="Edit" class="btn btn-success btn-sm"><i class="fa fa-eye"></i></a>
+                                                        <a href="calling_agent_lead_details.php?id=<?= $ID; ?>&USERID=<?php echo $USERID; ?>" data-toggle="tooltip" data-placement="top" title="Edit" class="btn btn-success btn-sm"><i class="fa fa-eye"></i></a>
                                                     </td>
                                                 </tr>
                                             <?php } ?>
                                         </tbody>
                                     </table>
+                                    <?php include('pagination.php'); ?>
                                 </div>
                             </div>
                         </div>

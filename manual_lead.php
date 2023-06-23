@@ -139,7 +139,11 @@ if (isset($_REQUEST['actc'])) {
 
                     </div>
                     <div class="clearfix"></div>
-
+                    <div class="progress" style="margin: 10px;display: none;">
+                        <div class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                            <span class="sr-only">0% Complete</span>
+                        </div>
+                    </div>
                     <div class="row">
 
                         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -150,7 +154,7 @@ if (isset($_REQUEST['actc'])) {
                                         <li><a href="<?= basename($_SERVER['REQUEST_URI']) ?>" class="btn btn-default btn-xs" data-toggle="tooltip" data-placement="top" title="Page Refresh"><i class="fa fa-refresh"></i></a></li>
                                         <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
                                         <li>
-                                            <button type="button" id="btnExport" onclick="javascript:xport.toCSV('example');" class="btn btn-default"><i class="fa fa-download"></i>&nbsp;Export to CSV</button>
+                                            <button type="button" id="btnExport" class="btn btn-default"><i class="fa fa-download"></i>&nbsp;Export to CSV</button>
                                         </li>
                                     </ul>
                                 </div>
@@ -275,5 +279,34 @@ if (isset($_REQUEST['actc'])) {
             setTimeout(function() {
                 $('.alert').slideUp('slow');
             }, 3000);
+        });
+    </script>
+    <script>
+        $('#btnExport').click(function(e) {
+            e.preventDefault();
+            $('#btnExport').button('loading');
+            $('.progress').show();
+            let calling_leads = "<?php echo $calling_leads_query; ?>";
+            $.get('export/manual_lead.php?calling_leads=' + calling_leads, function(data) {
+                var progressBar = $('.progress-bar');
+                var progressWidth = 0;
+                var interval = setInterval(function() {
+                    progressWidth += 1;
+                    progressBar.css('width', progressWidth + '%').attr('aria-valuenow', progressWidth).text(progressWidth + '%');
+                    $('.progress-text').text(progressWidth + '%'); // Update text element with progress percentage
+                    if (progressWidth >= 100) {
+                        var tableId = "leads_export"; // assign an id to the new table element
+                        var newTable = $("<table>").attr("id", tableId).html(data);
+                        $("body").append(newTable); // append the new table to the body
+                        xport.toCSV(tableId);
+                        newTable.remove(); // remove the new table after the export is done
+                        $('#btnExport').button('reset');
+                        clearInterval(interval);
+                        setInterval(function() {
+                            $('.progress').hide();
+                        }, 5000);
+                    }
+                }, 200); // Set interval to 100ms for faster updates
+            });
         });
     </script>

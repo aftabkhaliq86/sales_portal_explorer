@@ -32,14 +32,13 @@ if (isset($_REQUEST['actc'])) {
     echo ("<script>location='" . basename($_SERVER['PHP_SELF']) . "'</script>");
 }
 ?>
-
 <body class="nav-md">
     <!-- Modal -->
     <div class="modal fade" id="ProductAdd" tabindex="-1" role="dialog" aria-labelledby="ProductAdd">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="window.location='<?php echo basename($_SERVER['PHP_SELF']) ?>'"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="window.location='<?= basename($_SERVER['PHP_SELF']) ?>'"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title" id="myModalLabel">Add Roll Page Details</h4>
                 </div>
                 <div id="form-content">
@@ -93,7 +92,7 @@ if (isset($_REQUEST['actc'])) {
             <?php include('inc_header.php'); ?>
             <!-- breadcrumb -->
             <div class="breadcrumb_content">
-                <div class="breadcrumb_text"><a href="dashboard.php">Dashboard</a> / <?php echo $plu_del_rep; ?>
+                <div class="breadcrumb_text"><a href="dashboard.php">Dashboard</a> / <?= $plu_del_rep; ?>
                 </div>
             </div>
             <!-- /breadcrumb -->
@@ -102,7 +101,7 @@ if (isset($_REQUEST['actc'])) {
                 <div class="">
                     <div class="page-title">
                         <div class="title_left">
-                            <h3><?php echo $plu_del_rep; ?></h3>
+                            <h3><?= $plu_del_rep; ?></h3>
                         </div>
                     </div>
                     <div class="clearfix"></div>
@@ -110,9 +109,9 @@ if (isset($_REQUEST['actc'])) {
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <div class="x_panel">
                                 <div class="x_title">
-                                    <h4><?php echo $plu_del_rep; ?></h4>
+                                    <h4><?= $plu_del_rep; ?></h4>
                                     <ul class="nav navbar-right panel_toolbox">
-                                        <li><a href="<?php echo basename($_SERVER['REQUEST_URI']) ?>" class="btn btn-default btn-xs" data-toggle="tooltip" data-placement="top" title="Page Refresh"><i class="fa fa-refresh"></i></a></li>
+                                        <li><a href="<?= basename($_SERVER['REQUEST_URI']) ?>" class="btn btn-default btn-xs" data-toggle="tooltip" data-placement="top" title="Page Refresh"><i class="fa fa-refresh"></i></a></li>
                                         <li><button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#ProductAdd">
                                                 <i class="fa fa-plus"></i> New
                                             </button></li>
@@ -141,7 +140,19 @@ if (isset($_REQUEST['actc'])) {
                                         </thead>
                                         <tbody>
                                             <?php
-                                            $result = mysqli_query($link, "SELECT * FROM calling_lead_agents ORDER BY PERSON_NAME");
+                                            $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+                                            // Number of records to display per page
+                                            $records_per_page = 10;
+                                            // Query string parameters
+                                            $params = $_GET;
+                                            unset($params['page']); // Remove the 'page' parameter
+                                            // Calculate the starting point of the records
+                                            $offset = ($page - 1) * $records_per_page;
+                                            $total_records = 0;
+                                            $query = "SELECT * FROM calling_lead_agents ORDER BY PERSON_NAME";
+                                            $result = $link->query("$query LIMIT " . $offset . "," . $records_per_page);
+                                            $total_records = $link->query($query)->num_rows;
+                                            $total_pages = ceil($total_records / $records_per_page);
                                             $counter = '0';
                                             while ($row = mysqli_fetch_array($result)) {
                                                 $ID = $row['ID'];
@@ -153,41 +164,42 @@ if (isset($_REQUEST['actc'])) {
                                                 $counter = $counter + 1;
                                             ?>
                                                 <tr>
-                                                    <td><?php echo $counter; ?></td>
+                                                    <td></td>
                                                     <td>
-                                                        <?php echo $DATED; ?>
+                                                        <?= $DATED; ?>
                                                     </td>
                                                     <td>
-                                                        <?php echo $PERSON_NAME; ?>
+                                                        <?= $PERSON_NAME; ?>
                                                     </td>
                                                     <td>
-                                                        <?php echo $EMAIL_ADDRESS; ?>
+                                                        <?= $EMAIL_ADDRESS; ?>
                                                     </td>
                                                     <td>
-                                                        <?php echo $DEPARTMENT; ?>
+                                                        <?= $DEPARTMENT; ?>
                                                     </td>
                                                     <td data-title="Status" class="al-center">
                                                         <?php
                                                         if ($STATUS == 0) {
                                                         ?>
-                                                            <a href="<?php echo basename($_SERVER['PHP_SELF']) . "?id=" . $ID . "&actc=app" ?>" class="btn btn-danger btn-xs">Inactive</a>
+                                                            <a href="<?= basename($_SERVER['PHP_SELF']) . "?id=" . $ID . "&actc=app" ?>" class="btn btn-danger btn-xs">Inactive</a>
                                                         <?php
                                                         } elseif ($STATUS == 1) {
                                                         ?>
-                                                            <a href="<?php echo basename($_SERVER['PHP_SELF']) . "?id=" . $ID . "&actc=unapp" ?>" class="btn btn-success btn-xs">Active</a>
+                                                            <a href="<?= basename($_SERVER['PHP_SELF']) . "?id=" . $ID . "&actc=unapp" ?>" class="btn btn-success btn-xs">Active</a>
                                                         <?php
                                                         }
                                                         ?>
                                                     </td>
                                                     <td data-title="Action" class="al-center">
-                                                        <a href="calling_agent_lead.php?id=<?php echo $ID; ?>" data-toggle="tooltip" data-placement="top" title="View" class="btn btn-success btn-sm"><i class="fa fa-eye"></i></a>
-                                                        <a href="calling_lead_agents_edit.php?id=<?php echo $ID; ?>" data-toggle="tooltip" data-placement="top" title="Edit" class="btn btn-primary btn-sm"><i class="fa fa-edit"></i></a>
-                                                        <a href="<?php echo basename($_SERVER['PHP_SELF']) . "?del=" . $ID ?>" onclick="javascript:return confirm('Are you sure you want to delete ?')" data-toggle="tooltip" data-placement="top" title="Delete" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a>
+                                                        <a href="calling_agent_lead.php?id=<?= $ID; ?>" data-toggle="tooltip" data-placement="top" title="View" class="btn btn-success btn-sm"><i class="fa fa-eye"></i></a>
+                                                        <a href="calling_lead_agents_edit.php?id=<?= $ID; ?>" data-toggle="tooltip" data-placement="top" title="Edit" class="btn btn-primary btn-sm"><i class="fa fa-edit"></i></a>
+                                                        <a href="<?= basename($_SERVER['PHP_SELF']) . "?del=" . $ID ?>" onclick="javascript:return confirm('Are you sure you want to delete ?')" data-toggle="tooltip" data-placement="top" title="Delete" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a>
                                                     </td>
                                                 </tr>
                                             <?php } ?>
                                         </tbody>
                                     </table>
+                                    <?php include('pagination.php'); ?>
                                 </div>
                             </div>
                         </div>

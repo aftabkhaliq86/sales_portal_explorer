@@ -129,16 +129,28 @@ if (isset($_REQUEST['actc'])) {
                                                 <th>Email</th>
                                                 <th>Preffered Country</th>
                                                 <th>Register Date</th>
-                                                <th>USERID</th>
+                                                <th>Agent Name</th>
                                                 <th>Lead Status</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <?php
+                                            $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+                                            // Number of records to display per page
+                                            $records_per_page = 10;
+                                            // Query string parameters
+                                            $params = $_GET;
+                                            unset($params['page']); // Remove the 'page' parameter
+                                            // Calculate the starting point of the records
+                                            $offset = ($page - 1) * $records_per_page;
+                                            $total_records = 0;
                                             $LEADTID = $_GET['id'];
                                             $USERID = $_GET['USERID'];
-
-                                            $result = mysqli_query($link, "SELECT * FROM calling_lead WHERE LEADTID='$LEADTID' AND  USERID='$USERID' AND STATUS='1'");
+                                            // $calling_leade_agent_detail = "SELECT * FROM calling_lead WHERE LEADTID='$LEADTID' AND  USERID='$USERID' AND STATUS='1'";
+                                            $calling_leade_agent_detail = "SELECT `cl`.* , clg.PERSON_NAME as AGENT_NAME FROM calling_lead as cl INNER JOIN calling_lead_agents as clg ON cl.USERID = clg.ID   WHERE cl.LEADTID='$LEADTID' AND cl.USERID='$USERID' AND cl.STATUS='1'";
+                                            $result = $link->query("$calling_leade_agent_detail LIMIT " . $offset . "," . $records_per_page);
+                                            $total_records = $link->query($calling_leade_agent_detail)->num_rows;
+                                            $total_pages = ceil($total_records / $records_per_page);
                                             $counters = '0';
                                             while ($row = mysqli_fetch_array($result)) {
                                                 $ID = $row['ID'];
@@ -153,6 +165,7 @@ if (isset($_REQUEST['actc'])) {
                                                 $LEAD_STATUS = $row['LEAD_STATUS'];
                                                 $LEAD_STATUS_DATED = $row['LEAD_STATUS_DATED'];
                                                 $STATUS = $row['STATUS'];
+                                                $AGENT_NAME = $row['AGENT_NAME'];
                                                 $counters = $counters + 1;
                                                 $resultss = mysqli_query($link, "SELECT * FROM lead_status WHERE ID='$LEAD_STATUS'");
                                                 $rowss = mysqli_fetch_array($resultss);
@@ -161,37 +174,37 @@ if (isset($_REQUEST['actc'])) {
                                                 <tr>
                                                     <td></td>
                                                     <td>
-                                                        <?php echo $DATED; ?>
+                                                        <?= $DATED; ?>
                                                     </td>
                                                     <td>
-                                                        <?php echo $RMS_ID; ?>
+                                                        <?= $RMS_ID; ?>
                                                     </td>
                                                     <td>
-                                                        <?php echo $PHONE; ?>
+                                                        <?= $PHONE; ?>
                                                     </td>
                                                     <td>
-                                                        <?php echo $EMAIL; ?>
+                                                        <?= $EMAIL; ?>
                                                     </td>
                                                     <td>
-                                                        <?php echo $PREFFERED_COUNTRY; ?>
+                                                        <?= $PREFFERED_COUNTRY; ?>
                                                     </td>
                                                     <td>
-                                                        <?php echo $REGISTER_DATE; ?>
+                                                        <?= $REGISTER_DATE; ?>
                                                     </td>
                                                     <td>
-                                                        <?php echo $USERID; ?><br>
-														<small><?php echo $U_DATED; ?></small>
-														
+                                                        <?= $AGENT_NAME; ?><br>
+                                                        <small><?= $U_DATED; ?></small>
                                                     </td>
                                                     <td>
-                                                        <?php echo $STATUS_HEADING; ?><br>
-														<small><?php echo $LEAD_STATUS_DATED; ?></small>
+                                                        <?= $STATUS_HEADING; ?><br>
+                                                        <small><?= $LEAD_STATUS_DATED; ?></small>
                                                     </td>
                                                 </tr>
                                             <?php
                                             } ?>
                                         </tbody>
                                     </table>
+                                    <?php include('pagination.php'); ?>
                                 </div>
                             </div>
                         </div>

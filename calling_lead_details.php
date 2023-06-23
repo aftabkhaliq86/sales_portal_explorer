@@ -114,8 +114,15 @@
 </script>
 
 <?php
-if (isset($_GET['id'])) {
-    $LEADTID = $_GET['id'];
+$LEADTID = !empty($_GET['id']) ? $_GET['id'] : '';
+$date_from = !empty($_POST['date_from']) ? date('Y-m-d', strtotime($_POST['date_from'])) : '';
+$date_to = !empty($_POST['date_to']) ? date('Y-m-d', strtotime($_POST['date_to'])) : '';
+if (!empty($date_from) && !empty($date_to)) {
+    $live_lead_query =  "UPDATE `calling_lead` SET `STATUS`='2' WHERE  DATE(`DATED`) BETWEEN '$date_from' AND '$date_to' AND MANUAL_LEAD = 1 AND `STATUS`='1'";
+    if (!mysqli_query($link, $live_lead_query)) {
+        echo "ERROR: Could not able to execute $live_lead_query. " . mysqli_error($link);
+    }
+    echo ("<script>location='" . basename($_SERVER['PHP_SELF']) . "?id=$LEADTID&updated=y'</script>");
 }
 
 $lead_name_get = mysqli_query($link, "SELECT LEAD_CATEGORY, LEAD_DATE FROM `calling_lead_title` WHERE ID='$LEADTID'");
@@ -133,7 +140,7 @@ if (isset($_GET['del'])) {
     if (!mysqli_query($link, $sql)) {
         echo "ERROR: Could not able to execute $sql. " . mysqli_error($link);
     }
-    echo ("<script>location='" . basename($_SERVER['PHP_SELF']) . "?id=$LEADTID&AGID=$AGID&&delete=y'</script>");
+    echo ("<script>location='" . basename($_SERVER['PHP_SELF']) . "?id=$LEADTID&AGID=$AGID&delete=y'</script>");
 }
 if (isset($_POST['detach'])) {
     $calling_lead_id = $_POST['calling_lead_id'];
@@ -173,7 +180,7 @@ if (isset($_REQUEST['actc'])) {
             <?php include('inc_header.php'); ?>
             <!-- breadcrumb -->
             <div class="breadcrumb_content">
-                <div class="breadcrumb_text"><a href="dashboard.php">Dashboard</a> / <?php echo $plu_del_rep; ?>
+                <div class="breadcrumb_text"><a href="dashboard.php">Dashboard</a> / <?= $plu_del_rep; ?>
                 </div>
             </div>
             <!-- /breadcrumb -->
@@ -182,17 +189,40 @@ if (isset($_REQUEST['actc'])) {
                 <div class="">
                     <div class="page-title">
                         <div class="title_left">
-                            <h3><?php echo $LEAD_CATEGORY_lng; ?> <small>- <?php echo $LEAD_DATE_lng; ?></small></h3>
+                            <h3><?= $LEAD_CATEGORY_lng; ?> <small>- <?= $LEAD_DATE_lng; ?></small></h3>
                         </div>
                     </div>
                     <div class="clearfix"></div>
+                    <?php
+                    if ($LEAD_CATEGORY_lng == 'Live Lead') {
+                    ?>
+                        <div class="container" id="filters">
+                            <form name="" class="form-horizontal" action="<?= $_SERVER['PHP_SELF'] . '?id=' . $LEADTID ?>" method="POST">
+                                <div class="form-group al-right">
+                                    <div class="col-lg-10">
+                                        <div class="input-daterange input-group">
+                                            <span class="input-group-addon">Dated :</span>
+                                            <input type="date" class="form-control" name="date_from" placeholder="Start Date" autocomplete="off" value="<?= $date_from; ?>" required />
+                                            <span class="input-group-addon">to</span>
+                                            <input type="date" class="form-control input-date-picker" id="date_to" name="date_to" placeholder="End Date" autocomplete="off" value="<?= $date_to; ?>" required />
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <button type="submit" class="btn btn-success btn-block">In Active</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    <?php
+                    }
+                    ?>
                     <div class="row">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <div class="x_panel">
 
                                 <div class="x_title">
-                                    <h4><?php echo $plu_del_rep; ?></h4>
-                                    <a href="<?php echo basename($_SERVER['PHP_SELF']) ?>?id=<?php echo $LEADTID ?>" class="btn btn-default btn-xs pull-right" data-toggle="tooltip" data-placement="top" title="Page Refresh"><i class="fa fa-refresh"></i></a>
+                                    <h4><?= $plu_del_rep; ?></h4>
+                                    <a href="<?= basename($_SERVER['PHP_SELF']) ?>?id=<?= $LEADTID ?>" class="btn btn-default btn-xs pull-right" data-toggle="tooltip" data-placement="top" title="Page Refresh"><i class="fa fa-refresh"></i></a>
 
                                     <button type="button" id="btnExport" class="btn btn-default btn-xs pull-right"><i class="fa fa-download"></i>&nbsp;Export to CSV</button>
 
@@ -205,6 +235,11 @@ if (isset($_REQUEST['actc'])) {
                                             <div class="container"><strong>Row is successfully deleted!</strong></div>
                                         </div>
                                     <?php } ?>
+                                    <?php if (isset($_GET['updated'])) { ?>
+                                        <div class="alert alert-success">
+                                            <div class="container"><strong>Row Updated Succesfully!</strong></div>
+                                        </div>
+                                    <?php } ?>
 
                                     <div class="container">
                                         <?php
@@ -213,10 +248,12 @@ if (isset($_REQUEST['actc'])) {
                                         $calling_lead = mysqli_query($link, $calling_lead_query_extend);
                                         $counters = '0';
                                         foreach ($calling_lead as $lead) {
-                                            $USERID_COUNT = $lead['USERID_COUNT'];
                                             $USERID = $lead['USERID'];
                                             $AGID = $lead['AGID'];
                                             $PERSON_NAME = $lead['PERSON_NAME'] ? $lead['PERSON_NAME'] : '';
+                                            $USERID_COUNTS = mysqli_query($link, "$calling_lead_query AND `cl`.`USERID`='$USERID' AND `cl`.`STATUS`!='2' GROUP BY `cl`.`USERID`");
+                                            $USERID_COUNT = mysqli_fetch_array($USERID_COUNTS);
+                                            $Total_USERID_COUNT = $USERID_COUNT ? $USERID_COUNT['USERID_COUNT'] : 0;
                                             $used_leads = mysqli_query($link, "$calling_lead_query AND `cl`.`USERID`='$USERID' AND `cl`.`STATUS`='1' GROUP BY `cl`.`USERID`");
                                             $used_lead = mysqli_fetch_array($used_leads);
                                             $USED_USERID_COUNT = $used_lead ? $used_lead['USERID_COUNT'] : 0;
@@ -224,7 +261,7 @@ if (isset($_REQUEST['actc'])) {
                                             $counters++;
                                         ?>
                                             <a href="<?= basename($_SERVER['PHP_SELF']) . "?id=" . $LEADTID ?>&AGID=<?= $AGID; ?>" class="col-lg-2 c2i btn <?= ($USERID ?? '') == $AGID_LEAD ? 'btn-success' : 'btn-default' ?> al-center">
-                                                <span class="fa-2x"><?= $USED_USERID_COUNT; ?> / <?= $USERID_COUNT; ?></span><br>
+                                                <span class="fa-2x"><?= $USED_USERID_COUNT; ?> / <?= $Total_USERID_COUNT; ?></span><br>
                                                 <?= $counters; ?>. <?= $PERSON_NAME; ?>
                                             </a>
                                         <?php } ?>
@@ -272,16 +309,17 @@ if (isset($_REQUEST['actc'])) {
 
                                                         // Calculate the starting point of the records
                                                         $offset = ($page - 1) * $records_per_page;
-                                                        $invalid_lead_sts = 0;
                                                         $total_records = 0;
 
 
+                                                        $invalid_lead_sts = 0;
                                                         $AGID = $_GET['AGID'];
                                                         $LEAD_STATUS_sclc = '';
                                                         $STATUS_TITLE_STATUS = '';
                                                         $DATED_sclc = '';
-                                                        $result = mysqli_query($link, "SELECT `cl`.*,`clg`.`PERSON_NAME` FROM `calling_lead` AS `cl` INNER JOIN `calling_lead_agents` AS `clg` ON `cl`.`USERID`=`clg`.`ID` WHERE `cl`.`LEADTID`='$LEADTID' AND `cl`.`USERID`='$AGID' ORDER BY `cl`.`DATED` LIMIT " . $offset . "," . $records_per_page);
-                                                        $total_records = $link->query("SELECT `cl`.*,`clg`.`PERSON_NAME` FROM `calling_lead` AS `cl` INNER JOIN `calling_lead_agents` AS `clg` ON `cl`.`USERID`=`clg`.`ID` WHERE `cl`.`LEADTID`='$LEADTID' AND `cl`.`USERID`='$AGID' ORDER BY `cl`.`DATED`")->num_rows;
+                                                        $query = "SELECT `cl`.*,`clg`.`PERSON_NAME` FROM `calling_lead` AS `cl` INNER JOIN `calling_lead_agents` AS `clg` ON `cl`.`USERID`=`clg`.`ID` WHERE `cl`.`LEADTID`='$LEADTID' AND `cl`.`USERID`='$AGID' AND `cl`.`STATUS`!='2' ORDER BY `cl`.`DATED`";
+                                                        $result =  $link->query($query . "LIMIT " . $offset . "," . $records_per_page);
+                                                        $total_records = $link->query($query)->num_rows;
                                                         $total_pages = ceil($total_records / $records_per_page);
                                                         $counters = '0';
                                                         while ($row = mysqli_fetch_array($result)) {
@@ -412,7 +450,7 @@ if (isset($_REQUEST['actc'])) {
             e.preventDefault();
             $('#btnExport').button('loading');
             $('.progress').show();
-            let ID = '<?php echo $_GET['id']; ?>';
+            let ID = '<?= $_GET['id']; ?>';
             let AGID = '<?= !empty($_GET['AGID']) ? $_GET['AGID'] : ''; ?>';
             $.get('export/calling_lead_details.php?id=' + ID + '&AGID=' + AGID, function(data) {
                 var progressBar = $('.progress-bar');
