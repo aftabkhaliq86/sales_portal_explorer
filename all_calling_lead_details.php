@@ -100,13 +100,11 @@ if (isset($_POST['update'])) {
                     <div class="row">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <div class="x_panel">
-
                                 <div class="x_title">
                                     <h4><?php echo $plu_del_rep; ?></h4>
                                     <a href="<?php echo basename($_SERVER['PHP_SELF']) ?>?id=<?php echo $LEADTID ?>" class="btn btn-default btn-xs pull-right" data-toggle="tooltip" data-placement="top" title="Page Refresh"><i class="fa fa-refresh"></i></a>
                                     <div class="clearfix"></div>
                                 </div>
-
                                 <div class="x_content">
                                     <style>
                                         .search-filter {
@@ -143,13 +141,21 @@ if (isset($_POST['update'])) {
                                     $filters = '';
                                     $search = '';
                                     $column = '';
-                                    if (isset($_GET['filter'])) {
+                                    if (isset($_GET['inputfield'])) {
                                         $column = $_GET['selection'];
                                         $search = trim($_GET['inputfield']);
                                         $filters = "AND $column = '$search'";
                                     } else {
                                         $filters = '';
                                     }
+                                    //     if ($column != null) {
+                                    //         $filters = "AND $column = '$search'";
+                                    //     } else {
+                                    //         $filters = '';
+                                    //     }
+                                    // } else {
+                                    //     $filters = '';
+                                    // }
                                     ?>
                                     <div class="search-filter ">
                                         <form class="form-wrapper" method="get" action="<?php echo ($_SERVER["PHP_SELF"]); ?>">
@@ -160,21 +166,23 @@ if (isset($_POST['update'])) {
                                             <input class="form-controls" type="text" required name="inputfield" id="inputField" placeholder="Email / Lead title" value="<?= $search; ?>">
                                             <input type="submit" value="Submit" name="filter" class="btn btn-primary btn-sm">
                                         </form>
-
                                         <div style="margin-top: 10px;">
-                                            <a href="<?php echo ($_SERVER["PHP_SELF"]); ?>?id=DESC" class="btn btn-warning btn-sm"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></a>
-                                            <a href="<?php echo ($_SERVER["PHP_SELF"]); ?>" class="btn btn-success btn-sm"><i class="fa fa-retweet" aria-hidden="true"></i></a>
+                                            <?php if ($column  != null) {
+                                                $filter_add = '&selection=' . $column . '&inputfield=' . $search . '';
+                                            } else {
+                                                $filter_add = '';
+                                            }
+                                            ?>
+                                            <a href="<?php echo ($_SERVER["PHP_SELF"]); ?>?id=DESC<?= $filter_add ?> " class="btn btn-dark btn-sm"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></a>
+                                            <a href="<?php echo ($_SERVER["PHP_SELF"]); ?>" class="btn btn-warning btn-sm"><i class="fa fa-retweet" aria-hidden="true"></i></a>
                                         </div>
                                         <?php
                                         if (isset($_GET['id'])) {
-
-
                                             $DESC_query = "order by EMAIL ASC";
                                         } else {
                                             $DESC_query = '';
                                         }
                                         ?>
-
                                     </div>
                                     <?php if (isset($_GET['delete'])) { ?>
                                         <div class="alert alert-danger">
@@ -187,7 +195,6 @@ if (isset($_POST['update'])) {
                                                 .flex-container {
                                                     display: flex;
                                                     flex-wrap: nowrap;
-
                                                 }
                                             </style>
                                             <div class="flex-container">
@@ -212,7 +219,6 @@ if (isset($_POST['update'])) {
                                                     <input type="submit" class="btn btn-success" name="update" value="update">
                                                 </div>
                                             </div>
-
                                         </div>
                                         <table class="table table-striped table-condensed cf tbl table-responsive" id="Leads">
                                             <thead class="cf">
@@ -227,13 +233,11 @@ if (isset($_POST['update'])) {
                                                     <th>Sending Country</th>
                                                     <th>Preffered Country</th>
                                                     <th>Register Date</th>
-
                                                     <th class="al-center">Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <?php
-
                                                 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
                                                 $records_per_page = 100;
                                                 $params = $_GET;
@@ -242,11 +246,9 @@ if (isset($_POST['update'])) {
                                                 $offset = ($page - 1) * $records_per_page;
                                                 $total_records = 0;
                                                 $result_calling_lead = "SELECT cl.*  , clt.LEAD_CATEGORY  FROM `calling_lead`  as   cl  left join calling_lead_title as clt on cl.LEADTID = clt.id where cl.USERID = '0' $filters $DESC_query";
-
                                                 $result = $link->query("$result_calling_lead LIMIT " . $offset . "," . $records_per_page);
                                                 $total_records = $link->query($result_calling_lead)->num_rows;
                                                 $total_pages = ceil($total_records / $records_per_page);
-
                                                 $counters = '0';
                                                 while ($row_cl = mysqli_fetch_array($result)) {
                                                     $ID = $row_cl['ID'];
@@ -264,7 +266,6 @@ if (isset($_POST['update'])) {
                                                     $U_DATED = $row_cl['U_DATED'];
                                                     $LEAD_STATUS = $row_cl['LEAD_STATUS'];
                                                     $STATUS = $row_cl['STATUS'];
-
                                                     $result2 = mysqli_query($link, "SELECT * FROM `calling_lead_title` WHERE ID='$LEADTID'");
                                                     while ($row2 = mysqli_fetch_array($result2)) {
                                                         $LEAD_CATEGORY = $row2['LEAD_CATEGORY'];
@@ -302,7 +303,6 @@ if (isset($_POST['update'])) {
                                                         <td>
                                                             <?php echo $REGISTER_DATE; ?>
                                                         </td>
-
                                                         <td data-title="Action" class="al-center">
                                                             <a href="<?php echo basename($_SERVER['PHP_SELF']) . "?del=" . $ID ?>" onclick="javascript:return confirm('Are you sure you want to delete ?')" data-toggle="tooltip" data-placement="top" title="Delete" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a>
                                                         </td>
