@@ -15,11 +15,9 @@
 			} else if (this._getMsieVersion() || this._isFirefox()) {
 				alert("Not supported browser");
 			}
-
 			//Other Browser can download xls
 			var htmltable = document.getElementById(tableId);
 			var html = htmltable.outerHTML;
-
 			this._downloadAnchor("data:application/vnd.ms-excel" + encodeURIComponent(html), 'xls');
 		},
 		toCSV: function(tableId, filename) {
@@ -163,6 +161,7 @@
 											//----------------------------------------------
 											//Get reg_date-----------------------
 											$reg_date_query = !empty($_GET['reg_date']) ? "AND REGISTER_DATE='{$_GET['reg_date']}'" : '';
+
 											//----------------------------------------------
 											//Get sending_country-----------------------
 											$sending_country_query = !empty($_GET['sending_country']) ? "AND SENDING_COUNTRY='{$_GET['sending_country']}'" : '';
@@ -178,6 +177,13 @@
 											//----------------------------------------------
 											//Get lead-----------------------
 											$lead_query = !empty($_GET['lead']) ? "AND LEADTID='{$_GET['lead']}'" : '';
+											//Get tags-----------------------
+											
+											$tags_query = !empty($_GET['lead_tags']) ? "AND `clc`.LEAD_TAGS LIKE '%{$_GET['lead_tags']}'" : '';
+											$left_comment_join_for_tags = '';
+											if (!empty($tags_query)) {
+												$left_comment_join_for_tags  = "LEFT JOIN  `calling_lead_comments` AS `clc` ON  `cl`.`ID`=  `clc`.`LEAD_R_ID` ";
+											}
 											//----------------------------------------------
 											//Get status-----------------------
 											$status_query = !empty($_GET['status']) ? "AND LEAD_STATUS='{$_GET['status']}'" : '';
@@ -185,8 +191,9 @@
 											//Get lead_type-----------------------
 											$lead_type_query = !empty($_GET['lead_type']) ? "AND `clt`.`LEAD_TYPE`='{$_GET['lead_type']}'" : '';
 											//----------------------------------------------
-											if (!empty($agent_query) || !empty($status_query) || !empty($date_from_to) || !empty($assign_date_query) || !empty($lead_query) || !empty($email_query) || !empty($lead_type_query) || !empty($sending_country_query) || !empty($receiving_country_query)) {
-												// Determine current page number
+											if (!empty($agent_query) || !empty($status_query) || !empty($date_from_to) || !empty($assign_date_query) || !empty($lead_query) || !empty($tags_query) ||  !empty($email_query) || !empty($lead_type_query) || !empty($sending_country_query) || !empty($receiving_country_query)) {
+
+												// Deter       mine current page number
 												$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 												// Number of records to display per page
 												$records_per_page = 10;
@@ -198,7 +205,7 @@
 												$invalid_lead_sts = 0;
 												$total_records = 0;
 												// Calculate the starting point of the records
-												$calling_leads_query = "SELECT `cl`.*,`clt`.`LEAD_CATEGORY` AS `LEAD_CATEGORY_clt`,`clt`.`LEAD_TYPE` AS `LEAD_TYPE_clt`,DATE(`clt`.`DATED`) AS `LEAD_DATED_clt`,`cla`.`PERSON_NAME` AS `PERSON_NAME`,`ls`.`STATUS_HEADING` AS `STATUS_TITLE_STATUS`,`curr`.`name` AS `SENDING_COUNTRY_NAME` FROM `calling_lead` AS `cl` INNER JOIN `calling_lead_title` AS `clt` ON `cl`.`LEADTID`=`clt`.`ID` INNER JOIN `calling_lead_agents` AS `cla` ON `cl`.`USERID`=`cla`.`ID` INNER JOIN `lead_status` AS `ls` ON `cl`.`LEAD_STATUS`=`ls`.`ID` LEFT JOIN `currencies` AS `curr` ON `cl`.`SENDING_COUNTRY`=`curr`.`iso3` WHERE `cl`.`STATUS`='1' $date_from_to $assign_date_query $reg_date_query $sending_country_query $receiving_country_query $email_query $agent_query $lead_query $status_query $lead_type_query";
+												$calling_leads_query = "SELECT `cl`.*,`clt`.`LEAD_CATEGORY` AS `LEAD_CATEGORY_clt`,`clt`.`LEAD_TYPE` AS `LEAD_TYPE_clt`,DATE(`clt`.`DATED`) AS `LEAD_DATED_clt`,`cla`.`PERSON_NAME` AS `PERSON_NAME`,`ls`.`STATUS_HEADING` AS `STATUS_TITLE_STATUS`,`curr`.`name` AS `SENDING_COUNTRY_NAME` FROM `calling_lead` AS `cl` INNER JOIN `calling_lead_title` AS `clt` ON `cl`.`LEADTID`=`clt`.`ID` INNER JOIN `calling_lead_agents` AS `cla` ON `cl`.`USERID`=`cla`.`ID` INNER JOIN `lead_status` AS `ls` ON `cl`.`LEAD_STATUS`=`ls`.`ID` LEFT JOIN `currencies` AS `curr` ON `cl`.`SENDING_COUNTRY`=`curr`.`iso3`  $left_comment_join_for_tags  WHERE `cl`.`STATUS`='1' $date_from_to $assign_date_query $reg_date_query $sending_country_query $receiving_country_query $email_query $agent_query $lead_query $status_query $lead_type_query $tags_query";
 												$calling_leads = mysqli_query($link, "$calling_leads_query LIMIT " . $offset . "," . $records_per_page);
 												$total_records = $link->query($calling_leads_query)->num_rows;
 												$total_pages = ceil($total_records / $records_per_page);
@@ -317,6 +324,23 @@
 														?>
 													</select>
 												</div>
+
+												<div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
+													<label style="padding-top:7px;">Lead Tags</label>
+													<select name="lead_tags" class="form-control">
+														<option value="" hidden disabled selected>SELECT</option>
+														<option value="" style="font-weight: bold;text-align: center;">Reset</option>
+														<?php
+														$select_lead_title = mysqli_query($link, "SELECT * FROM `lead_tags`");
+														foreach ($select_lead_title as $value_lt) {
+														?>
+															<option value="<?= $value_lt['ID'] ?>" <?= ($_GET['lead'] ?? '') == $value_lt['ID'] ? 'selected' : '' ?>><?= $value_lt['HEADING'] ?></option>
+														<?php
+														}
+														?>
+													</select>
+												</div>
+
 												<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
 													<div class="form-group al-right" style="padding-top: 31px;">
 														<div class="col-lg-12" style="padding: 0!important;">
@@ -365,6 +389,7 @@
 												<th>Status</th>
 												<th style="display: none;">Call Summary</th>
 												<td style="display: none;">Comments</td>
+
 											</tr>
 										</thead>
 										<tbody>
@@ -463,7 +488,10 @@
 																								echo $COMMENT_HEADING . ': ' . $COMMENT_AREA;
 																							}
 																							$counter1++;
-																						} ?></td>
+																						} ?>
+															</td>
+
+	
 														</tr>
 											<?php
 													}
@@ -488,10 +516,11 @@
 	<?php include('inc_foot.php'); ?>
 	<script>
 		$('#btnExport').click(function(e) {
+			console.log('abcfffff');
 			e.preventDefault();
 			$('#btnExport').button('loading');
 			$('.progress').show();
-			let calling_leads = "<?php echo $calling_leads_query; ?>";
+			let calling_leads = encodeURIComponent("<?php echo $calling_leads_query; ?>");
 			$.get('export/report_all.php?calling_leads=' + calling_leads, function(data) {
 				var progressBar = $('.progress-bar');
 				var progressWidth = 0;

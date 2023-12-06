@@ -16,12 +16,15 @@
             <th>Last Transaction Details</th>
             <th>Status</th>
             <th style="display: none;">Call Summary</th>
-            <td style="display: none;">Comments</td>
+            <!-- <td style="display: none;">Comments</td> -->
+            <th>Tags Status</th>
+            <th>Comments</th>
         </tr>
     </thead>
     <tbody>
         <?php
         if (isset($_GET['calling_leads'])) {
+
             $calling_leads = mysqli_query($link, "$_GET[calling_leads]");
         }
         if (!empty($calling_leads)) {
@@ -96,29 +99,45 @@
                                                         }
                                                         $counter++;
                                                     } ?></td>
-                        <td style="display: none;"><?php $counter1 = 1;
+                       
+                        <td><?php $counter1 = 1;
+                            foreach ($calling_lead_comments as $all_comments) {
+                                $LEAD_CMT_ID = $all_comments['LEAD_TAGS'];
+                                if (!empty($LEAD_CMT_ID)) {
+                                    $lead_comments = mysqli_query($link, "SELECT * FROM lead_tags WHERE id IN ($LEAD_CMT_ID)");
+                                    $query_count = mysqli_num_rows($lead_comments);
+                                    // Rest of your code remains the same
+
+                                    foreach ($lead_comments as $all_comment) {
+                                        if ($counter1 < $query_counts) {
+                                            echo $all_comment['HEADING'] . ' | ';
+                                        } else {
+                                            echo $all_comment['HEADING'] . ' ';
+                                        }
+
+
+                                        $counter1++;
+                                    }
+                                }
+                            } ?>
+                        </td>
+
+                        <td style="display: none;"><?php $counter2 = 1;
                                                     foreach ($calling_lead_comments as $all_comments) {
-                                                        $LEAD_CMT_ID = $all_comments['LEAD_CMT_ID'];
-                                                        $lead_comments = mysqli_query($link, "SELECT * FROM `lead_comments` WHERE ID='$LEAD_CMT_ID'");
                                                         if (mysqli_num_rows($lead_comments) > 0) {
-                                                            $lead_comments_row = mysqli_fetch_array($lead_comments);
-                                                            $COMMENT_HEADING = $lead_comments_row['HEADING'];
-                                                            if ($COMMENT_HEADING == "Other") {
-                                                                $COMMENT_AREA = $all_comments['COMMENT_AREA'];
-                                                            } else {
-                                                                $COMMENT_AREA = '';
+                                                            $COMMENT_HEADING = $all_comments['comments'];
+                                                            if (!empty($COMMENT_HEADING)) {
+                                                                if ($counter2 < $query_counts) {
+                                                                    echo $COMMENT_HEADING . ' | ';
+                                                                } else {
+                                                                    echo $COMMENT_HEADING;
+                                                                }
                                                             }
-                                                        } else {
-                                                            $COMMENT_HEADING = '';
-                                                            $COMMENT_AREA = '';
+
+                                                            $counter2++;
                                                         }
-                                                        if ($counter1 < $query_counts) {
-                                                            echo $COMMENT_HEADING . ': ' . $COMMENT_AREA . ' | ';
-                                                        } else {
-                                                            echo $COMMENT_HEADING . ': ' . $COMMENT_AREA;
-                                                        }
-                                                        $counter1++;
                                                     } ?></td>
+
                     </tr>
         <?php
                 }
