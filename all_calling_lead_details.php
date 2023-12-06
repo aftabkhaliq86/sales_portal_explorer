@@ -20,6 +20,7 @@ if (isset($_POST['update'])) {
         $countID = count($IDs);
         for ($j = 0; $j < $countID; $j++) {
             mysqli_query($link, "UPDATE `calling_lead` SET `USERID`=$USERID,`U_DATED`=NOW() WHERE `ID`=$IDs[$j]");
+             mysqli_query($link, "INSERT INTO `calling_lead_assign_history`(`CALLING_LEAD_ID`, `UPDATED`, `USERID`, `UPDATED_BY`, `ACTION`) VALUES ('$IDs[$j]',Now(),'$USERID','$EMPLOYEEID_LOGIN','manual assign')");
         }
     } else {
     }
