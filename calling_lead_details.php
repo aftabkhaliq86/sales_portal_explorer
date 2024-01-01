@@ -142,6 +142,24 @@ if (isset($_GET['del'])) {
     }
     echo ("<script>location='" . basename($_SERVER['PHP_SELF']) . "?id=$LEADTID&AGID=$AGID&delete=y'</script>");
 }
+
+
+if (isset($_POST['deleteall'])) {
+    $calling_lead_id_delete = $_POST['calling_lead_id_delete'];
+    // $total_selected = count($calling_lead_id_delete);
+    $lead_ids = '';
+    $counter = 0;
+    foreach ($calling_lead_id_delete as $lead_id) {
+        $lead_ids .= ($counter === 0) ? $lead_id : ',' . $lead_id;
+        $counter++;
+    }
+
+    $sql = "DELETE FROM calling_lead  WHERE ID IN ($lead_ids) ";
+   
+    if (!mysqli_query($link, $sql)) {
+        echo "ERROR: Could not able to execute $sql. " . mysqli_error($link);
+    }
+}
 if (isset($_POST['detach'])) {
     $calling_lead_id = $_POST['calling_lead_id'];
     $total_selected = count($calling_lead_id);
@@ -279,6 +297,7 @@ if (isset($_REQUEST['actc'])) {
                                                     <tr>
                                                         <th>#</th>
                                                         <th></th>
+                                                        <th>Delete</th>
                                                         <th>DATED</th>
                                                         <th>RMS ID</th>
                                                         <th>Phone</th>
@@ -325,6 +344,7 @@ if (isset($_REQUEST['actc'])) {
                                                         $counters = '0';
                                                         while ($row = mysqli_fetch_array($result)) {
                                                             $ID = $row['ID'];
+
                                                             $DATED = $row['DATED'];
                                                             $RMS_ID = $row['RMS_ID'];
                                                             $PHONE = $row['PHONE'];
@@ -356,6 +376,7 @@ if (isset($_REQUEST['actc'])) {
                                                             <tr>
                                                                 <td></td>
                                                                 <td><?php if (mysqli_num_rows($sel_calling_lead_comments) == 0) {  ?><input type="checkbox" name="calling_lead_id[]" id="Detach" value="<?= $ID; ?>"><?php } ?></td>
+                                                                <td><input type="checkbox" name="calling_lead_id_delete[]" id="deleteall" value="<?= $ID; ?>"></td>
                                                                 <td><?= $DATED; ?></td>
                                                                 <td><?= $RMS_ID; ?></td>
                                                                 <td><a href="tel:8<?= $PHONE; ?>"><?= $PHONE; ?></a></td>
@@ -430,7 +451,9 @@ if (isset($_REQUEST['actc'])) {
                                             <?php include('pagination.php'); ?>
                                             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 text-right">
                                                 <ul class="pagination pagination-lg">
+                                                    <li><button type="submit" name="deleteall" class="btn btn-danger btn-md">Delete All</button></li>
                                                     <li class="active"><button type="submit" name="detach" class="btn btn-warning btn-md">Detach</button></li>
+
                                                 </ul>
                                             </div>
                                         </form>
