@@ -9,7 +9,12 @@
 </title>
 <?php include('inc_head.php'); ?>
 
-
+<?php
+if (isset($_POST['deletealls'])) {
+    mysqli_query($link, "DELETE  FROM `calling_lead` WHERE USERID='0'");
+    echo ("<script>location='" . basename($_SERVER['PHP_SELF']) . "'</script>");
+}
+?>
 
 <?php
 if (isset($_POST['update'])) {
@@ -20,7 +25,7 @@ if (isset($_POST['update'])) {
         $countID = count($IDs);
         for ($j = 0; $j < $countID; $j++) {
             mysqli_query($link, "UPDATE `calling_lead` SET `USERID`=$USERID,`U_DATED`=NOW() WHERE `ID`=$IDs[$j]");
-             mysqli_query($link, "INSERT INTO `calling_lead_assign_history`(`CALLING_LEAD_ID`, `UPDATED`, `USERID`, `UPDATED_BY`, `ACTION`) VALUES ('$IDs[$j]',Now(),'$USERID','$EMPLOYEEID_LOGIN','manual assign')");
+            mysqli_query($link, "INSERT INTO `calling_lead_assign_history`(`CALLING_LEAD_ID`, `UPDATED`, `USERID`, `UPDATED_BY`, `ACTION`) VALUES ('$IDs[$j]',Now(),'$USERID','$EMPLOYEEID_LOGIN','manual assign')");
         }
     } else {
     }
@@ -112,16 +117,21 @@ if (isset($_POST['update'])) {
                     <div class="row">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <div class="x_panel">
-								
-								<div class="x_title">
+
+                                <div class="x_title">
                                     <h4><?php echo $plu_del_rep; ?></h4>
-                                    <a href="<?php echo basename($_SERVER['PHP_SELF']) ?>?id=<?php echo $LEADTID ?>" class="btn btn-default btn-xs pull-right" data-toggle="tooltip" data-placement="top" title="Page Refresh"><i class="fa fa-refresh"></i></a>
-									
-									<!--<button type="button" id="btnExport" onclick="javascript:xport.toCSV('Leads');" class="btn btn-default btn-xs pull-right"><i class="fa fa-download"></i>&nbsp;Export to CSV</button> -->
-									
-									<div class="clearfix"></div>
+                                
+                                        <a href="<?php echo basename($_SERVER['PHP_SELF']) ?>?id=<?php echo $LEADTID ?>" class="btn btn-default btn-xs pull-right" data-toggle="tooltip" data-placement="top" title="Page Refresh"><i class="fa fa-refresh"></i></a>
+                                        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+                                            <button type="submit" name="deletealls" class="btn btn-danger btn-xs pull-right"><i class="fa fa-trash"></i></button>
+                                        </form>
+                                  
+
+                                    <!--<button type="button" id="btnExport" onclick="javascript:xport.toCSV('Leads');" class="btn btn-default btn-xs pull-right"><i class="fa fa-download"></i>&nbsp;Export to CSV</button> -->
+
+                                    <div class="clearfix"></div>
                                 </div>
-								
+
                                 <div class="x_content">
                                     <?php if (isset($_GET['delete'])) { ?>
                                         <div class="alert alert-danger">
@@ -166,7 +176,7 @@ if (isset($_POST['update'])) {
                                                     <th>Sending Country</th>
                                                     <th>Preffered Country</th>
                                                     <th>Register Date</th>
-                                                    
+
                                                     <th class="al-center">Action</th>
                                                 </tr>
                                             </thead>
@@ -228,7 +238,7 @@ if (isset($_POST['update'])) {
                                                         <td>
                                                             <?php echo $REGISTER_DATE; ?>
                                                         </td>
-                                                        
+
                                                         <td data-title="Action" class="al-center">
                                                             <a href="<?php echo basename($_SERVER['PHP_SELF']) . "?del=" . $ID ?>" onclick="javascript:return confirm('Are you sure you want to delete ?')" data-toggle="tooltip" data-placement="top" title="Delete" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a>
                                                         </td>
