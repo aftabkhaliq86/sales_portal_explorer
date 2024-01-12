@@ -144,21 +144,35 @@ if (isset($_GET['del'])) {
 }
 
 
-if (isset($_POST['deleteall'])) {
-    $calling_lead_id_delete = $_POST['calling_lead_id_delete'];
-    // $total_selected = count($calling_lead_id_delete);
-    $lead_ids = '';
-    $counter = 0;
-    foreach ($calling_lead_id_delete as $lead_id) {
-        $lead_ids .= ($counter === 0) ? $lead_id : ',' . $lead_id;
-        $counter++;
-    }
+if (isset($_POST['deleteselected'])) {
 
-    $sql = "DELETE FROM calling_lead  WHERE ID IN ($lead_ids) ";
-   
-    if (!mysqli_query($link, $sql)) {
-        echo "ERROR: Could not able to execute $sql. " . mysqli_error($link);
+    // $total_selected = count($calling_lead_id_delete);
+    if (!empty($_POST['calling_lead_id_delete'])) {
+        $calling_lead_id_delete = $_POST['calling_lead_id_delete'];
+        $lead_ids = '';
+        $counter = 0;
+        foreach ($calling_lead_id_delete as $lead_id) {
+            $lead_ids .= ($counter === 0) ? $lead_id : ',' . $lead_id;
+            $counter++;
+        }
+
+        $sql = "DELETE FROM calling_lead  WHERE ID IN ($lead_ids) ";
+
+        if (!mysqli_query($link, $sql)) {
+            echo "ERROR: Could not able to execute $sql. " . mysqli_error($link);
+        }
     }
+}
+if (isset($_GET['LEAD'])) {
+    $AGID = $_GET['AGID'];
+    $LEADTID = $_GET['LEADTID'];
+    if (!empty($AGID) && !empty($LEADTID)) {
+          $sqlDeleteall = "Delete FROM `calling_lead` WHERE `LEADTID` ='$LEADTID'  and `USERID` ='$AGID'  and `STATUS` != 2";
+        if (!mysqli_query($link, $sqlDeleteall)) {
+            echo "ERROR: Could not able to execute $sqlDeleteall. " . mysqli_error($link);
+        }
+    }
+    echo ("<script>location='" . basename($_SERVER['PHP_SELF']) . "?id=$LEADTID&updated=y'</script>");
 }
 if (isset($_POST['detach'])) {
     $calling_lead_id = $_POST['calling_lead_id'];
@@ -251,12 +265,12 @@ if (isset($_REQUEST['actc'])) {
                                 <div class="x_content">
                                     <?php if (isset($_GET['delete'])) { ?>
                                         <div class="alert alert-danger">
-                                            <div class="container"><strong>Row is successfully deleted!</strong></div>
+                                            <div class="container"><strong>successfully deleted!</strong></div>
                                         </div>
                                     <?php } ?>
                                     <?php if (isset($_GET['updated'])) { ?>
                                         <div class="alert alert-success">
-                                            <div class="container"><strong>Row Updated Succesfully!</strong></div>
+                                            <div class="container"><strong>Updated Succesfully!</strong></div>
                                         </div>
                                     <?php } ?>
 
@@ -451,9 +465,11 @@ if (isset($_REQUEST['actc'])) {
                                             <?php include('pagination.php'); ?>
                                             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 text-right">
                                                 <ul class="pagination pagination-lg">
-                                                    <li><button type="submit" name="deleteall" class="btn btn-danger btn-md">Delete All</button></li>
+                                                    <li><button type="submit" name="deleteselected" class="btn btn-danger btn-md">Delete Selected</button></li>
+                                                    <li>
+                                                        <a href="<?= basename($_SERVER['PHP_SELF']) . '?AGID=' . $USERID . '&LEADTID=' . $LEADTID . '&LEAD=' . $LEADTID; ?>" onclick=" javascript:return confirm('Are you sure you want to delete ?')" data-toggle="tooltip" title="Delete" class="delete-all"> Delete All</a>
+                                                    </li>
                                                     <li class="active"><button type="submit" name="detach" class="btn btn-warning btn-md">Detach</button></li>
-
                                                 </ul>
                                             </div>
                                         </form>

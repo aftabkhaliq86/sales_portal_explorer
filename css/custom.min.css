@@ -107,4 +107,12 @@
 		display:none;
 	}
 }
+  .delete-all {
+    text-decoration: none !important;
+    color: #000 !important;
+    font-size: 16px !important;
+    padding: 8px 18px !important;
+    background-color: #000 !important;
+    margin-right: 5px !important;
+}
 /*start for my other items reklam*/
