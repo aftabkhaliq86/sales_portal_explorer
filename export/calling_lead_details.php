@@ -1,7 +1,7 @@
 <?php include('../inc_php_funtions.php'); ?>
 <?php
 if (isset($_GET['id'])) {
-    $ID = $_GET['id'];
+    $ID = $_GET['id'];  
 }
 ?>
 <table id="leads_export" class=" leads_export col-lg-12 table-striped table-condensed cf tbl table-responsive">
@@ -116,19 +116,25 @@ if (isset($_GET['id'])) {
                         }
                         $counter1++;
                     } ?></td>
-                <td><?php $counter2 = 1;
-                    $three_cx_call_logs = mysqli_query($link, "SELECT * FROM `three_cx_call_logs` WHERE CI_ID='$ID'");
-                    $three_cx_call_logs_count = mysqli_num_rows($three_cx_call_logs);
-                    foreach ($three_cx_call_logs as $three_cx_call) {
-                        $call_time = $three_cx_call['call_time'];
-                        $duration = $three_cx_call['duration'];
-                        if ($counter2 < $three_cx_call_logs_count) {
-                            echo $call_time . ' [ ' . $duration . ' ] | ';
-                        } else {
-                            echo $call_time . ' [ ' . $duration . ' ] ';
-                        }
-                        $counter2++;
-                    } ?></td>
+                <td>
+                    
+                    <?php
+                    //  $counter2 = 1;
+                    // $three_cx_call_logs = mysqli_query($link, "SELECT * FROM `three_cx_call_logs` WHERE CI_ID='$ID'");
+                    // $three_cx_call_logs_count = mysqli_num_rows($three_cx_call_logs);
+                    // foreach ($three_cx_call_logs as $three_cx_call) {
+                    //     $call_time = $three_cx_call['call_time'];
+                    //     $duration = $three_cx_call['duration'];
+                    //     if ($counter2 < $three_cx_call_logs_count) {
+                    //         echo $call_time . ' [ ' . $duration . ' ] | ';
+                    //     } else {
+                    //         echo $call_time . ' [ ' . $duration . ' ] ';
+                    //     }
+                    //     $counter2++;
+                    // } 
+                    ?>
+                    
+                </td>
             </tr>
         <?php } ?>
     </tbody>
