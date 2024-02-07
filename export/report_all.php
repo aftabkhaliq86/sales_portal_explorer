@@ -99,27 +99,27 @@
                                                         }
                                                         $counter++;
                                                     } ?></td>
-                       
-                        <td><?php $counter1 = 1;
-                            foreach ($calling_lead_comments as $all_comments) {
-                                $LEAD_CMT_ID = $all_comments['LEAD_TAGS'];
-                                if (!empty($LEAD_CMT_ID)) {
-                                    $lead_comments = mysqli_query($link, "SELECT * FROM lead_tags WHERE id IN ($LEAD_CMT_ID)");
-                                    $query_count = mysqli_num_rows($lead_comments);
-                                    // Rest of your code remains the same
 
-                                    foreach ($lead_comments as $all_comment) {
-                                        if ($counter1 < $query_counts) {
-                                            echo $all_comment['HEADING'] . ' | ';
-                                        } else {
-                                            echo $all_comment['HEADING'] . ' ';
-                                        }
+                        <td style="display: none;"><?php
+                                                    $counter1 = 1;
+                                                    foreach ($calling_lead_comments as $all_comments) {
+                                                        $LEAD_CMT_ID = $all_comments['LEAD_TAGS'];
+                                                        if (!empty($LEAD_CMT_ID)) {
+                                                            $lead_comments = mysqli_query($link, "SELECT * FROM lead_tags WHERE id IN ($LEAD_CMT_ID)");
+                                                            $query_count = mysqli_num_rows($lead_comments);
+                                                        }
+                                                    }
+                                                    foreach ($lead_comments as $all_comment) {
+                                                        if ($counter1 < $query_count) {
+                                                            echo $all_comment['HEADING'] . ' | ';
+                                                        } else {
+                                                            echo $all_comment['HEADING'] . ' ';
+                                                        }
 
+                                                        $counter1++;
+                                                    }
 
-                                        $counter1++;
-                                    }
-                                }
-                            } ?>
+                                                    ?>
                         </td>
 
                         <td style="display: none;"><?php $counter2 = 1;
