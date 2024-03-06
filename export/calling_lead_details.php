@@ -96,26 +96,38 @@ if (isset($_GET['id'])) {
                 <td><?php $counter1 = 1;
                     foreach ($calling_lead_comments as $all_comments) {
                         $LEAD_CMT_ID = $all_comments['LEAD_CMT_ID'];
-                        $lead_comments = mysqli_query($link, "SELECT * FROM `lead_comments` WHERE ID='$LEAD_CMT_ID'");
-                        if (mysqli_num_rows($lead_comments) > 0) {
-                            $lead_comments_row = mysqli_fetch_array($lead_comments);
-                            $COMMENT_HEADING = $lead_comments_row['HEADING'];
-                            if ($COMMENT_HEADING == "Other") {
-                                $COMMENT_AREA = $all_comments['COMMENT_AREA'];
-                            } else {
-                                $COMMENT_AREA = '';
-                            }
-                        } else {
-                            $COMMENT_HEADING = '';
-                            $COMMENT_AREA = '';
-                        }
+                        $COMMENT_AREA = $all_comments['comments'] ?? ''; 
+
                         if ($counter1 < $query_counts) {
-                            echo $COMMENT_HEADING . ': ' . $COMMENT_AREA . ' | ';
+                            echo  $COMMENT_AREA . ' | ';
                         } else {
-                            echo $COMMENT_HEADING . ': ' . $COMMENT_AREA;
+                            echo  $COMMENT_AREA;
                         }
                         $counter1++;
-                    } ?></td>
+                    //     $lead_comments = mysqli_query($link, "SELECT * FROM `lead_comments` WHERE ID='$LEAD_CMT_ID'");
+                    //     if (mysqli_num_rows($lead_comments) > 0) {
+                    //         $lead_comments_row = mysqli_fetch_array($lead_comments);
+                    //         $COMMENT_HEADING = $lead_comments_row['HEADING'];
+                    //         if ($COMMENT_HEADING == "Other") {
+                    //             $COMMENT_AREA = $all_comments['COMMENT_AREA'];
+                    //         } else {
+                    //             $COMMENT_AREA = '';
+                    //         }
+                    //     } else {
+                    //         $COMMENT_HEADING = '';
+                    //         $COMMENT_AREA = '';
+                    //     }
+                    //     if ($counter1 < $query_counts) {
+                    //         echo $COMMENT_HEADING . ': ' . $COMMENT_AREA . ' | ';
+                    //     } else {
+                    //         echo $COMMENT_HEADING . ': ' . $COMMENT_AREA;
+                    //     }
+                    //     $counter1++;
+                    // }
+                    }
+                     ?>
+                    
+                </td>
                 <td>
                     
                     <?php
