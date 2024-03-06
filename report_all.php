@@ -140,8 +140,12 @@
 										if (isset($_GET['submit'])) //submit button name
 										{
 											//Get previous Date From   to   Date To----------------------
-											$date_from = !empty($_GET['date_from']) ? date('Y-m-d', strtotime($_GET['date_from'])) : '';
-											$date_to = !empty($_GET['date_to']) ? date('Y-m-d', strtotime($_GET['date_to'])) : '';
+											// $date_from = !empty($_GET['date_from']) ? date('Y-m-d', strtotime($_GET['date_from'])) : '';
+											// $date_to = !empty($_GET['date_to']) ? date('Y-m-d', strtotime($_GET['date_to'])) : '';
+
+											$date_from = !empty($_GET['date_from']) ? date('Y-m-d H:i:s', strtotime($_GET['date_from'])) : '';
+											$date_to = !empty($_GET['date_to']) ? date('Y-m-d H:i:s', strtotime($_GET['date_to'])) : '';
+
 											//date diffrence Start
 											$date_from_to = '';
 											if (!empty($date_from != NULL && $date_to != NULL)) {
@@ -149,7 +153,10 @@
 												if ($monthsDiff > 2) {
 													echo ("<script>location='" . basename($_SERVER['PHP_SELF']) . "?date=high'</script>");
 												}
-												$date_from_to = "AND DATE(`cl`.`LEAD_STATUS_DATED`) BETWEEN '$date_from' AND '$date_to'";
+												// $date_from_to = "AND DATE(`cl`.`LEAD_STATUS_DATED`) BETWEEN '$date_from' AND '$date_to'";
+												$date_from_to = "AND `cl`.`LEAD_STATUS_DATED` BETWEEN '$date_from' AND '$date_to'";
+
+												// echo $date_from_to;
 											}
 											//date diffrence End
 											//----------------------------------------------
@@ -178,7 +185,7 @@
 											//Get lead-----------------------
 											$lead_query = !empty($_GET['lead']) ? "AND LEADTID='{$_GET['lead']}'" : '';
 											//Get tags-----------------------
-											
+
 											$tags_query = !empty($_GET['lead_tags']) ? "AND `clc`.LEAD_TAGS LIKE '%{$_GET['lead_tags']}'" : '';
 											$left_comment_join_for_tags = '';
 											if (!empty($tags_query)) {
@@ -344,16 +351,16 @@
 												<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
 													<div class="form-group al-right" style="padding-top: 31px;">
 														<div class="col-lg-12" style="padding: 0!important;">
-															<div class="input-daterange input-group">
-																<input type="date" class="form-control input-date-picker datepicker-dropdown" id="date_from" name="date_from" placeholder="Start Date" autocomplete="off" value="<?= ($_GET['date_from'] ?? '') ? $_GET['date_from'] : '' ?>" />
+															<div class="input-group">
+																<input type="datetime-local" class="form-control input-datetime-picker datepicker-dropdown" id="date_from" name="date_from" placeholder="Start Date" autocomplete="off" value="<?= ($_GET['date_from'] ?? '') ? $_GET['date_from'] : '' ?>" />
 																<span class="input-group-addon"><i class="fa fa-angle-left"></i> From DATE To <i class="fa fa-angle-right"></i></span>
-																<input type="date" class="form-control input-date-picker" id="date_to" name="date_to" placeholder="End Date" autocomplete="off" value="<?= ($_GET['date_to'] ?? '') ? $_GET['date_to'] : '' ?>" />
+																<input type="datetime-local" class="form-control input-datetime-picker" id="date_to" name="date_to" placeholder="End Date" autocomplete="off" value="<?= ($_GET['date_to'] ?? '') ? $_GET['date_to'] : '' ?>" />
 															</div>
 														</div>
 													</div>
 												</div>
 											</div>
-											<div class="col-lg-12" align="center">
+																						<div class="col-lg-12" align="center">
 												<label>&nbsp;<br><br></label>
 												<button type="submit" name="submit" class="btn btn-success"><i class="fa fa-search"></i> Search</button>
 												<a href="<?php echo $_SERVER['PHP_SELF']; ?>" class="btn btn-warning"><i class="fa fa-times"></i></a>
@@ -491,7 +498,7 @@
 																						} ?>
 															</td>
 
-	
+
 														</tr>
 											<?php
 													}
