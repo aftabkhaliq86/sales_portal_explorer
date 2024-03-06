@@ -74,14 +74,18 @@
                                                 foreach ($calling_lead_comments as $calling_lead_comment) {
                                                     $LEAD_CMT_ID = $calling_lead_comment['LEAD_CMT_ID'];
                                                     $lead_comments = mysqli_query($link, "SELECT * FROM `lead_comments` WHERE ID='$LEAD_CMT_ID'");
+                                                    $COMMENT_AREA = $calling_lead_comment['comments'] ?? ''; 
                                                     if (mysqli_num_rows($lead_comments) > 0) {
                                                         $lead_comments_row = mysqli_fetch_array($lead_comments);
                                                         $COMMENT_HEADING = $lead_comments_row['HEADING'];
-                                                        if ($COMMENT_HEADING == "Other") {
-                                                            $COMMENT_AREA = $calling_lead_comment['COMMENT_AREA'];
-                                                        } else {
-                                                            $COMMENT_AREA = '';
-                                                        }
+                                                        // $COMMENT_AREA = $calling_lead_comment['comments'] ?? ''; 
+                                                        // if ($COMMENT_HEADING == "Other") {
+                                                        //     // $COMMENT_AREA = $calling_lead_comment['COMMENT_AREA'];
+                                                        //     $COMMENT_AREA = $calling_lead_comment['comments'] ?? ''; 
+
+                                                        // } else {
+                                                        //     $COMMENT_AREA = '';
+                                                        // }
                                                     } else {
                                                         $COMMENT_HEADING = '';
                                                     }
